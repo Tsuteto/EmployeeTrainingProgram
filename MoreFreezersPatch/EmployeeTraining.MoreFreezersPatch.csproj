@@ -1,0 +1,40 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <AssemblyName>EmployeeTrainingProgram.MoreFreezersPatch</AssemblyName>
+    <Description>Employee Training Program Patch: Allows restockers to work with MoreFreezers 1.2.3, SMS 0.1.2.4</Description>
+    <Version>1.0.0</Version>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
+    <PackageReference Include="BepInEx.Core" Version="5.*" />
+    <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" />
+    <PackageReference Include="UnityEngine.Modules" Version="2021.3.31" IncludeAssets="compile" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>D:\SteamLibrary\steamapps\common\Supermarket Simulator\Supermarket Simulator_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="MyBox">
+      <HintPath>D:\SteamLibrary\steamapps\common\Supermarket Simulator\Supermarket Simulator_Data\Managed\MyBox.dll</HintPath>
+    </Reference>
+
+    <Reference Include="EmployeeTraining">
+      <HintPath>..\EmployeeTraining\bin\Debug\netstandard2.1\EmployeeTrainingProgram.dll</HintPath>
+    </Reference>
+
+    <Reference Include="MoreFreezers">
+      <HintPath>.\lib\MoreFreezers.dll</HintPath>
+    </Reference>
+
+  </ItemGroup>
+</Project>

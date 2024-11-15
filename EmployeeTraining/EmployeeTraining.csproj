@@ -1,0 +1,58 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <AssemblyName>EmployeeTrainingProgram</AssemblyName>
+    <Description>Introduces employee upgrades through exp and leveling.</Description>
+    <Version>2.3.0</Version>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <LangVersion>7.0</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
+    <PackageReference Include="BepInEx.Core" Version="5.*" />
+    <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" />
+    <PackageReference Include="UnityEngine.Modules" Version="2021.3.31" IncludeAssets="compile" />
+  </ItemGroup>
+  
+  <ItemGroup Condition="'$(TargetFramework.TrimEnd(`0123456789`))' == 'net'">
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.2" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Assembly-CSharp">
+      <HintPath>D:\SteamLibrary\steamapps\common\Supermarket Simulator\Supermarket Simulator_Data\Managed\Assembly-CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="MyBox">
+      <HintPath>D:\SteamLibrary\steamapps\common\Supermarket Simulator\Supermarket Simulator_Data\Managed\MyBox.dll</HintPath>
+    </Reference>
+    <Reference Include="Assembly-CSharp-firstpass">
+      <HintPath>D:\SteamLibrary\steamapps\common\Supermarket Simulator\Supermarket Simulator_Data\Managed\Assembly-CSharp-firstpass.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity-Localization">
+      <HintPath>D:\SteamLibrary\steamapps\common\Supermarket Simulator\Supermarket Simulator_Data\Managed\Unity.Localization.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity-TextMeshPro">
+      <HintPath>D:\SteamLibrary\steamapps\common\Supermarket Simulator\Supermarket Simulator_Data\Managed\Unity.TextMeshPro.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine-UI">
+      <HintPath>D:\SteamLibrary\steamapps\common\Supermarket Simulator\Supermarket Simulator_Data\Managed\UnityEngine.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="LeanPool">
+      <HintPath>D:\SteamLibrary\steamapps\common\Supermarket Simulator\Supermarket Simulator_Data\Managed\LeanPool.dll</HintPath>
+    </Reference>
+    <Reference Include="DOTween">
+      <HintPath>D:\SteamLibrary\steamapps\common\Supermarket Simulator\Supermarket Simulator_Data\Managed\DOTween.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft-Json">
+      <HintPath>D:\SteamLibrary\steamapps\common\Supermarket Simulator\Supermarket Simulator_Data\Managed\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine-EventSystems">
+      <HintPath>D:\SteamLibrary\steamapps\common\Supermarket Simulator\Supermarket Simulator_Data\Managed\UnityEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="AYellowpaper.SerializedCollections">
+      <HintPath>D:\SteamLibrary\steamapps\common\Supermarket Simulator\Supermarket Simulator_Data\Managed\AYellowpaper.SerializedCollections.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+</Project>
