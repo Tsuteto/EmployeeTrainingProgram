@@ -8,31 +8,38 @@ namespace EmployeeTraining
 {
     public static class CsHelperLogic
     {
+        private static readonly PrivateMtdStatic mtdFireForceFinish = new PrivateMtdStatic(typeof(SelfCheckout), "FireForceFinish");
+        private static readonly PrivateFldStatic<NavMeshAgent> fldAgent = new PrivateFldStatic<NavMeshAgent>(typeof(CustomerHelper), "m_Agent");
+
+        public static void ApplyRapidity(CustomerHelper cshelper)
+        {
+            var agent = fldAgent.GetValue(cshelper);
+
+            CsHelperSkill skill = CsHelperSkillManager.Instance.GetSkill(cshelper);
+            var boost = skill.CustomerHelperWalkingSpeeds[skill.CurrentBoostLevel] / 2f;
+            var speed = skill.AgentSpeed * boost;
+            agent.speed = speed;
+            agent.angularSpeed = skill.AgentAngularSpeed * boost;
+            agent.acceleration = skill.AgentAcceleration * boost;
+        }
+
         public static void PerformScanning(SelfCheckout __instance, Checkout m_Checkout, SFXInstance m_CashierSFX, GameObject m_RepairIndicator)
         {
 
             // Plugin.LogDebug("Called CsHelper PerformScanning");
             // Logger.LogDebug($"__instance={__instance}, m_Checkout={m_Checkout}, m_CashierSFX={m_CashierSFX}, m_RepairIndicator={m_RepairIndicator}");
-            CustomerHelper cshelper = __instance.CustomerHelper;
+            CustomerHelper cshelper = __instance.HelpingCustomerHelper;
 
             // Logger.LogDebug($"cshelper: {cshelper}");
-            CsHelperSkill skill = null;
-            float valueMin = 0;
-            float valueMax = 0;
-            float scanInterval = 0;
-            if (cshelper)
-            {
-                skill = CsHelperSkillManager.Instance.GetOrAssignSkill(cshelper);
-                // Logger.LogDebug($"skill: {skill}");
-                valueMin = skill.IntervalMin * ((1.5f + (skill.CustomerHelperScanIntervals[skill.CurrentBoostLevel] - 1.5f) * 0.6f) / 1.5f);
-                valueMax = skill.IntervalMax * (skill.CustomerHelperScanIntervals[skill.CurrentBoostLevel] / 1.5f);
-                scanInterval = UnityEngine.Random.Range(valueMin, valueMax);
-                // Logger.LogDebug($"valueMin={valueMin} valueMax={valueMax} scanInterval={scanInterval}");
+            CsHelperSkill skill = CsHelperSkillManager.Instance.GetOrAssignSkill(cshelper);
+            // Logger.LogDebug($"skill: {skill}");
+            float intervalMin = skill.IntervalMin * ((1.5f + (skill.CustomerHelperScanIntervals[skill.CurrentBoostLevel] - 1.5f) * 0.6f) / 1.5f);
+            float intervalMax = skill.IntervalMax * (skill.CustomerHelperScanIntervals[skill.CurrentBoostLevel] / 1.5f);
+            float scanInterval = UnityEngine.Random.Range(intervalMin, intervalMax);
+            // Logger.LogDebug($"valueMin={valueMin} valueMax={valueMax} scanInterval={scanInterval}");
 
-                cshelper.isHelping = true;
-                cshelper.AddCheckoutToList(m_Checkout);
-                cshelper.checkoutToStay = m_Checkout;
-            }
+            cshelper.isHelping = true;
+            cshelper.isBusy = true;
             __instance.StartCoroutine(Scanning());
 
             IEnumerator Scanning()
@@ -44,6 +51,10 @@ namespace EmployeeTraining
                         cshelper.ScanAnimation();
                         yield return new WaitForSeconds(scanInterval);
                     }
+                    else
+                    {
+                        mtdFireForceFinish.Invoke(__instance);
+                    }
                     if (m_Checkout.Belt.Products.Count <= 0)
                     {
                         break;
@@ -52,19 +63,24 @@ namespace EmployeeTraining
                     m_CashierSFX.PlayScanningProductSFX();
                     if (cshelper)
                     {
-                        scanInterval = UnityEngine.Random.Range(valueMin, valueMax);
+                        scanInterval = UnityEngine.Random.Range(intervalMin, intervalMax);
                         skill?.AddExp(1);
                         scanned = true;
                     }
                 }
                 yield return new WaitForSeconds(1f);
-                if (cshelper)
-                {
-                    cshelper.isHelping = false;
-                    if (scanned) skill?.AddExp(10);
-                }
                 m_RepairIndicator.gameObject.SetActive(false);
-		        Singleton<CheckoutManager>.Instance.SelfCheckoutsNeedHelp.Remove(m_Checkout);
+                if (cshelper != null)
+                {
+                    if (scanned) skill?.AddExp(10);
+
+                    cshelper.isHelping = false;
+                    cshelper.isBusy = false;
+                    cshelper.checkoutToHelp = null;
+                    __instance.HelpingCustomerHelper = null;
+                }
+
+		        Singleton<CheckoutManager>.Instance.MatchHelperAndSCO();
             }
         }
 

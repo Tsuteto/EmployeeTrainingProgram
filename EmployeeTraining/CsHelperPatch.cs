@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using HarmonyLib;
+using MyBox;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -14,8 +15,8 @@ namespace EmployeeTraining
         [HarmonyPostfix]
         public static void EmployeeManager_SpawnCustomerHelper_Postfix(EmployeeManager __instance, List<CustomerHelper> ___m_ActiveCustomerHelpers, int customerHelperID)
         {
-            List<CustomerHelper> cshelper = ___m_ActiveCustomerHelpers;
-            CsHelperSkillManager.Instance.Spawn(cshelper, customerHelperID);
+            List<CustomerHelper> cshelpers = Singleton<EmployeeManager>.Instance.hiredCustomerHelpers;
+            CsHelperSkillManager.Instance.Spawn(cshelpers, customerHelperID);
         }
 
         [HarmonyPatch(typeof(EmployeeManager), "FireCustomerHelper")]
@@ -47,13 +48,21 @@ namespace EmployeeTraining
             return false;
         }
 
-        [HarmonyPatch(typeof(CustomerHelper), "MoveTo")]
+        [HarmonyPatch(typeof(CustomerHelper), "SetCustomerHelperBoost")]
         [HarmonyPrefix]
-        public static bool MoveTo_Prefix(CustomerHelper __instance, Vector3 target, ref IEnumerator __result, ref NavMeshAgent ___m_Agent)
+        public static bool CustomerHelper_SetCustomerHelperBoost_Prefix(CustomerHelper __instance)
         {
-            __result = CsHelperLogic.MoveTo(__instance, target, ___m_Agent);
+            CsHelperLogic.ApplyRapidity(__instance);
             return false;
         }
+
+        // [HarmonyPatch(typeof(CustomerHelper), "MoveTo")]
+        // [HarmonyPrefix]
+        // public static bool MoveTo_Prefix(CustomerHelper __instance, Vector3 target, ref IEnumerator __result, ref NavMeshAgent ___m_Agent)
+        // {
+        //     __result = CsHelperLogic.MoveTo(__instance, target, ___m_Agent);
+        //     return false;
+        // }
 
 
     }

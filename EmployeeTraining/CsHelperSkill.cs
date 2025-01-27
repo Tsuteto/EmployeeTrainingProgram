@@ -155,6 +155,8 @@ namespace EmployeeTraining
             this.InitialWage = Singleton<IDManager>.Instance.CustomerHelperSO(this.Id).DailyWage;
             this.InitialHiringCost = Singleton<IDManager>.Instance.CustomerHelperSO(this.Id).HiringCost;
             this.UpdateStatus(true);
+
+            this.OnLevelChanged += lvlup => CsHelperLogic.ApplyRapidity(this.Employee);
             // Plugin.LogDebug(this);
         }
 

@@ -286,12 +286,15 @@ namespace EmployeeTraining
                 // bool pickedUp = false;
                 this.LogStat($"TargetProductID={this.TargetProductID}, Demand={this.productsNeeded}");
                 List<DisplaySlot> checkedDisplaySlot = new List<DisplaySlot>();
-                while (this.productsNeeded > 0 && this.GetAvailableDisplaySlotToRestock())
+                while (this.productsNeeded > 0 && this.GetAvailableDisplaySlotToRestock() && restocker.ManagementData.RestockShelf)
                 {
                     this.CheckTasks = false;
     				bool isBoxFromRack = true;
-                    this.TargetBox = this.GetBoxFromStreet();
-                    if (this.TargetBox != null)
+                    if (restocker.ManagementData.PickUpBoxGround)
+                    {
+                        this.TargetBox = this.GetBoxFromStreet();
+                    }
+                    if (this.TargetBox != null && restocker.ManagementData.PickUpBoxGround)
                     {
                         this.TargetBox.SetOccupy(true, restocker.transform);
                         isBoxFromRack = false;
@@ -303,6 +306,7 @@ namespace EmployeeTraining
                     }
                     else
                     {
+                        this.TargetBox = null;
                         bool foundAvailableRack = false;
                         while (!foundAvailableRack && this.CheckForAvailableRackSlotToTakeBox())
                         {
@@ -338,15 +342,15 @@ namespace EmployeeTraining
                     if (this.TargetBox == null || !this.TargetBox.IsBoxOccupied || this.TargetBox.OccupyOwner == restocker.transform)
                     {
                         yield return restocker.StartCoroutine(this.PickUpBox(isBoxFromRack));
-                    }
-                    else
-                    {
-                        break;
+                        if (isBoxFromRack && this.TargetRackSlot != null && restocker.ManagementData.RemoveLabelRack && !this.TargetRackSlot.HasBox)
+                        {
+                            this.TargetRackSlot.ClearLabel();
+                        }
                     }
                 }
             }
 
-            this.LogStat("completed collection, going to restock");
+            this.LogStat("has finished collection, will restock");
             var productIds = this.inventory.ProductIds;
             foreach (int id in productIds)
             {
@@ -416,7 +420,15 @@ namespace EmployeeTraining
             {
                 restocker.FreeTargetDisplaySlot();
                 this.planList.Clear();
-                this.restocker.StartCoroutine(this.PlaceBoxFromStreet());
+                this.IsCarryBoxToRack = false;
+                if (restocker.ManagementData.PickUpBoxGround)
+                {
+                    yield return restocker.StartCoroutine(this.PlaceBoxFromStreet());
+                }
+                if (!restocker.CarryingBox && !this.IsCarryBoxToRack && this.State != RestockerState.IDLE)
+                {
+                    yield return restocker.StartCoroutine(restocker.SoftResetRestocker());
+                }
             }
         }
 
@@ -427,10 +439,15 @@ namespace EmployeeTraining
             Singleton<StorageStreet>.Instance.boxes.RemoveAll(x => !x.gameObject.activeInHierarchy);
             // Get a target box from the street
             List<Box> boxesOnStreet = Singleton<StorageStreet>.Instance.GetBoxesFromStreet();
+            bool includeEmptyBox = restocker.ManagementData.PickUpBoxGround;
             List<Box> boxes = boxesOnStreet.FindAll(x => x.HasProducts && !x.Racked && x.Product.ID == this.TargetProductID
                 && x.gameObject.activeInHierarchy
                 && (!x.IsBoxOccupied || x.IsBoxOccupied && x.OccupyOwner == this.restocker.transform));
-            boxes.AddRange(boxesOnStreet.FindAll(x => !x.HasProducts));
+            if (includeEmptyBox)
+            {
+                boxes.AddRange(boxesOnStreet.FindAll(x => !x.HasProducts
+                    && (!x.IsBoxOccupied || x.IsBoxOccupied && x.OccupyOwner == this.restocker.transform)));
+            }
             
             return boxes.Count > 0 ? boxes.GetRandom<Box>() : null;
         }
@@ -663,15 +680,7 @@ namespace EmployeeTraining
             }
 
             yield return restocker.StartCoroutine(this.DropBox());
-
-            // Logic to carry empty boxes inserted in vanilla 0.3
-            // but not needed here since they're already carried in the previous loop
-            
-            if (!this.IsCarryBoxToRack)
-            {
-                restocker.StartCoroutine(this.GoToWaiting(RestockerState.IDLE));
-            }
-            else
+            if (this.IsCarryBoxToRack)
             {
                 this.skill.AddExp(2);
             }
@@ -922,6 +931,7 @@ namespace EmployeeTraining
                     {
                         this.carryingBoxes[box.Data.ProductID] += 1;
                     }
+                    LogStat($"picking up {box.ToBoxInfo()} from a rack");
                     yield return this.GrabBox(box, isFromRack, boxWeight, boxHeight);
                 }
             }
@@ -945,7 +955,7 @@ namespace EmployeeTraining
                     this.TargetBox = null;
                     yield break;
                 }
-                LogStat($"picking up {box.ToBoxInfo()} from rack");
+                LogStat($"picking up {box.ToBoxInfo()} from streets or floor");
                 yield return this.GrabBox(box, isFromRack, boxWeight, boxHeight);
             }
         }
@@ -1044,11 +1054,17 @@ namespace EmployeeTraining
             int exp = 0;
             while (this.TargetDisplaySlot != null && !this.TargetDisplaySlot.Full && this.Box.HasProducts)
             {
-                Product productFromBox = this.Box.GetProductFromBox();
+                Product productFromBox = null;
+                try
+                {
+                    productFromBox = this.Box.GetProductFromBox();
+                }
+                catch (ArgumentOutOfRangeException) { } // It can happen accidentally...
                 if (productFromBox == null)
                 {
                     break;
                 }
+
                 this.TargetDisplaySlot.AddProduct(this.TargetProductID, productFromBox);
                 Singleton<InventoryManager>.Instance.AddProductToDisplay(new ItemQuantity{
                     Products = new Dictionary<int, int>{
@@ -1202,7 +1218,7 @@ namespace EmployeeTraining
                 this.Remove(this.Find(s => s.Box.Equals(box)));
             }
 
-            public IEnumerable<int> ProductIds => this.Where(s => s.Box.Data.ProductID != -1).Select(s => s.Box.Data.ProductID).Distinct();
+            public IEnumerable<int> ProductIds => this.Where(s => s.Box.HasProducts).Select(s => s.Box.Data.ProductID).Distinct();
 
         }
 

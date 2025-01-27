@@ -64,6 +64,28 @@ namespace EmployeeTraining
         }
     }
 
+    public class PrivateFldStatic<T>
+    {
+        private readonly FieldInfo fld;
+        private readonly string name;
+
+        public PrivateFldStatic(Type type, string name)
+        {
+            this.name = name;
+            try
+            {
+                this.fld = type.GetField(name, BindingFlags.Instance | BindingFlags.NonPublic);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Failed to get field {name} from {typeof(T).Name}", e);
+            }
+        }
+
+        public T GetValue(object instance) => (T)fld.GetValue(instance);
+        public void SetValue(object instance, T value) => fld.SetValue(instance, value);
+    }
+
     public class PrivateProp<T>
     {
         private readonly PropertyInfo prop;
@@ -160,4 +182,57 @@ namespace EmployeeTraining
             }
         }
     }
+
+    public class PrivateMtdStatic
+    {
+        internal readonly MethodInfo mtd;
+        internal readonly string name;
+
+        public PrivateMtdStatic(Type type, string name, params Type[] args)
+        {
+            this.name = name;
+            try
+            {
+                this.mtd = type.GetMethod(name, BindingFlags.Instance | BindingFlags.NonPublic, null, args, null);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Failed to get method {name} from {type.Name}", e);
+            }
+        }
+
+        public void Invoke(object instance, params object[] args)
+        {
+            //Plugin.LogDebug($"Invoke mtd={name}, info={mtd}, instance={Instance}");
+            try
+            {
+                this.mtd.Invoke(instance, args);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Failed to invoke {mtd.Name} from {mtd.GetType().Name}", e);
+            }
+        }
+    }
+
+    public class PrivateMtdStatic<T> : PrivateMtdStatic
+    {
+        public PrivateMtdStatic(Type type, string name, params Type[] args) : base(type, name, args)
+        {
+        }
+
+        new public T Invoke(object instance, params object[] args)
+        {
+            //Plugin.LogDebug($"Invoke mtd={name}, info={mtd}, instance={Instance}");
+            try
+            {
+                return (T)this.mtd.Invoke(instance, args);
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Failed to invoke {mtd.Name} from {mtd.GetType().Name}", e);
+            }
+        }
+    }
+
 }

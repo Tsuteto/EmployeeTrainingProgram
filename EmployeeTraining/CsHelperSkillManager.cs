@@ -28,5 +28,12 @@ namespace EmployeeTraining
         {
             return employee.CustomerHelperID;
         }
+        
+        public override CustomerHelper Spawn(List<CustomerHelper> employees, int employeeID)
+        {
+            var cshelper = base.Spawn(employees, employeeID);
+            CsHelperLogic.ApplyRapidity(cshelper);
+            return cshelper;
+        }
     }
 }
