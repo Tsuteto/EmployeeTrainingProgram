@@ -483,13 +483,17 @@ namespace EmployeeTraining
             panelObj.transform.localScale = new Vector3(1, 1, 1);
             panelObj.transform.localPosition = new Vector3(0, 0, 0f);
 
+            // Adjust base Elements
+            var elementsObj = panelObj.transform.Find("Elements");
+            elementsObj.localPosition = new Vector3(80, -57.5f, 0);
+
             /*
              * === Interaction Zone ===
              */
             Plugin.LogDebug("Preparing interaction zone of base panel");
             var intrObj = new GameObject("Interaction Zone", typeof(RectTransform), typeof(Image));
             intrObj.transform.SetParent(panelObj.transform);
-            intrObj.SetupObject(pos: new Vector3(235, -106.7f, 0), size: new Vector2(152, 20f), pivot: new Vector2(1, 1));
+            intrObj.SetupObject(pos: new Vector3(155, -49.5f, 0), size: new Vector2(152, 20f), pivot: new Vector2(1, 1));
             {
                 var img = intrObj.GetComponent<Image>();
                 img.sprite = Utils.FindResourceByName<Sprite>("button_corner_square2_23");
@@ -537,7 +541,7 @@ namespace EmployeeTraining
 
             var gaugeToggleObj = new GameObject("Head Gauge Toggle", typeof(RectTransform), typeof(Toggle));
             gaugeToggleObj.transform.SetParent(panelObj.transform);
-            gaugeToggleObj.SetupObject(pos: new Vector3(-65, -117), size: new Vector2(12, 12), pivot: new Vector2(0, 0.5f));
+            gaugeToggleObj.SetupObject(pos: new Vector3(-145, -59.5f), size: new Vector2(12, 12), pivot: new Vector2(0, 0.5f));
             {
                 var bgObj = new GameObject("Background", typeof(Image));
                 bgObj.transform.SetParent(gaugeToggleObj.transform);
@@ -568,7 +572,7 @@ namespace EmployeeTraining
 
             var gaugeLabelObj = new GameObject("Head Gauge Option", typeof(TextMeshProUGUI), typeof(StringLocalizeTranslator));
             gaugeLabelObj.transform.SetParent(panelObj.transform);
-            gaugeLabelObj.SetupText(pos: new Vector3(-55, -117, 0), size: new Vector2(130, 10), pivot: new Vector2(0, 0.5f),
+            gaugeLabelObj.SetupText(pos: new Vector3(-135, -59.5f, 0), size: new Vector2(130, 10), pivot: new Vector2(0, 0.5f),
                     fontsize: 10f, align: HorizontalAlignmentOptions.Left, key: "Show head gauge");
 
 

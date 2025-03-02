@@ -28,7 +28,7 @@ namespace EmployeeTraining
 
             // Plugin.LogDebug("Called CsHelper PerformScanning");
             // Logger.LogDebug($"__instance={__instance}, m_Checkout={m_Checkout}, m_CashierSFX={m_CashierSFX}, m_RepairIndicator={m_RepairIndicator}");
-            CustomerHelper cshelper = __instance.HelpingCustomerHelper;
+            CustomerHelper cshelper = __instance.ControlledBy;
 
             // Logger.LogDebug($"cshelper: {cshelper}");
             CsHelperSkill skill = CsHelperSkillManager.Instance.GetOrAssignSkill(cshelper);
@@ -45,9 +45,10 @@ namespace EmployeeTraining
             IEnumerator Scanning()
             {
                 bool scanned = false;
-                while (m_Checkout.Belt.Products.Count > 0)
+                while (m_Checkout.Belt.Products.Count > 0 && !m_Checkout.CurrentCustomerGotHit)
                 {
-                    if (cshelper) {
+                    if (cshelper)
+                    {
                         cshelper.ScanAnimation();
                         yield return new WaitForSeconds(scanInterval);
                     }
@@ -76,11 +77,12 @@ namespace EmployeeTraining
 
                     cshelper.isHelping = false;
                     cshelper.isBusy = false;
-                    cshelper.checkoutToHelp = null;
-                    __instance.HelpingCustomerHelper = null;
+                    cshelper.AssignControllable(null);
+                    cshelper.HelpControllable(null);
                 }
 
-		        Singleton<CheckoutManager>.Instance.MatchHelperAndSCO();
+                Singleton<CheckoutManager>.Instance.SelfCheckoutsNeedHelp.SafeRemove(__instance);
+                CustomerHelperControllableHelper.SyncAll();
             }
         }
 
