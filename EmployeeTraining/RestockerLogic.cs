@@ -18,11 +18,12 @@ namespace EmployeeTraining
     public class RestockerLogic
     {
         private static readonly BoxSize[] BoxTowerOrder = new BoxSize[]{
-            BoxSize._40x26x26, BoxSize._30x20x20, BoxSize._20x20x20, BoxSize._20x20x10, BoxSize._15x15x15, BoxSize._20x10x7, BoxSize._8x8x8
+            BoxSize._40x26x26, BoxSize._30x20x20, BoxSize._20x20x20, BoxSize._20x20x10, BoxSize._15x15x15, BoxSize._22x22x8, BoxSize._20x10x7, BoxSize._8x8x8
         };
         private static readonly Dictionary<BoxSize, int> BoxHeights = new Dictionary<BoxSize, int>{
             [BoxSize._20x10x7] = 223,
             [BoxSize._8x8x8] = 256,
+            [BoxSize._22x22x8] = 256,
             [BoxSize._20x20x10] = 316,
             [BoxSize._15x15x15] = 462,
             [BoxSize._20x20x20] = 618,

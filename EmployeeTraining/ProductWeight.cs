@@ -23,6 +23,7 @@ namespace EmployeeTraining
         public static readonly Dictionary<BoxSize, int> Boxes = new Dictionary<BoxSize, int> {
             {BoxSize._8x8x8, 180},
             {BoxSize._20x10x7, 320},
+            {BoxSize._22x22x8, 390}, // Actually this looks a 20x12x8 size
             {BoxSize._15x15x15, 620},
             {BoxSize._20x20x10, 620},
             {BoxSize._20x20x20, 1100},
@@ -194,6 +195,30 @@ namespace EmployeeTraining
             {81, 1400},
             {159, 1450},
             {160, 1450},
+            {165, 120},
+            {166, 400},
+            {167, 200},
+            {168, 130},
+            {169, 60},
+            {170, 120},
+            {171, 50},
+            {172, 60},
+            {173, 250},
+            {174, 80},
+            {175, 65},
+            {176, 150},
+            {177, 1500},
+            {178, 18},
+            {179, 120},
+            {180, 450},
+            {181, 180},
+            {182, 1000},
+            {183, 160},
+            {184, 5000},
+            {185, 1300},
+            {186, 120},
+            {187, 120},
+            {188, 10000},
         };
     }
 }

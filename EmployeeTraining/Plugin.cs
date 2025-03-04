@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using BepInEx;
 using EmployeeTraining.Localization;
 using HarmonyLib;
@@ -90,6 +92,7 @@ namespace EmployeeTraining
                 RestockerSkillManager.Instance.Clear();
                 CsHelperSkillManager.Instance.Clear();
                 ETSaveManager.IsReadyToSave = false;
+                Singleton<ScaleManager>.Instance.ScaleBarcodeApplied -= CsHelperLogic.GiveExpOnScaleBarcodeApplied;
             }
             if (nextScene.name == "Main Scene")
             {
@@ -98,10 +101,16 @@ namespace EmployeeTraining
                 var appObj = new GameObject("Training App", typeof(PCTrainingApp));
                 appObj.transform.SetParent(GameObject.Find("---MANAGERS---").transform);
                 SkillIndicatorGenerator.Generate();
+                Singleton<ScaleManager>.Instance.ScaleBarcodeApplied += CsHelperLogic.GiveExpOnScaleBarcodeApplied;
 
                 // Output all Product info
-                // Singleton<IDManager>.Instance.Products.ForEach(p => {
-                //     LogDebug($"{p.ID}: {p.LocalizedName}");
+                // var products = Singleton<IDManager>.Instance.Products;
+                // products.ForEach(p => {
+                //     LogDebug($"{p.ID}: name={p.name}, prodsInBox={p.GridLayoutInBox.productCount}, prodsInDisplay={p.GridLayoutInStorage.productCount}, productName={p.ProductBrand} {p.ProductName}");
+                // });
+
+                // products.Where(x => x is WeightedProductSO).ForEach(p => {
+                //     LogDebug($"{p.ID}: name={p.name}, weight={(p as WeightedProductSO).Weight}, Box={p.GridLayoutInBox.boxSize}");
                 // });
             }
         }

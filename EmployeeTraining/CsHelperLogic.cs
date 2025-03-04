@@ -73,7 +73,7 @@ namespace EmployeeTraining
                 m_RepairIndicator.gameObject.SetActive(false);
                 if (cshelper != null)
                 {
-                    if (scanned) skill?.AddExp(10);
+                    if (scanned) skill?.AddExp(5);
 
                     cshelper.isHelping = false;
                     cshelper.isBusy = false;
@@ -116,6 +116,18 @@ namespace EmployeeTraining
                     }
                 }
                 yield return null;
+            }
+        }
+
+        public static void GiveExpOnScaleBarcodeApplied(object sender, EventArgs e)
+        {
+            Scale scale = sender as Scale;
+            if (scale == null) return;
+
+            if (scale.ControlledBy != null)
+            {
+                CsHelperSkill skill = CsHelperSkillManager.Instance.GetOrAssignSkill(scale.ControlledBy);
+                skill?.AddExp(5);
             }
         }
     }
