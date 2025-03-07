@@ -8,6 +8,7 @@ using MyBox;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using EmployeeTraining.Employee;
 
 namespace EmployeeTraining
 {

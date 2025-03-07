@@ -1,10 +1,11 @@
 using __Project__.Scripts.Computer;
+using EmployeeTraining.TrainingApp;
 using HarmonyLib;
 using MyBox;
 
 namespace EmployeeTraining
 {
-    public static class Patch
+    public static class GamePatch
     {
         public static Plugin plugin;
 

@@ -7,7 +7,7 @@ using MyBox;
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace EmployeeTraining
+namespace EmployeeTraining.EmployeeCsHelper
 {
     public static class CsHelperPatch
     {

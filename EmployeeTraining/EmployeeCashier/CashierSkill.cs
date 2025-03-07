@@ -1,9 +1,10 @@
 using System.Collections.Generic;
+using EmployeeTraining.Employee;
 using MyBox;
 
-namespace EmployeeTraining
+namespace EmployeeTraining.EmployeeCashier
 {
-    public class CashierSkill : EmployeeSkill<CashierSkill, CashierSkillTier, EmployeeCashier, Cashier>
+    public class CashierSkill : EmployeeSkill<CashierSkill, CashierSkillTier, EmplCashier, Cashier>
     {
         private static readonly CashierSkillTier[] SKILL_TABLE = {
             new CashierSkillTier{Lvl=1, Exp=0, IntervalMax=2.400000f, IntervalMin=2.000000f, Payment=4.2f},
@@ -108,9 +109,9 @@ namespace EmployeeTraining
             new CashierSkillTier{Lvl=100, Exp=55361315, IntervalMax=0.097561f, IntervalMin=0.093750f, Payment=0.2f},
         };
 
-        public int CurrentBoostLevel { get => this.fldCurrentBoostLevel.Value; set => this.fldCurrentBoostLevel.Value = value; }
+        public int CurrentBoostLevel { get => fldCurrentBoostLevel.Value; set => fldCurrentBoostLevel.Value = value; }
         private readonly PrivateFld<int> fldCurrentBoostLevel = new PrivateFld<int>(typeof(Cashier), "m_CurrentBoostLevel");
-        public List<float> CashierScanIntervals { get => this.fldCashierScanIntervals.Value; set => this.fldCashierScanIntervals.Value = value; }
+        public List<float> CashierScanIntervals { get => fldCashierScanIntervals.Value; set => fldCashierScanIntervals.Value = value; }
         private readonly PrivateFld<List<float>> fldCashierScanIntervals = new PrivateFld<List<float>>(typeof(Cashier), "m_CashierScanIntervals");
 
         public CashierSkill(CashierSkillData data) : base(data)
@@ -122,37 +123,37 @@ namespace EmployeeTraining
             set
             {
                 base.Employee = value;
-                this.fldCurrentBoostLevel.Instance = this.Employee;
-                this.fldCashierScanIntervals.Instance = this.Employee;
+                fldCurrentBoostLevel.Instance = Employee;
+                fldCashierScanIntervals.Instance = Employee;
             }
         }
 
-        public float IntervalMin => this.Tier.IntervalMin;
-        public float IntervalMax => this.Tier.IntervalMax;
-        public float OperationSpd => this.Tier.Payment;
-        public float TotalCheckoutDuration => this.Tier.Payment * 17 / 15;
+        public float IntervalMin => Tier.IntervalMin;
+        public float IntervalMax => Tier.IntervalMax;
+        public float OperationSpd => Tier.Payment;
+        public float TotalCheckoutDuration => Tier.Payment * 17 / 15;
 
         internal override CashierSkillTier[] SkillTable => SKILL_TABLE;
 
-        public override float Wage => this.Grade.WageCashier;
-        public override float HiringCost => this.Grade.HiringCostCashier;
+        public override float Wage => Grade.WageCashier;
+        public override float HiringCost => Grade.HiringCostCashier;
         internal override void ApplyWageToGame(float dailyWage, float hiringCost)
         {
-            Singleton<IDManager>.Instance.CashierSO(this.Id).DailyWage = dailyWage;
-            Singleton<IDManager>.Instance.CashierSO(this.Id).HiringCost = hiringCost;
+            Singleton<IDManager>.Instance.CashierSO(Id).DailyWage = dailyWage;
+            Singleton<IDManager>.Instance.CashierSO(Id).HiringCost = hiringCost;
         }
 
         public override void Setup()
         {
-            this.InitialWage = Singleton<IDManager>.Instance.CashierSO(this.Id).DailyWage;
-            this.InitialHiringCost = Singleton<IDManager>.Instance.CashierSO(this.Id).HiringCost;
-            this.UpdateStatus(true);
+            InitialWage = Singleton<IDManager>.Instance.CashierSO(Id).DailyWage;
+            InitialHiringCost = Singleton<IDManager>.Instance.CashierSO(Id).HiringCost;
+            UpdateStatus(true);
             // Plugin.LogDebug(this);
         }
 
         public override void Despawn()
         {
-            this.Employee = null;
+            Employee = null;
         }
 
     }
@@ -167,10 +168,10 @@ namespace EmployeeTraining
     }
 
 
-    public class EmployeeCashier : Employee<Cashier>
+    public class EmplCashier : Employee<Cashier>
     {
         public override int ID {
-            get => this.Instance.CashierID;
+            get => Instance.CashierID;
         }
     }
 

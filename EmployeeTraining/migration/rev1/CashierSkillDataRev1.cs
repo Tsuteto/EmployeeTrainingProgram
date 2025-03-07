@@ -13,8 +13,9 @@ namespace CashierTraining
         public TrainingData Migrate()
         {
             TrainingData rev2 = new TrainingData{
-                CashierSkills = this.Skills.Select(s => 
-                new EmployeeTraining.CashierSkillData{
+                CashierSkills = this.Skills.Select(s =>
+                new EmployeeTraining.Employee.CashierSkillData
+                {
                     Id=s.Id,
                     Exp=s.Exp,
                     Grade=s.Grade,

@@ -3,19 +3,21 @@ using System.Linq;
 using System;
 using MyBox;
 using UnityEngine;
+using EmployeeTraining.TrainingApp;
 
-namespace EmployeeTraining
+namespace EmployeeTraining.Employee
 {
     public abstract class EmployeeSkillManager<S, ST, D, E, T>
             where S : EmployeeSkill<S, ST, E, T>
             where ST : ISkillTier
-            where D : SkillData<S>
+            where D : SkillData<S>, new()
             where E : Employee<T>, new()
             where T : MonoBehaviour
     {
 
         internal EmployeeSkillManager()
         {
+            Plugin.Instance.GameQuitEvent += OnGameQuit;
         }
 
         internal abstract List<D> TrainingData { get; }
@@ -30,11 +32,11 @@ namespace EmployeeTraining
         public virtual void Fire(int id)
         {
             Plugin.LogInfo($"Firing {typeof(T).Name}[{id}]");
-            var data = this.TrainingData.First(c => c.Id == id);
+            var data = TrainingData.First(c => c.Id == id);
             if (data != null)
             {
                 var skill = data.Skill;
-                GameObject.Destroy(skill.ExpGaugeObj);
+                UnityEngine.Object.Destroy(skill.ExpGaugeObj);
                 Singleton<PCTrainingApp>.Instance.DeleteEmployee(skill);
                 skill.OnFired();
             }
@@ -46,43 +48,48 @@ namespace EmployeeTraining
             // Plugin.LogDebug($"Stack trace:\n{Environment.StackTrace}");
 
             T employee = employees.Last(c => GetId(c) == employeeID);
-            S skill = this.GetOrAssignSkill(employee);
-            this.GenerateSkillIndiactor(skill);
+            S skill = GetOrAssignSkill(employee);
+            GenerateSkillIndiactor(skill);
             return employee;
         }
 
         public virtual void Despawn(T employee)
         {
             Plugin.LogInfo($"Despawned {typeof(T)}[{GetId(employee)}]");
-            this.GetSkill(employee)?.Despawn();
+            GetSkill(employee)?.Despawn();
         }
 
-        public virtual void Clear()
+        public virtual void OnGameQuit()
         {
             Plugin.LogInfo($"SkillManager Clearing training data");
-            this.TrainingData.Clear();
+            TrainingData.Clear();
         }
 
-
-        public abstract S Register(int id);
+        public virtual S Register(int id)
+        {
+            D newData = new D(){Id = id};
+            TrainingData.Add(newData);
+            Singleton<PCTrainingApp>.Instance.RegisterEmployee(newData.Skill);
+            return newData.Skill;
+        }
 
         public S GetSkill(T employee) 
         {
-            return this.TrainingData.FirstOrDefault(
+            return TrainingData.FirstOrDefault(
                 c => c.Skill.Employee != null && c.Skill.Employee as object == employee as object)?.Skill;
         }
 
         public S GetOrAssignSkill(T employee) 
         {
-            return this.GetSkill(employee) ?? this.AssignSkill(employee);
+            return GetSkill(employee) ?? AssignSkill(employee);
         }
 
         public S AssignSkill(T employee)
         {
-            int id = this.GetId(employee);
-            S skill = this.TrainingData.FirstOrDefault(c => !c.Skill.IsAssigned() && c.Id == id)?.Skill;
+            int id = GetId(employee);
+            S skill = TrainingData.FirstOrDefault(c => !c.Skill.IsAssigned() && c.Id == id)?.Skill;
             if (skill == null) {
-                skill = this.Register(id);
+                skill = Register(id);
             }
             else if (skill.TrainingStatusPanelObj == null)
             {
@@ -102,7 +109,7 @@ namespace EmployeeTraining
 
         public IEnumerable<S> GetSkills()
         {
-            return this.TrainingData.Select(c => c.Skill).AsEnumerable();
+            return TrainingData.Select(c => c.Skill).AsEnumerable();
         }
 
         public abstract int GetId(T employee);
@@ -112,7 +119,7 @@ namespace EmployeeTraining
             var employee = skill.Employee;
             if (employee.GetComponentInChildren<SkillIndicator>() == null)
             {
-                Plugin.LogInfo($"Adding Skill Indicator for {typeof(T)} {this.GetId(employee)}");
+                Plugin.LogInfo($"Adding Skill Indicator for {typeof(T)} {GetId(employee)}");
                 var displayObj = UnityEngine.Object.Instantiate(SkillIndicatorGenerator.SkillIndicatorTmpl, employee.transform, false);
                 SkillIndicator display = displayObj.GetComponent<SkillIndicator>();
                 display.transform.localPosition = new Vector3(0, Plugin.Instance.Settings.GaugeHeight, 0);

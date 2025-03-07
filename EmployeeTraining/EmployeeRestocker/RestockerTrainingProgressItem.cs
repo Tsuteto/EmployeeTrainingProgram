@@ -1,6 +1,7 @@
+using EmployeeTraining.Employee;
 using EmployeeTraining.Localization;
 
-namespace EmployeeTraining
+namespace EmployeeTraining.EmployeeRestocker
 {
     public class RestockerTrainingProgressItem : EmployeeTrainingProgressItem<RestockerSkill>
     {
@@ -10,11 +11,11 @@ namespace EmployeeTraining
 
         internal override void SetupDetailParams()
         {
-            this.repidity = this.transform.Find("Elements/Info/Detail Params/Rapidity/Value").GetComponent<StringLocalizeTranslator>();
+            repidity = transform.Find("Elements/Info/Detail Params/Rapidity/Value").GetComponent<StringLocalizeTranslator>();
             // Plugin.LogDebug($"this.repidity: {this.repidity}");
-            this.capacity = this.transform.Find("Elements/Info/Detail Params/Capacity/Value").GetComponent<StringLocalizeTranslator>();
+            capacity = transform.Find("Elements/Info/Detail Params/Capacity/Value").GetComponent<StringLocalizeTranslator>();
             // Plugin.LogDebug($"this.capacity: {this.capacity}");
-            this.dexterity = this.transform.Find("Elements/Info/Detail Params/Dexterity/Value").GetComponent<StringLocalizeTranslator>();
+            dexterity = transform.Find("Elements/Info/Detail Params/Dexterity/Value").GetComponent<StringLocalizeTranslator>();
             // Plugin.LogDebug($"this.efficiency: {this.dexterity}");
         }
 
@@ -22,11 +23,11 @@ namespace EmployeeTraining
         {
             base.UpdateExp();
 
-            this.repidity.Translate($"{skill.Rapidity:0.0#}");
+            repidity.Translate($"{skill.Rapidity:0.0#}");
             // Plugin.LogDebug($"Rapidity: {skill.Rapidity}");
-            this.capacity.Translate($"{skill.Capacity:0.0#}", $"{skill.CapacityMaxHeight:0.0}");
+            capacity.Translate($"{skill.Capacity:0.0#}", $"{skill.CapacityMaxHeight:0.0}");
             // Plugin.LogDebug($"Capacity: {skill.Capacity}");
-            this.dexterity.Translate($"{skill.Dexterity}");
+            dexterity.Translate($"{skill.Dexterity}");
             // Plugin.LogDebug($"Dexterity: {skill.Dexterity}");
         }
     }

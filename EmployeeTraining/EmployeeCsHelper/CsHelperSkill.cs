@@ -1,10 +1,11 @@
 using System;
 using System.Collections.Generic;
+using EmployeeTraining.Employee;
 using MyBox;
 
-namespace EmployeeTraining
+namespace EmployeeTraining.EmployeeCsHelper
 {
-    public class CsHelperSkill : EmployeeSkill<CsHelperSkill, CsHelperSkillTier, EmployeeCsHelper, CustomerHelper>
+    public class CsHelperSkill : EmployeeSkill<CsHelperSkill, CsHelperSkillTier, EmplCsHelper, CustomerHelper>
     {
         private static readonly CsHelperSkillTier[] SKILL_TABLE = {
             new CsHelperSkillTier{Lvl=1, Exp=0, IntervalMax=2.400000f, IntervalMin=2.000000f, Rapidity=1.388889f},
@@ -109,11 +110,11 @@ namespace EmployeeTraining
             new CsHelperSkillTier{Lvl=100, Exp=55361315, IntervalMax=0.097561f, IntervalMin=0.093750f, Rapidity=14.444444f},
         };
 
-        public int CurrentBoostLevel { get => this.fldCurrentBoostLevel.Value; set => this.fldCurrentBoostLevel.Value = value; }
+        public int CurrentBoostLevel { get => fldCurrentBoostLevel.Value; set => fldCurrentBoostLevel.Value = value; }
         private readonly PrivateFld<int> fldCurrentBoostLevel = new PrivateFld<int>(typeof(CustomerHelper), "m_CurrentBoostLevel");
-        public List<float> CustomerHelperScanIntervals { get => this.fldCustomerHelperScanIntervals.Value; set => this.fldCustomerHelperScanIntervals.Value = value; }
+        public List<float> CustomerHelperScanIntervals { get => fldCustomerHelperScanIntervals.Value; set => fldCustomerHelperScanIntervals.Value = value; }
         private readonly PrivateFld<List<float>> fldCustomerHelperScanIntervals = new PrivateFld<List<float>>(typeof(CustomerHelper), "m_CustomerHelperScanIntervals");
-        public List<float> CustomerHelperWalkingSpeeds { get => this.fldCustomerHelperWalkingSpeeds.Value; set => this.fldCustomerHelperWalkingSpeeds.Value = value; }
+        public List<float> CustomerHelperWalkingSpeeds { get => fldCustomerHelperWalkingSpeeds.Value; set => fldCustomerHelperWalkingSpeeds.Value = value; }
         private readonly PrivateFld<List<float>> fldCustomerHelperWalkingSpeeds = new PrivateFld<List<float>>(typeof(CustomerHelper), "m_CustomerHelperWalkingSpeeds");
 
         public CsHelperSkill(CsHelperSkillData data) : base(data)
@@ -125,44 +126,44 @@ namespace EmployeeTraining
             set
             {
                 base.Employee = value;
-                this.fldCurrentBoostLevel.Instance = this.Employee;
-                this.fldCustomerHelperScanIntervals.Instance = this.Employee;
-                this.fldCustomerHelperWalkingSpeeds.Instance = this.Employee;
+                fldCurrentBoostLevel.Instance = Employee;
+                fldCustomerHelperScanIntervals.Instance = Employee;
+                fldCustomerHelperWalkingSpeeds.Instance = Employee;
             }
         }
         public override string JobName => "Customer Helper";
 
-        public float IntervalMin => this.Tier.IntervalMin;
-        public float IntervalMax => this.Tier.IntervalMax;
-        public float Rapidity => this.Tier.Rapidity * 3.6f;
-        public float AgentSpeed => this.Tier.Rapidity; // [m/s], Vanilla: 2 .. max: 10
-        public float AgentAngularSpeed => Math.Max(0, this.Tier.Rapidity - 2f) * 240; // [degree/s] Vanilla: 0 .. max: 1200
-        public float AgentAcceleration => this.Tier.Rapidity < 2 ? this.Tier.Rapidity * 4 : 8 + (this.Tier.Rapidity - 2) * 6; // [m/s^2] Vanilla: 8 .. max: 60
-        public float TurningSpeed => 5f * this.Tier.Rapidity; // Vanilla: 5
+        public float IntervalMin => Tier.IntervalMin;
+        public float IntervalMax => Tier.IntervalMax;
+        public float Rapidity => Tier.Rapidity * 3.6f;
+        public float AgentSpeed => Tier.Rapidity; // [m/s], Vanilla: 2 .. max: 10
+        public float AgentAngularSpeed => Math.Max(0, Tier.Rapidity - 2f) * 240; // [degree/s] Vanilla: 0 .. max: 1200
+        public float AgentAcceleration => Tier.Rapidity < 2 ? Tier.Rapidity * 4 : 8 + (Tier.Rapidity - 2) * 6; // [m/s^2] Vanilla: 8 .. max: 60
+        public float TurningSpeed => 5f * Tier.Rapidity; // Vanilla: 5
 
         internal override CsHelperSkillTier[] SkillTable => SKILL_TABLE;
 
-        public override float Wage => this.Grade.WageCsHelper;
-        public override float HiringCost => this.Grade.HiringCostCsHelper;
+        public override float Wage => Grade.WageCsHelper;
+        public override float HiringCost => Grade.HiringCostCsHelper;
         internal override void ApplyWageToGame(float dailyWage, float hiringCost)
         {
-            Singleton<IDManager>.Instance.CustomerHelperSO(this.Id).DailyWage = dailyWage;
-            Singleton<IDManager>.Instance.CustomerHelperSO(this.Id).HiringCost = hiringCost;
+            Singleton<IDManager>.Instance.CustomerHelperSO(Id).DailyWage = dailyWage;
+            Singleton<IDManager>.Instance.CustomerHelperSO(Id).HiringCost = hiringCost;
         }
 
         public override void Setup()
         {
-            this.InitialWage = Singleton<IDManager>.Instance.CustomerHelperSO(this.Id).DailyWage;
-            this.InitialHiringCost = Singleton<IDManager>.Instance.CustomerHelperSO(this.Id).HiringCost;
-            this.UpdateStatus(true);
+            InitialWage = Singleton<IDManager>.Instance.CustomerHelperSO(Id).DailyWage;
+            InitialHiringCost = Singleton<IDManager>.Instance.CustomerHelperSO(Id).HiringCost;
+            UpdateStatus(true);
 
-            this.OnLevelChanged += lvlup => CsHelperLogic.ApplyRapidity(this.Employee);
+            OnLevelChanged += lvlup => CsHelperLogic.ApplyRapidity(Employee);
             // Plugin.LogDebug(this);
         }
 
         public override void Despawn()
         {
-            this.Employee = null;
+            Employee = null;
         }
 
     }
@@ -177,10 +178,10 @@ namespace EmployeeTraining
     }
 
 
-    public class EmployeeCsHelper : Employee<CustomerHelper>
+    public class EmplCsHelper : Employee<CustomerHelper>
     {
         public override int ID {
-            get => this.Instance.CustomerHelperID;
+            get => Instance.CustomerHelperID;
         }
     }
 }

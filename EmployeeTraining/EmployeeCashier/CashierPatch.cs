@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using HarmonyLib;
 using UnityEngine;
 
-namespace EmployeeTraining
+namespace EmployeeTraining.EmployeeCashier
 {
     public static class CashierPatch
     {

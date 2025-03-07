@@ -1,25 +1,17 @@
 using System.Collections.Generic;
 using System.Linq;
+using EmployeeTraining.Employee;
 using MyBox;
 
-namespace EmployeeTraining
+namespace EmployeeTraining.EmployeeCsHelper
 {
-    public class CsHelperSkillManager : EmployeeSkillManager<CsHelperSkill, CsHelperSkillTier, CsHelperSkillData, EmployeeCsHelper, CustomerHelper>
+    public class CsHelperSkillManager : EmployeeSkillManager<CsHelperSkill, CsHelperSkillTier, CsHelperSkillData, EmplCsHelper, CustomerHelper>
     {
-        public static CsHelperSkillManager Instance { get; private set; }
+        public static CsHelperSkillManager Instance;
 
-        public static void CreateInstance()
+        static CsHelperSkillManager()
         {
             Instance = new CsHelperSkillManager();
-        }
-
-        public override CsHelperSkill Register(int id)
-        {
-            // Plugin.LogDebug($"Registering CustomerHelper {id}");
-            var newData = new CsHelperSkillData{Id=id};
-            this.TrainingData.Add(newData);
-            Singleton<PCTrainingApp>.Instance.RegisterEmployee(newData.Skill);
-            return newData.Skill;
         }
 
         internal override List<CsHelperSkillData> TrainingData => ETSaveManager.Data.CsHelperSkills;

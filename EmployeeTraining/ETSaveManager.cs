@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using EmployeeTraining.Employee;
 using HarmonyLib;
 using MyBox;
 using UnityEngine;
 
 namespace EmployeeTraining
 {
-    public class ETSaveManager
+    public static class ETSaveManager
     {
         private static readonly string SAVE_DIR = $"{Application.persistentDataPath}/EmployeeTraining";
         private const string TRAINING_DATA_KEY = "TrainingData-Rev2";
@@ -18,6 +19,8 @@ namespace EmployeeTraining
         private const string TRAINING_DATA_KEY_REV1 = "CashierSkills";
 
         public static bool IsReadyToSave = false;
+
+        public static Action SaveDataLoadedEvent;
 
         private static string GetSaveFilePath(string gameFilePath)
         {
@@ -49,13 +52,12 @@ namespace EmployeeTraining
                     }
                     if (Singleton<IDManager>.Instance)
                     {
-                        Data.CashierSkills.ForEach(v => v.Skill.Setup());
-                        Data.RestockerSkills.ForEach(v => v.Skill.Setup());
-                        Data.CsHelperSkills.ForEach(v => v.Skill.Setup());
+                        SaveDataLoadedEvent.Invoke();
                     }
                 }
                 else
                 {
+                    // MIGRATION from CashierTrainingProgram
                     Plugin.LogInfo($"Training data NOT FOUND");
                     var filePathRev1 = GetSaveFilePathRev1(gameFilePath);
                     Plugin.LogInfo($"Migrating cashier skill data from {filePathRev1}");

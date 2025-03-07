@@ -1,6 +1,7 @@
+using EmployeeTraining.Employee;
 using EmployeeTraining.Localization;
 
-namespace EmployeeTraining
+namespace EmployeeTraining.EmployeeCashier
 {
     public class CashierTrainingProgressItem : EmployeeTrainingProgressItem<CashierSkill>
     {
@@ -9,9 +10,9 @@ namespace EmployeeTraining
 
         internal override void SetupDetailParams()
         {
-            this.spm = this.transform.Find("Elements/Info/Detail Params/SPM/Value").GetComponent<StringLocalizeTranslator>();
+            spm = transform.Find("Elements/Info/Detail Params/SPM/Value").GetComponent<StringLocalizeTranslator>();
             // Plugin.LogDebug($"spm: {spm}");
-            this.payment = this.transform.Find("Elements/Info/Detail Params/Payment Time/Value").GetComponent<StringLocalizeTranslator>();
+            payment = transform.Find("Elements/Info/Detail Params/Payment Time/Value").GetComponent<StringLocalizeTranslator>();
             // Plugin.LogDebug($"payment: {payment}");
         }
 
@@ -20,9 +21,9 @@ namespace EmployeeTraining
             base.UpdateExp();
 
             // Plugin.LogDebug($"spm: {spm}");
-            this.spm.Translate($"{60f / skill.IntervalMax:0.#}", $"{60f / skill.IntervalMin:0.#}");
+            spm.Translate($"{60f / skill.IntervalMax:0.#}", $"{60f / skill.IntervalMin:0.#}");
             // Plugin.LogDebug($"payment: {payment}");
-            this.payment.Translate($"{skill.TotalCheckoutDuration:0.0#}");
+            payment.Translate($"{skill.TotalCheckoutDuration:0.0#}");
         }
     }
 }

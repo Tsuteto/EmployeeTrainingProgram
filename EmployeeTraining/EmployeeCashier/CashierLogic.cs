@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-namespace EmployeeTraining
+namespace EmployeeTraining.EmployeeCashier
 {
     public static class CashierLogic
     {
@@ -16,7 +16,7 @@ namespace EmployeeTraining
             // Logger.LogDebug($"skill: {skill}");
             float valueMin = skill.IntervalMin * ((1.5f + (skill.CashierScanIntervals[skill.CurrentBoostLevel] - 1.5f) * 0.6f) / 1.5f);
             float valueMax = skill.IntervalMax * (skill.CashierScanIntervals[skill.CurrentBoostLevel] / 1.5f);
-            float scanInterval = UnityEngine.Random.Range(valueMin, valueMax);
+            float scanInterval = Random.Range(valueMin, valueMax);
             // Logger.LogDebug($"valueMin={valueMin} valueMax={valueMax} scanInterval={scanInterval}");
             m_ShoppingBag.SetActive(true);
             __instance.StartCoroutine(Scanning());
@@ -34,7 +34,7 @@ namespace EmployeeTraining
                     m_Checkout.ProductScanned(currentProduct, true);
                     m_Cashier.ScanAnimation();
                     m_CashierSFX.PlayScanningProductSFX();
-                    scanInterval = UnityEngine.Random.Range(valueMin, valueMax);
+                    scanInterval = Random.Range(valueMin, valueMax);
                     skill.AddExp(1);
                 }
             }

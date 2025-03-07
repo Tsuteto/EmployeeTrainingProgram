@@ -6,7 +6,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace EmployeeTraining
+namespace EmployeeTraining.Employee
 {
     public abstract class EmployeeTrainingProgressItem<S> : MonoBehaviour where S : IEmployeeSkill
     {
@@ -28,63 +28,63 @@ namespace EmployeeTraining
 
         private void Awake()
         {
-            skill.OnExpChanged += this.ExpChanged;
-            skill.OnLevelChanged += this.LevelChanged;
+            skill.OnExpChanged += ExpChanged;
+            skill.OnLevelChanged += LevelChanged;
 
-            // Plugin.LogDebug("Called TrainingProgressItem.Awake");
+            Plugin.LogDebug("Called EmployeeTrainingProgressItem.Awake");
             MoneyManager moneyMgr = Singleton<MoneyManager>.Instance;
-            moneyMgr.onMoneyTransition += this.MoneyChanged;
+            moneyMgr.onMoneyTransition += MoneyChanged;
 
-            // Plugin.LogDebug("TrainingCashierItem.Setup Head Gauge Toggle");
-            this.gaugeToggle = transform.Find("Head Gauge Toggle").GetComponent<Toggle>();
-            this.gaugeToggle.isOn = skill.IsGaugeDisplayed;
-            this.gaugeToggle.onValueChanged = new Toggle.ToggleEvent();
-            this.gaugeToggle.onValueChanged.AddListener(this.GaugeToggleChanged);
-            this.trainingBtn = transform.Find("Interaction Zone/Training Button").GetComponent<Button>();
-            this.trainingBtn.onClick = new Button.ButtonClickedEvent();
-            this.trainingBtn.onClick.AddListener(this.TrainingBtnClicked);
-            this.unlockBtn = transform.Find("Interaction Zone/Unlock Button").GetComponent<Button>();
-            this.unlockBtn.onClick = new Button.ButtonClickedEvent();
-            this.unlockBtn.onClick.AddListener(this.UnlockBtnClicked);
+            Plugin.LogDebug("- TrainingCashierItem.Setup Head Gauge Toggle");
+            gaugeToggle = transform.Find("Head Gauge Toggle").GetComponent<Toggle>();
+            gaugeToggle.isOn = skill.IsGaugeDisplayed;
+            gaugeToggle.onValueChanged = new Toggle.ToggleEvent();
+            gaugeToggle.onValueChanged.AddListener(GaugeToggleChanged);
+            trainingBtn = transform.Find("Interaction Zone/Training Button").GetComponent<Button>();
+            trainingBtn.onClick = new Button.ButtonClickedEvent();
+            trainingBtn.onClick.AddListener(TrainingBtnClicked);
+            unlockBtn = transform.Find("Interaction Zone/Unlock Button").GetComponent<Button>();
+            unlockBtn.onClick = new Button.ButtonClickedEvent();
+            unlockBtn.onClick.AddListener(UnlockBtnClicked);
 
-            this.expValue = this.transform.Find("Elements/Info/Exp Value").GetComponent<TextMeshProUGUI>();
-            // Plugin.LogDebug($"expValue: {expValue}");
-            this.expSlider = this.transform.Find("Elements/Info/Exp Slider").GetComponent<Slider>();
-            // Plugin.LogDebug($"expSlider: {expSlider}");
-            this.level = this.transform.Find("Elements/Info/Level").GetComponent<StringLocalizeTranslator>();
-            // Plugin.LogDebug($"level: {level}");
+            expValue = transform.Find("Elements/Info/Exp Value").GetComponent<TextMeshProUGUI>();
+            Plugin.LogDebug($"- expValue: {expValue}");
+            expSlider = transform.Find("Elements/Info/Exp Slider").GetComponent<Slider>();
+            Plugin.LogDebug($"- expSlider: {expSlider}");
+            level = transform.Find("Elements/Info/Level").GetComponent<StringLocalizeTranslator>();
+            Plugin.LogDebug($"- level: {level}");
 
-            this.wage = this.transform.Find("Elements/Info/Detail Params/Daily Wage/Value").GetComponent<TextMeshProUGUI>();
-            // Plugin.LogDebug($"wage: {wage}");
+            wage = transform.Find("Elements/Info/Detail Params/Daily Wage/Value").GetComponent<TextMeshProUGUI>();
+            Plugin.LogDebug($"- wage: {wage}");
 
             // Plugin.LogDebug("TrainingCashierItem.Setup Roadmap");
             foreach (Grade g in Grade.List)
             {
-                var sliderObj = this.transform.Find($"Elements/Info/Roadmap/{g.Name}/Slider").gameObject;
+                var sliderObj = transform.Find($"Elements/Info/Roadmap/{g.Name}/Slider").gameObject;
                 roadmap.Add(g, new RoadmapObjects{
                     slider=sliderObj.GetComponent<Slider>(),
                     sliderObj=sliderObj.gameObject,
-                    sealObj=this.transform.Find($"Elements/Info/Roadmap/{g.Name}/Seal").gameObject,
+                    sealObj= transform.Find($"Elements/Info/Roadmap/{g.Name}/Seal").gameObject,
                     checkmarkObj=sliderObj.transform.Find("Checkmark").gameObject
                 });
             }
 
-            this.ninjaLabel = this.transform.Find($"Elements/Info/Roadmap/{Grade.Ninja.Name}/Label").GetComponent<StringLocalizeTranslator>();
-            // Plugin.LogDebug($"ninjaLabel: {ninjaLabel}");
+            ninjaLabel = transform.Find($"Elements/Info/Roadmap/{Grade.Ninja.Name}/Label").GetComponent<StringLocalizeTranslator>();
+            Plugin.LogDebug($"- ninjaLabel: {ninjaLabel}");
 
-            this.unlockBtnObj = this.transform.Find("Interaction Zone/Unlock Button").gameObject;
-            this.trainBtnObj = this.transform.Find("Interaction Zone/Training Button").gameObject;
-            this.priceText = this.transform.Find("Interaction Zone/Total Price Text").GetComponent<TextMeshProUGUI>();
+            unlockBtnObj = transform.Find("Interaction Zone/Unlock Button").gameObject;
+            trainBtnObj = transform.Find("Interaction Zone/Training Button").gameObject;
+            priceText = transform.Find("Interaction Zone/Total Price Text").GetComponent<TextMeshProUGUI>();
 
-            this.SetupDetailParams();
+            SetupDetailParams();
 
-            // Plugin.LogDebug("Called TrainingProgressItem.UpdateExp");
-            // Plugin.LogDebug("UpdateExp");
-            this.UpdateExp();
-            // Plugin.LogDebug("UpdateLevel");
-            this.UpdateLevel();
+            Plugin.LogDebug("- Called TrainingProgressItem.UpdateExp");
+            Plugin.LogDebug("- UpdateExp");
+            UpdateExp();
+            Plugin.LogDebug("- UpdateLevel");
+            UpdateLevel();
 
-            // Plugin.LogDebug("Completed setting up TrainingCashierItem");
+            Plugin.LogDebug("Completed setting up TrainingCashierItem");
         }
 
         public void Setup(S skill, GameObject unlockApprovalObj)
@@ -98,8 +98,8 @@ namespace EmployeeTraining
 
         private void GaugeToggleChanged(bool toggled)
         {
-            this.skill.IsGaugeDisplayed = toggled;
-            this.skill.ExpGaugeObj.SetActive(toggled);
+            skill.IsGaugeDisplayed = toggled;
+            skill.ExpGaugeObj.SetActive(toggled);
         }
 
         private void UnlockBtnClicked()
@@ -107,63 +107,63 @@ namespace EmployeeTraining
             var nextGrade = Grade.List.FirstOrDefault(g => g.Order == skill.Grade.Order + 1);
             if (nextGrade != null)
             {
-                var message = this.unlockApprovalObj.transform.Find("Window BG/Message").GetComponent<StringLocalizeTranslator>();
+                var message = unlockApprovalObj.transform.Find("Window BG/Message").GetComponent<StringLocalizeTranslator>();
                 var employeeName = Plugin.Localizer.Get($"{skill.JobName} Name").Translate(skill.Id);
                 message.Translate(employeeName, Plugin.Localizer.Get(nextGrade.Name).Translate(), nextGrade.WageCashier.ToMoneyText(12));
 
-                var approveBtn = this.unlockApprovalObj.transform.Find("Window BG/Approve Button").GetComponent<Button>();
+                var approveBtn = unlockApprovalObj.transform.Find("Window BG/Approve Button").GetComponent<Button>();
                 approveBtn.onClick = new Button.ButtonClickedEvent();
-                approveBtn.onClick.AddListener(this.UnlockApproved);
-                
-                this.unlockApprovalObj.SetActive(true);
+                approveBtn.onClick.AddListener(UnlockApproved);
+
+                unlockApprovalObj.SetActive(true);
             }
         }
 
         private void UnlockApproved()
         {
             MoneyManager money = Singleton<MoneyManager>.Instance;
-            float? cost = this.skill.GetCostToUpgrade();
+            float? cost = skill.GetCostToUpgrade();
             if (cost != null && money.HasMoney(cost.Value))
             {
                 money.MoneyTransition(-cost.Value, MoneyManager.TransitionType.STAFF, true);
-                this.skill.UnlockGrade();
-                this.UpdateExp();
-                this.UpdateLevel();
-                this.unlockApprovalObj.SetActive(false);
+                skill.UnlockGrade();
+                UpdateExp();
+                UpdateLevel();
+                unlockApprovalObj.SetActive(false);
             }
         }
 
         private void TrainingBtnClicked()
         {
             MoneyManager money = Singleton<MoneyManager>.Instance;
-            float? cost = this.skill.GetCostToLevelup();
+            float? cost = skill.GetCostToLevelup();
             if (cost != null && money.HasMoney(cost.Value))
             {
                 money.MoneyTransition(-cost.Value, MoneyManager.TransitionType.STAFF, true);
-                this.skill.TrainToLevelup();
+                skill.TrainToLevelup();
             }
         }
 
         internal virtual void UpdateExp()
         {
             // Plugin.LogDebug($"skill: {skill}");
-            this.expValue.text = skill.GetExpDisplay();
+            expValue.text = skill.GetExpDisplay();
             var expForNext = skill.GetExpForNext();
             if (expForNext != null)
             {
-                this.expSlider.value = 1f - skill.Exp / (float)expForNext.Value;
+                expSlider.value = 1f - skill.Exp / (float)expForNext.Value;
             }
             else
             {
-                this.expSlider.value = 0;
+                expSlider.value = 0;
             }
             // Plugin.LogDebug($"wage: {wage}");
-            this.wage.text = skill.Wage.ToMoneyText(12);
+            wage.text = skill.Wage.ToMoneyText(12);
 
             // Plugin.LogDebug($"unlockBtnObj: {unlockBtnObj}");
-            this.unlockBtnObj.SetActive(skill.IsUnlockNeeded());
+            unlockBtnObj.SetActive(skill.IsUnlockNeeded());
             // Plugin.LogDebug($"trainBtnObj: {trainBtnObj}");
-            this.trainBtnObj.SetActive(!skill.IsUnlockNeeded());
+            trainBtnObj.SetActive(!skill.IsUnlockNeeded());
 
             var price = skill.IsUnlockNeeded() ? skill.GetCostToUpgrade() : skill.GetCostToLevelup();
 
@@ -182,7 +182,7 @@ namespace EmployeeTraining
                 var objs = roadmap[skill.Grade];
                 // Plugin.LogDebug($"roadmap objs: {objs}");
                 objs.sliderObj.SetActive(true);
-                objs.slider.value = this.CalcProgress();
+                objs.slider.value = CalcProgress();
                 objs.sealObj.SetActive(false);
                 objs.checkmarkObj.SetActive(false);
             }
@@ -190,9 +190,9 @@ namespace EmployeeTraining
 
         private void UpdateLevel()
         {
-            this.level.Translate(skill.Lvl, (TranslateArgHandler)(() => Localizer.Get(skill.Grade.Name).Translate()));
-            
-            this.UpdateButtons();
+            level.Translate(skill.Lvl, (TranslateArgHandler)(() => Localizer.Get(skill.Grade.Name).Translate()));
+
+            UpdateButtons();
 
             foreach (KeyValuePair<Grade, RoadmapObjects> entry in roadmap)
             {
@@ -208,7 +208,7 @@ namespace EmployeeTraining
                 else if (g == skill.Grade)
                 {
                     objs.sliderObj.SetActive(true);
-                    objs.slider.value = this.CalcProgress();
+                    objs.slider.value = CalcProgress();
                     objs.sealObj.SetActive(false);
                     objs.checkmarkObj.SetActive(false);
                 }
@@ -220,18 +220,18 @@ namespace EmployeeTraining
 
                 if (g == Grade.Ninja)
                 {
-                    this.ninjaLabel.Key = skill.Grade == Grade.Ninja ? "Ninja" : "?";
-                    this.ninjaLabel.Translate();
+                    ninjaLabel.Key = skill.Grade == Grade.Ninja ? "Ninja" : "?";
+                    ninjaLabel.Translate();
                 }
             }
         }
 
         private float CalcProgress()
         {
-            var expForNext = this.skill.GetExpForNext();
+            var expForNext = skill.GetExpForNext();
             if (expForNext != null)
             {
-                return 1f - (this.skill.Lvl + ((float)this.skill.Exp / expForNext.Value) - this.skill.Grade.LvlMin) / (this.skill.Grade.LvlMax - this.skill.Grade.LvlMin + 1);
+                return 1f - (skill.Lvl + (float)skill.Exp / expForNext.Value - skill.Grade.LvlMin) / (skill.Grade.LvlMax - skill.Grade.LvlMin + 1);
             }
             else
             {
@@ -241,41 +241,41 @@ namespace EmployeeTraining
 
         private void UpdateButtons()
         {
-            var trainingCost = this.skill.GetCostToLevelup();
-            this.trainingBtn.interactable = trainingCost != null
+            var trainingCost = skill.GetCostToLevelup();
+            trainingBtn.interactable = trainingCost != null
                     && Singleton<MoneyManager>.Instance.HasMoney(trainingCost.Value);
 
-            var unlockCost = this.skill.GetCostToUpgrade();
-            this.unlockBtn.interactable = unlockCost != null
+            var unlockCost = skill.GetCostToUpgrade();
+            unlockBtn.interactable = unlockCost != null
                     && Singleton<MoneyManager>.Instance.HasMoney(unlockCost.Value);
         }
 
         private void ExpChanged(int exp, bool incr)
         {
-            this.UpdateExp();
+            UpdateExp();
         }
 
         private void LevelChanged(bool incr)
         {
-            this.UpdateLevel();
+            UpdateLevel();
         }
 
         private void MoneyChanged(float _amount, MoneyManager.TransitionType _type)
         {
-            this.UpdateButtons();
+            UpdateButtons();
         }
 
         private void OnDestroy()
         {
             // Plugin.LogDebug($"Destroying TrainingCashierItem");
-            if (this.skill != null)
+            if (skill != null)
             {
                 // Plugin.LogDebug($"skill: {skill}");
-                this.skill.OnExpChanged -= this.ExpChanged;
-                this.skill.OnLevelChanged -= this.LevelChanged;
+                skill.OnExpChanged -= ExpChanged;
+                skill.OnLevelChanged -= LevelChanged;
                 // this.skill = default(S);
                 MoneyManager moneyMgr = Singleton<MoneyManager>.Instance;
-                moneyMgr.onMoneyTransition -= this.MoneyChanged;
+                moneyMgr.onMoneyTransition -= MoneyChanged;
             }
         }
 

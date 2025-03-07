@@ -2,7 +2,7 @@ using System;
 using System.Linq;
 using UnityEngine;
 
-namespace EmployeeTraining
+namespace EmployeeTraining.Employee
 {
     public interface IEmployeeSkill
     {
@@ -33,6 +33,8 @@ namespace EmployeeTraining
         string GetExpDisplay();
         void TrainToLevelup();
 
+        void Setup();
+
         ExpRange GetExpRangeOfGrade(Grade g);
     }
 
@@ -44,20 +46,20 @@ namespace EmployeeTraining
     {
         public virtual T Employee {
             get {
-                return this.employee.Instance;
+                return employee.Instance;
             }
             set {
-                this.employee.Instance = value;
+                employee.Instance = value;
             }
         }
         private readonly E employee = new E();
 
         public int Id {
             get {
-                return this.data.Id;
+                return data.Id;
             }
         }
-        public virtual string JobName => this.Employee.GetType().Name;
+        public virtual string JobName => Employee.GetType().Name;
 
         public GameObject ExpGaugeObj { get; set; }
         public GameObject TrainingStatusPanelObj { get; set; }
@@ -66,7 +68,7 @@ namespace EmployeeTraining
 
         public bool IsAssigned()
         {
-            return this.Employee != null;
+            return Employee != null;
         }
 
         internal abstract ST[] SkillTable { get; }
@@ -74,33 +76,33 @@ namespace EmployeeTraining
         public int Exp
         {
             get {
-                return this.TotalExp - this.Tier.Exp;
+                return TotalExp - Tier.Exp;
             }
         }
 
         public int TotalExp {
             get {
-                return this.data.Exp;
+                return data.Exp;
             }
             private set {
-                this.data.Exp = value;
-                this.UpdateStatus(false);
+                data.Exp = value;
+                UpdateStatus(false);
             }
         }
         public Grade Grade {
             get {
-                return Grade.List[this.data.Grade];
+                return Grade.List[data.Grade];
             }
             set {
-                this.data.Grade = value.Order;
+                data.Grade = value.Order;
             }
         }
         public bool IsGaugeDisplayed {
             get {
-                return this.data.IsGaugeDisplayed;
+                return data.IsGaugeDisplayed;
             }
             set {
-                this.data.IsGaugeDisplayed = value;
+                data.IsGaugeDisplayed = value;
             }
         }
 
@@ -109,7 +111,7 @@ namespace EmployeeTraining
         protected EmployeeSkill(SkillData<S> data)
         {
             this.data = data;
-            this.Tier = this.SkillTable[0];
+            Tier = SkillTable[0];
         }
 
         internal ST Tier { get; set; }
@@ -123,7 +125,7 @@ namespace EmployeeTraining
 
         public int Lvl {
             get {
-                return this.Tier.Lvl;
+                return Tier.Lvl;
             }
         }
 
@@ -131,103 +133,103 @@ namespace EmployeeTraining
 
         public void AddExp(int exp)
         {
-            this.TotalExp += exp;
+            TotalExp += exp;
             // Plugin.LogDebug($"{typeof(T)}[{this.Id}] is now {this.TotalExp}exp");
-            this.OnExpChanged?.Invoke(exp, true);
+            OnExpChanged?.Invoke(exp, true);
         }
 
         public void UpdateStatus(bool init = false)
         {
             // Never use TotalExp setter within UpdateStatus!
-            bool leveledUp = this.UpdateLvl();
+            bool leveledUp = UpdateLvl();
 
             if (!init && leveledUp)
             {
                 // Plugin.LogDebug($"{typeof(T)}[{this.Id}] is now level {this.Tier.Lvl}");
-                this.Grade = Grade.List.First(g => this.Lvl <= g.LvlMax);
-                this.OnLevelChanged?.Invoke(true);
+                Grade = Grade.List.First(g => Lvl <= g.LvlMax);
+                OnLevelChanged?.Invoke(true);
             }
 
-            this.ApplyWageToGame(this.Wage, this.HiringCost);
+            ApplyWageToGame(Wage, HiringCost);
         }
 
         private bool UpdateLvl()
         {
-            int prevLvl = this.Lvl;
-            if (this.Lvl >= this.Grade.LvlMax)
+            int prevLvl = Lvl;
+            if (Lvl >= Grade.LvlMax)
             {
                 return false;
             }
             else
             {
-                for (int i = prevLvl - 1; i < this.SkillTable.Length; i++)
+                for (int i = prevLvl - 1; i < SkillTable.Length; i++)
                 {
-                    if (this.data.Exp < this.SkillTable[i].Exp) break;
-                    this.Tier = this.SkillTable[i];
+                    if (data.Exp < SkillTable[i].Exp) break;
+                    Tier = SkillTable[i];
                 }
-                if (this.Lvl > this.Grade.LvlMax)
+                if (Lvl > Grade.LvlMax)
                 {
-                    this.Tier = this.SkillTable[this.Grade.LvlMax - 1];
+                    Tier = SkillTable[Grade.LvlMax - 1];
                 }
-                return this.Lvl > prevLvl;
+                return Lvl > prevLvl;
             }
         }
 
         public void UnlockGrade()
         {
-            var nextGrade = Grade.List.FirstOrDefault(g => g.Order == this.Grade.Order + 1);
+            var nextGrade = Grade.List.FirstOrDefault(g => g.Order == Grade.Order + 1);
             if (nextGrade != null)
             {
-                this.Grade = nextGrade;
-                this.UpdateStatus();
-                this.OnExpChanged?.Invoke(0, true);
-                this.ApplyWageToGame(this.Wage, this.HiringCost);
+                Grade = nextGrade;
+                UpdateStatus();
+                OnExpChanged?.Invoke(0, true);
+                ApplyWageToGame(Wage, HiringCost);
             }
         }
 
         public int? GetExpForNext()
         {
-            if (this.Tier.Lvl < SkillTable.Length)
+            if (Tier.Lvl < SkillTable.Length)
             {
-                return SkillTable[this.Tier.Lvl].Exp - this.Tier.Exp;
+                return SkillTable[Tier.Lvl].Exp - Tier.Exp;
             }
             return null;
         }
 
         public int? GetTotalExpForNext()
         {
-            if (this.Tier.Lvl < SkillTable.Length)
+            if (Tier.Lvl < SkillTable.Length)
             {
-                return SkillTable[this.Tier.Lvl].Exp;
+                return SkillTable[Tier.Lvl].Exp;
             }
             return null;
         }
 
         public bool IsUnlockNeeded()
         {
-            var expForNext = this.GetTotalExpForNext();
+            var expForNext = GetTotalExpForNext();
             if (expForNext != null)
             {
-                return this.Lvl >= this.Grade.LvlMax && this.TotalExp >= expForNext;
+                return Lvl >= Grade.LvlMax && TotalExp >= expForNext;
             }
             return false;
         }
 
         public float? GetCostToUpgrade()
         {
-            return this.Grade.Cost;
+            return Grade.Cost;
         }
 
         public string GetExpDisplay()
         {
-            int? expForNext = this.GetExpForNext();
+            int? expForNext = GetExpForNext();
             if (expForNext != null)
             {
-                return $"{this.Exp}<size=70%> / {expForNext}</size>";
+                return $"{Exp}<size=70%> / {expForNext}</size>";
             }
             else
             {
-                return $"{this.TotalExp}";
+                return $"{TotalExp}";
             }
         }
 
@@ -241,32 +243,32 @@ namespace EmployeeTraining
 
         public override string ToString()
         {
-            return $"{typeof(T)}[{this.Id}] exp={this.TotalExp}, lvl={this.Lvl}, grade={this.Grade.Name}";
+            return $"{typeof(T)}[{Id}] exp={TotalExp}, lvl={Lvl}, grade={Grade.Name}";
         }
 
         public float? GetCostToLevelup()
         {
-            int? expForNext = this.GetExpForNext();
-            if (expForNext == null || this.Grade.Order > Grade.Adv.Order)
+            int? expForNext = GetExpForNext();
+            if (expForNext == null || Grade.Order > Grade.Adv.Order)
             {
                 return null;
             }
-            return (expForNext - this.Exp) * 2;
+            return (expForNext - Exp) * 2;
         }
 
         public void TrainToLevelup()
         {
-            int? expForNext = this.GetExpForNext();
+            int? expForNext = GetExpForNext();
             if (expForNext != null)
             {
-                this.AddExp(expForNext.Value - this.Exp);
+                AddExp(expForNext.Value - Exp);
             }
         }
 
         public void OnFired()
         {
-            this.ExpGaugeObj = null;
-            this.Employee = null;
+            ExpGaugeObj = null;
+            Employee = null;
         }
 
         public abstract void Despawn();

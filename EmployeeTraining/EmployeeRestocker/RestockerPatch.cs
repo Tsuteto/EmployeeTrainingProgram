@@ -5,7 +5,7 @@ using HarmonyLib;
 using MyBox;
 using UnityEngine;
 
-namespace EmployeeTraining
+namespace EmployeeTraining.EmployeeRestocker
 {
     [HarmonyPatch(typeof(EmployeeManager))]
     public static class EmployeeManagerPatch

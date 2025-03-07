@@ -1,9 +1,10 @@
 using System;
+using EmployeeTraining.Employee;
 using MyBox;
 
-namespace EmployeeTraining
+namespace EmployeeTraining.EmployeeRestocker
 {
-    public class RestockerSkill : EmployeeSkill<RestockerSkill, RestockerSkillTier, EmployeeRestocker, Restocker>
+    public class RestockerSkill : EmployeeSkill<RestockerSkill, RestockerSkillTier, EmplRestocker, Restocker>
     {
         private static readonly RestockerSkillTier[] SKILL_TABLE = {
             new RestockerSkillTier{Lvl=1, Exp=0, Rapidity=1.388889f, Capacity=10000, Height=200, Dexterity=70},
@@ -114,8 +115,8 @@ namespace EmployeeTraining
 
         public Restocker Restocker
         {
-            get => this.Employee;
-            set => this.Employee = value;
+            get => Employee;
+            set => Employee = value;
         }
 
         public override Restocker Employee {
@@ -123,28 +124,28 @@ namespace EmployeeTraining
             set
             {
                 base.Employee = value;
-                this.Logic = new RestockerLogic(this, value);
+                Logic = new RestockerLogic(this, value);
             }
         }
 
-        public override float Wage => this.Grade.WageRestocker;
-        public override float HiringCost => this.Grade.HiringCostBaseRestocker + extraHiringCost[this.Id - 1];
-        public float Rapidity => this.Tier.Rapidity * 3.6f;
-        public float Capacity => this.Tier.Capacity / 1000f;
-        public float CapacityMaxHeight => this.Tier.Height / 1000f;
-        public int Dexterity => this.Tier.Dexterity;
+        public override float Wage => Grade.WageRestocker;
+        public override float HiringCost => Grade.HiringCostBaseRestocker + extraHiringCost[Id - 1];
+        public float Rapidity => Tier.Rapidity * 3.6f;
+        public float Capacity => Tier.Capacity / 1000f;
+        public float CapacityMaxHeight => Tier.Height / 1000f;
+        public int Dexterity => Tier.Dexterity;
 
-        public int CarryingCapacity => this.Tier.Capacity;
-        public int CarryingMaxHeight => this.Tier.Height;
-        public float AgentSpeed => this.Tier.Rapidity; // [m/s], Vanilla: 2 .. max: 10
-        public float AgentAngularSpeed => Math.Max(0, this.Tier.Rapidity - 2f) * 240; // [degree/s] Vanilla: 0 .. max: 1200
-        public float AgentAcceleration => this.Tier.Rapidity < 2 ? this.Tier.Rapidity * 4 : 8 + (this.Tier.Rapidity - 2) * 6; // [m/s^2] Vanilla: 8 .. max: 60
-        public float UnpackingTime => 0.7f / (this.Tier.Dexterity / 100f);
-        public float ProductPlacingIntv => 0.2f / (this.Tier.Dexterity / 100f);
-        public float TakingBoxTime => 0.3f / (this.Tier.Dexterity / 100f);
-        public float ThrowingBoxTime => 0.7f / (this.Tier.Dexterity / 100f);
-        public float TurningSpeed => 5f * this.Tier.Rapidity; // Vanilla: 5
-        public float RotationTime => 0.3f / (this.Tier.Dexterity / 100f);
+        public int CarryingCapacity => Tier.Capacity;
+        public int CarryingMaxHeight => Tier.Height;
+        public float AgentSpeed => Tier.Rapidity; // [m/s], Vanilla: 2 .. max: 10
+        public float AgentAngularSpeed => Math.Max(0, Tier.Rapidity - 2f) * 240; // [degree/s] Vanilla: 0 .. max: 1200
+        public float AgentAcceleration => Tier.Rapidity < 2 ? Tier.Rapidity * 4 : 8 + (Tier.Rapidity - 2) * 6; // [m/s^2] Vanilla: 8 .. max: 60
+        public float UnpackingTime => 0.7f / (Tier.Dexterity / 100f);
+        public float ProductPlacingIntv => 0.2f / (Tier.Dexterity / 100f);
+        public float TakingBoxTime => 0.3f / (Tier.Dexterity / 100f);
+        public float ThrowingBoxTime => 0.7f / (Tier.Dexterity / 100f);
+        public float TurningSpeed => 5f * Tier.Rapidity; // Vanilla: 5
+        public float RotationTime => 0.3f / (Tier.Dexterity / 100f);
 
         internal override RestockerSkillTier[] SkillTable => SKILL_TABLE;
 
@@ -154,15 +155,15 @@ namespace EmployeeTraining
 
         internal override void ApplyWageToGame(float dailyWage, float hiringCost)
         {
-            Singleton<IDManager>.Instance.RestockerSO(this.Id).DailyWage = dailyWage;
-            Singleton<IDManager>.Instance.RestockerSO(this.Id).HiringCost = hiringCost;
+            Singleton<IDManager>.Instance.RestockerSO(Id).DailyWage = dailyWage;
+            Singleton<IDManager>.Instance.RestockerSO(Id).HiringCost = hiringCost;
         }
 
         public override void Setup()
         {
-            this.InitialWage = Singleton<IDManager>.Instance.RestockerSO(this.Id).DailyWage;
-            this.InitialHiringCost = Singleton<IDManager>.Instance.RestockerSO(this.Id).HiringCost;
-            this.UpdateStatus(true);
+            InitialWage = Singleton<IDManager>.Instance.RestockerSO(Id).DailyWage;
+            InitialHiringCost = Singleton<IDManager>.Instance.RestockerSO(Id).HiringCost;
+            UpdateStatus(true);
             // Plugin.LogDebug(this);
         }
 
@@ -181,9 +182,9 @@ namespace EmployeeTraining
 
     }
 
-    public class EmployeeRestocker : Employee<Restocker>
+    public class EmplRestocker : Employee<Restocker>
     {
-        public override int ID => this.Instance.RestockerID;
+        public override int ID => Instance.RestockerID;
     }
 
     public class RestockerSkillTier : ISkillTier

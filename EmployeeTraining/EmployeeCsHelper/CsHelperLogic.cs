@@ -4,12 +4,24 @@ using MyBox;
 using UnityEngine;
 using UnityEngine.AI;
 
-namespace EmployeeTraining
+namespace EmployeeTraining.EmployeeCsHelper
 {
     public static class CsHelperLogic
     {
         private static readonly PrivateMtdStatic mtdFireForceFinish = new PrivateMtdStatic(typeof(SelfCheckout), "FireForceFinish");
         private static readonly PrivateFldStatic<NavMeshAgent> fldAgent = new PrivateFldStatic<NavMeshAgent>(typeof(CustomerHelper), "m_Agent");
+
+        public static void Init()
+        {
+            Plugin.Instance.GameLoadedEvent += () =>
+            {
+                Singleton<ScaleManager>.Instance.ScaleBarcodeApplied += GiveExpOnScaleBarcodeApplied;
+            };
+            Plugin.Instance.GameQuitEvent += () =>
+            {
+                Singleton<ScaleManager>.Instance.ScaleBarcodeApplied -= GiveExpOnScaleBarcodeApplied;
+            };
+        }
 
         public static void ApplyRapidity(CustomerHelper cshelper)
         {

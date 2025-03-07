@@ -1,10 +1,9 @@
 using System.Collections.Generic;
 using System.IO;
-using EmployeeTraining.Localization;
 using Newtonsoft.Json;
 using UnityEngine;
 
-namespace EmployeeTraining
+namespace EmployeeTraining.Localization
 {
     public class LocalizationSerializer
 	{
@@ -705,8 +704,8 @@ namespace EmployeeTraining
 				},
 			};
 
-			if (this.settings.CustomizeLocalization) {
-				this.Write(langs);
+			if (settings.CustomizeLocalization) {
+                Write(langs);
 			}
 			return langs;
 		}

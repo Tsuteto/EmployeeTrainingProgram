@@ -1,4 +1,5 @@
 using EmployeeTraining.Localization;
+using EmployeeTraining.TrainingApp;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -9,7 +10,13 @@ namespace EmployeeTraining
     {
         public static GameObject SkillIndicatorTmpl { get; private set; }
 
-        public static void Generate()
+        public static void Init()
+        {
+            Plugin.Instance.GameLoadedEvent += GenerateTemplate;
+            Plugin.Instance.GameQuitEvent += Dispose;
+        }
+
+        private static void GenerateTemplate()
         {
             // Plugin.LogDebug("Composing Skill Indicator");
             var tmplObj = new GameObject("Skill Indicator", typeof(SkillIndicator), typeof(Canvas));

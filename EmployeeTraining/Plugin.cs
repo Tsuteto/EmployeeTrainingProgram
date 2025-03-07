@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using BepInEx;
+using EmployeeTraining.EmployeeCashier;
+using EmployeeTraining.EmployeeCsHelper;
+using EmployeeTraining.EmployeeRestocker;
 using EmployeeTraining.Localization;
+using EmployeeTraining.TrainingApp;
 using HarmonyLib;
-using MyBox;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
@@ -21,6 +21,9 @@ namespace EmployeeTraining
         // public static bool IsBetterSaveSystemInstalled { get; private set; }
 
         public Settings Settings { get; private set; }
+        
+        public Action GameLoadedEvent;
+        public Action GameQuitEvent;
         public Action<string> LocaleChangedEvent;
 
         private Plugin()
@@ -37,10 +40,7 @@ namespace EmployeeTraining
             // Plugin.IsBetterSaveSystemInstalled = Type.GetType("BetterSaveSystem.BetterSaveSystemMod,BetterSaveSystem") != null;
             // Logger.LogDebug($"BetterSaveSystem {(IsBetterSaveSystemInstalled ? "installed" : "not installed")}");
 
-            Patch.plugin = this;
-            CashierSkillManager.CreateInstance();
-            RestockerSkillManager.CreateInstance();
-            CsHelperSkillManager.CreateInstance();
+            GamePatch.plugin = this;
 
             Harmony harmony = new Harmony("jp.tsuteto.sms.CashierTraining.patches");
             LogDebug("Patching SaveManager_Save_Patcher");
@@ -49,7 +49,7 @@ namespace EmployeeTraining
             harmony.PatchAll(typeof(SaveManager_Load_Patcher));
             // harmony.PatchAll(typeof(Restocker_PlaceProducts_Patcher));
             LogDebug("Patching GeneralPatch");
-            harmony.PatchAll(typeof(Patch));
+            harmony.PatchAll(typeof(GamePatch));
             LogDebug("Patching CashierPatch");
             harmony.PatchAll(typeof(CashierPatch));
             LogDebug("Patching EmployeeManagerPatch");
@@ -67,9 +67,13 @@ namespace EmployeeTraining
         private void Start()
         {
             SceneManager.activeSceneChanged += this.OnSceneWasLoaded;
+
             LocalizationSettings.SelectedLocaleChanged += this.OnLocaleChanged;
             Locale locale = LocalizationSettings.SelectedLocale;
             Plugin.Localizer.Lang = locale.Identifier.Code;
+
+            SkillIndicatorGenerator.Init();
+            CsHelperLogic.Init();
         }
 
         private void Update()
@@ -87,21 +91,18 @@ namespace EmployeeTraining
         {
             if (nextScene.name == "Main Menu")
             {
-                SkillIndicatorGenerator.Dispose();
-                CashierSkillManager.Instance.Clear();
-                RestockerSkillManager.Instance.Clear();
-                CsHelperSkillManager.Instance.Clear();
+                this.GameQuitEvent.Invoke();
                 ETSaveManager.IsReadyToSave = false;
-                Singleton<ScaleManager>.Instance.ScaleBarcodeApplied -= CsHelperLogic.GiveExpOnScaleBarcodeApplied;
             }
             if (nextScene.name == "Main Scene")
             {
                 var customerList = new GameObject("Shopping Customer List", typeof(ShoppingCustomerList));
                 customerList.transform.SetParent(GameObject.Find("---MANAGERS---").transform);
+
                 var appObj = new GameObject("Training App", typeof(PCTrainingApp));
                 appObj.transform.SetParent(GameObject.Find("---MANAGERS---").transform);
-                SkillIndicatorGenerator.Generate();
-                Singleton<ScaleManager>.Instance.ScaleBarcodeApplied += CsHelperLogic.GiveExpOnScaleBarcodeApplied;
+
+                this.GameLoadedEvent.Invoke();
 
                 // Output all Product info
                 // var products = Singleton<IDManager>.Instance.Products;
