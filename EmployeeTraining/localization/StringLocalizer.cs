@@ -25,14 +25,14 @@ namespace EmployeeTraining.Localization
 			if (localizations == null)
 			{
 				localizations = (from x in this.localizedTexts where x.Language == "en" select x).FirstOrDefault();
-				return localizations.getText(text);
+				return localizations.GetText(text);
 			}
-			if (localizations.getText(text) != null)
+			if (localizations.GetText(text) != null)
 			{
-				return localizations.getText(text);
+				return localizations.GetText(text);
 			}
 			localizations = (from x in this.localizedTexts where x.Language == "en" select x).FirstOrDefault();
-			return localizations.getText(text);
+			return localizations.GetText(text);
 		}
 
     }

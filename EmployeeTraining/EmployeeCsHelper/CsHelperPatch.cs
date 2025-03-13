@@ -9,6 +9,7 @@ using UnityEngine.AI;
 
 namespace EmployeeTraining.EmployeeCsHelper
 {
+    [HarmonyPatch]
     public static class CsHelperPatch
     {
         [HarmonyPatch(typeof(EmployeeManager), "SpawnCustomerHelper")]

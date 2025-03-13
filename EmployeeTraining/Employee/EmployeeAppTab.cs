@@ -1,17 +1,17 @@
 
 using System.Collections.Generic;
-using EmployeeTraining.Employee;
 using EmployeeTraining.Localization;
+using EmployeeTraining.TrainingApp;
 using MyBox;
 using TMPro;
 using UnityEngine;
 using UnityEngine.Localization.Components;
 using UnityEngine.UI;
 
-namespace EmployeeTraining.TrainingApp
+namespace EmployeeTraining.Employee
 {
 
-    public abstract class EmployeeAppUI<I, S> where I : EmployeeTrainingProgressItem<S>
+    public abstract class EmployeeAppTab<I, S> where I : EmployeeTrainingProgressItem<S>
                                               where S : IEmployeeSkill
     {
         public GameObject TabObj { get; protected set; }
@@ -21,7 +21,7 @@ namespace EmployeeTraining.TrainingApp
 
         internal GameObject ComposeTabButton(GameObject templateBtnObj, GameObject taskbarBtnsObj, string name, string iconName, string labelKey)
         {
-                var tabBtnObj = GameObject.Instantiate(templateBtnObj, taskbarBtnsObj.transform, true);
+                var tabBtnObj = Object.Instantiate(templateBtnObj, taskbarBtnsObj.transform, true);
                 tabBtnObj.name = name;
                 var icon = Utils.FindResourceByName<Sprite>(iconName);
                 // Plugin.LogDebug($"icon: {icon}");
@@ -29,6 +29,8 @@ namespace EmployeeTraining.TrainingApp
                 tabIconObj.GetComponent<Image>().sprite = icon;
                 tabIconObj.localPosition = new Vector3(-32, 0, 0);
                 tabBtnObj.transform.Find("Text (TMP)").GetOrAddComponent<StringLocalizeTranslator>().Key = labelKey;
+                tabBtnObj.GetComponent<Button>()
+                    .onClick.AddListener(tabBtnObj.GetComponent<MouseClickSFX>().Click);
                 return tabBtnObj;
         }
 
@@ -168,7 +170,7 @@ namespace EmployeeTraining.TrainingApp
         {
             var naObj = new GameObject(objName, typeof(TextMeshProUGUI), typeof(StringLocalizeTranslator));
             naObj.transform.SetParent(this.TabObj.transform);
-            naObj.SetupText(pos: new Vector3(0, 97.9f, 0), size: new Vector2(500, 50), pivot: new Vector2(0.5f, 0.5f),
+            naObj.SetupText(pos: new Vector3(0, 97.9f, 0), size: new Vector2(600, 50), pivot: new Vector2(0.5f, 0.5f),
                     fontsize: 36, align: HorizontalAlignmentOptions.Center, color: textColor,
                     key: textKey);
             naObj.SetActive(true);
@@ -185,7 +187,7 @@ namespace EmployeeTraining.TrainingApp
         {
                 Plugin.LogDebug($"{this.GetType()}.RegisterEmployee: skill={skill}");
                 Plugin.LogDebug($"- StatusPanelTmpl={StatusPanelTmpl}, ListObj={ListObj}");
-                var panelObj = GameObject.Instantiate(StatusPanelTmpl, this.ListObj.transform, false);
+                var panelObj = Object.Instantiate(StatusPanelTmpl, this.ListObj.transform, false);
                 Plugin.LogDebug($"- panelObj={panelObj}");
                 panelObj.name = panelName;
                 panelObj.AddComponent<I>();
@@ -208,7 +210,7 @@ namespace EmployeeTraining.TrainingApp
 
         protected void DeleteEmployee(S skill, List<int> employeeData)
         {
-            GameObject.Destroy(skill.TrainingStatusPanelObj);
+            Object.Destroy(skill.TrainingStatusPanelObj);
 
             if (employeeData.Count == 0)
             {

@@ -5,6 +5,7 @@ using MyBox;
 
 namespace EmployeeTraining
 {
+    [HarmonyPatch]
     public static class GamePatch
     {
         public static Plugin plugin;
@@ -39,14 +40,14 @@ namespace EmployeeTraining
             ETSaveManager.Clear();
         }
 
-        [HarmonyPatch(typeof(BankruptcyManager), "CheckForBankruptcy")]
-        [HarmonyPostfix]
-        public static void BankruptcyManager_CheckForBankruptcy_Postfix()
+        [HarmonyPatch(typeof(DailyStatisticsScreen), "StartNewGame")]
+        [HarmonyPrefix]
+        public static bool BankruptcyManager_CheckForBankruptcy_Postfix()
         {
-            if (Singleton<MoneyManager>.Instance.Money < 0f)
-            {
-                ETSaveManager.Clear();
-            }
+            ETSaveManager.Clear();
+            Plugin.Instance.GameQuitEvent.Invoke();
+            return true;
         }
+
     }
 }

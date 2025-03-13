@@ -3,7 +3,11 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using EmployeeTraining.Employee;
+using EmployeeTraining.EmployeeCashier;
+using EmployeeTraining.EmployeeCsHelper;
+using EmployeeTraining.EmployeeJanitor;
+using EmployeeTraining.EmployeeRestocker;
+using EmployeeTraining.EmployeeSecurity;
 using HarmonyLib;
 using MyBox;
 using UnityEngine;
@@ -52,7 +56,7 @@ namespace EmployeeTraining
                     }
                     if (Singleton<IDManager>.Instance)
                     {
-                        SaveDataLoadedEvent.Invoke();
+                        ETSaveManager.SaveDataLoadedEvent.Invoke();
                     }
                 }
                 else
@@ -165,5 +169,9 @@ namespace EmployeeTraining
         public List<RestockerSkillData> RestockerSkills = new List<RestockerSkillData>();
 
         public List<CsHelperSkillData> CsHelperSkills = new List<CsHelperSkillData>();
+
+        public List<JanitorSkillData> JanitorSkills = new List<JanitorSkillData>();
+
+        public List<SecuritySkillData> SecuritySkills = new List<SecuritySkillData>();
     }
 }

@@ -14,7 +14,7 @@ namespace CashierTraining
         {
             TrainingData rev2 = new TrainingData{
                 CashierSkills = this.Skills.Select(s =>
-                new EmployeeTraining.Employee.CashierSkillData
+                new EmployeeTraining.EmployeeCashier.CashierSkillData
                 {
                     Id=s.Id,
                     Exp=s.Exp,

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace EmployeeTraining.TrainingApp
 {
-    public interface IEmployeeAppUI
+    public interface IEmployeeAppTab
     {
         void ComposeTabButton(GameObject baseTabBtnObj, GameObject taskbarBtnsObj);
 

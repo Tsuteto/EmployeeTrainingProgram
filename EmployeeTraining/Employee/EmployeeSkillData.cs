@@ -1,7 +1,4 @@
 using System;
-using EmployeeTraining.EmployeeCashier;
-using EmployeeTraining.EmployeeCsHelper;
-using EmployeeTraining.EmployeeRestocker;
 
 namespace EmployeeTraining.Employee
 {
@@ -26,34 +23,6 @@ namespace EmployeeTraining.Employee
         {
             Skill.Setup();
             ETSaveManager.SaveDataLoadedEvent -= OnLoad;
-        }
-    }
-
-    [Serializable]
-    public class CashierSkillData : SkillData<CashierSkill>
-    {
-
-        public CashierSkillData() : base()
-        {
-            Skill = new CashierSkill(this);
-        }
-    }
-
-    [Serializable]
-    public class RestockerSkillData : SkillData<RestockerSkill>
-    {
-        public RestockerSkillData() : base()
-        {
-            Skill = new RestockerSkill(this);
-        }
-    }
-
-    [Serializable]
-    public class CsHelperSkillData : SkillData<CsHelperSkill>
-    {
-        public CsHelperSkillData() : base()
-        {
-            Skill = new CsHelperSkill(this);
         }
     }
 }

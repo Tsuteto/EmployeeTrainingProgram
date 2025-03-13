@@ -15,13 +15,20 @@ namespace EmployeeTraining
         
         public static string ToBoxInfo(this Box box)
         {
-            if (box.HasProducts)
+            if (Plugin.Instance.Settings.RestockerLog)
             {
-                return $"[{box.Product.name} x {box.Data.ProductCount}: {box.BoxID}]";
+                if (box.HasProducts)
+                {
+                    return $"[{box.Product.name} x{box.Data.ProductCount}]";
+                }
+                else
+                {
+                    return "[EMPTY]";
+                }
             }
             else
             {
-                return $"[EMPTY: {box.BoxID}]";
+                return "";
             }
         }
 
@@ -122,6 +129,51 @@ namespace EmployeeTraining
                 {
                     throw new Exception($"Unable to set value to {name}");
                 }
+            }
+        }
+    }
+
+    public class PrivatePropStatic<V>
+    {
+        internal readonly PropertyInfo prop;
+        internal readonly string name;
+
+        public PrivatePropStatic(Type type, string name, BindingFlags flags = BindingFlags.Instance | BindingFlags.NonPublic)
+        {
+            this.name = name;
+            try
+            {
+                this.prop = type.GetProperty(name, flags);
+                if (this.prop == null)
+                {
+                    throw new Exception($"Property {name} not found in {type.Name}");
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception($"Failed to get property {name} from {type.Name}", e);
+            }
+        }
+
+        public V Get(object instance) {
+            if (prop.CanRead)
+            {
+                return (V)prop.GetValue(instance);
+            }
+            else
+            {
+                throw new Exception($"Unable to get value from {name}");
+            }
+        }
+
+        public void Set(object instance, V value) {
+            if (prop.CanWrite)
+            {
+                prop.SetValue(instance, value);
+            }
+            else
+            {
+                throw new Exception($"Unable to set value to {name}");
             }
         }
     }

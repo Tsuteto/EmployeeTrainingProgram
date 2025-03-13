@@ -1,0 +1,22 @@
+[*.{cs,vb}]
+
+# IDE0003: Remove qualification
+dotnet_style_qualification_for_property = true
+[*.{cs,vb}]
+
+# IDE0003: Remove qualification
+dotnet_style_qualification_for_method = true
+[*.{cs,vb}]
+
+# IDE0003: Remove qualification
+dotnet_style_qualification_for_field = true
+[*.{cs,vb}]
+
+# IDE0003: Remove qualification
+dotnet_style_qualification_for_event = true
+[*.{cs,vb}]
+
+# IDE0003: Remove qualification
+dotnet_diagnostic.IDE0003.severity = none
+[*.{cs,vb}]
+

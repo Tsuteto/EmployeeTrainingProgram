@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using EmployeeTraining.Employee;
 using MyBox;
 
@@ -6,6 +7,24 @@ namespace EmployeeTraining.EmployeeRestocker
 {
     public class RestockerSkill : EmployeeSkill<RestockerSkill, RestockerSkillTier, EmplRestocker, Restocker>
     {
+        private static readonly Dictionary<Grade, float> WAGE = new Dictionary<Grade, float>(){
+            {Grade.Rookie, 90f},
+            {Grade.Middle, 110f},
+            {Grade.Adv, 155f},
+            {Grade.Pro, 215f},
+            {Grade.Ninja, 300f}
+        };
+
+        private static readonly Dictionary<Grade, float> HIRING_COST = new Dictionary<Grade, float>(){
+            {Grade.Rookie, 100f},
+            {Grade.Middle, 150f},
+            {Grade.Adv, 220f},
+            {Grade.Pro, 300f},
+            {Grade.Ninja, 400f}
+        };
+
+        private static readonly float[] EXTRA_HIRING_COST = {0f, 0f, 10f, 50f, 50f, 50f};
+
         private static readonly RestockerSkillTier[] SKILL_TABLE = {
             new RestockerSkillTier{Lvl=1, Exp=0, Rapidity=1.388889f, Capacity=10000, Height=200, Dexterity=70},
             new RestockerSkillTier{Lvl=2, Exp=50, Rapidity=1.444444f, Capacity=11000, Height=200, Dexterity=73},
@@ -109,8 +128,6 @@ namespace EmployeeTraining.EmployeeRestocker
             new RestockerSkillTier{Lvl=100, Exp=55361315, Rapidity=14.444444f, Capacity=200000, Height=20000, Dexterity=1600},
         };
 
-        private static readonly float[] extraHiringCost = {0f, 0f, 10f, 50f, 50f, 50f};
-
         public RestockerLogic Logic { get; set; }
 
         public Restocker Restocker
@@ -128,8 +145,8 @@ namespace EmployeeTraining.EmployeeRestocker
             }
         }
 
-        public override float Wage => Grade.WageRestocker;
-        public override float HiringCost => Grade.HiringCostBaseRestocker + extraHiringCost[Id - 1];
+        public override float Wage => WAGE[Grade];
+        public override float HiringCost => HIRING_COST[Grade] + EXTRA_HIRING_COST[this.Id - 1];
         public float Rapidity => Tier.Rapidity * 3.6f;
         public float Capacity => Tier.Capacity / 1000f;
         public float CapacityMaxHeight => Tier.Height / 1000f;
@@ -148,11 +165,13 @@ namespace EmployeeTraining.EmployeeRestocker
         public float RotationTime => 0.3f / (Tier.Dexterity / 100f);
 
         internal override RestockerSkillTier[] SkillTable => SKILL_TABLE;
+        protected override float CostRateToLevelUp => 2f;
 
         public RestockerSkill(RestockerSkillData data) : base(data)
         {
         }
 
+        public override float GetWage(Grade g) => WAGE[g];
         internal override void ApplyWageToGame(float dailyWage, float hiringCost)
         {
             Singleton<IDManager>.Instance.RestockerSO(Id).DailyWage = dailyWage;
@@ -180,6 +199,15 @@ namespace EmployeeTraining.EmployeeRestocker
         //     return new WaitForSeconds(skill.GetProductPlacingInterval);
         // }
 
+    }
+
+    [Serializable]
+    public class RestockerSkillData : SkillData<RestockerSkill>
+    {
+        public RestockerSkillData() : base()
+        {
+            Skill = new RestockerSkill(this);
+        }
     }
 
     public class EmplRestocker : Employee<Restocker>

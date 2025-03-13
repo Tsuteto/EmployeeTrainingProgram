@@ -1,11 +1,29 @@
+using System;
 using System.Collections.Generic;
 using EmployeeTraining.Employee;
 using MyBox;
+using UnityEngine;
 
 namespace EmployeeTraining.EmployeeCashier
 {
     public class CashierSkill : EmployeeSkill<CashierSkill, CashierSkillTier, EmplCashier, Cashier>
     {
+        private static readonly Dictionary<Grade, float> WAGE = new Dictionary<Grade, float>(){
+            {Grade.Rookie, 80f},
+            {Grade.Middle, 100f},
+            {Grade.Adv, 140f},
+            {Grade.Pro, 200f},
+            {Grade.Ninja, 280f}
+        };
+
+        private static readonly Dictionary<Grade, float> HIRING_COST = new Dictionary<Grade, float>(){
+            {Grade.Rookie, 100f},
+            {Grade.Middle, 150f},
+            {Grade.Adv, 220f},
+            {Grade.Pro, 300f},
+            {Grade.Ninja, 400f}
+        };
+
         private static readonly CashierSkillTier[] SKILL_TABLE = {
             new CashierSkillTier{Lvl=1, Exp=0, IntervalMax=2.400000f, IntervalMin=2.000000f, Payment=4.2f},
             new CashierSkillTier{Lvl=2, Exp=50, IntervalMax=1.818182f, IntervalMin=1.500000f, Payment=4.2f},
@@ -114,6 +132,7 @@ namespace EmployeeTraining.EmployeeCashier
         public List<float> CashierScanIntervals { get => fldCashierScanIntervals.Value; set => fldCashierScanIntervals.Value = value; }
         private readonly PrivateFld<List<float>> fldCashierScanIntervals = new PrivateFld<List<float>>(typeof(Cashier), "m_CashierScanIntervals");
 
+
         public CashierSkill(CashierSkillData data) : base(data)
         {
         }
@@ -134,9 +153,11 @@ namespace EmployeeTraining.EmployeeCashier
         public float TotalCheckoutDuration => Tier.Payment * 17 / 15;
 
         internal override CashierSkillTier[] SkillTable => SKILL_TABLE;
+        protected override float CostRateToLevelUp => 2f;
 
-        public override float Wage => Grade.WageCashier;
-        public override float HiringCost => Grade.HiringCostCashier;
+        public override float Wage => WAGE[Grade];
+        public override float HiringCost => HIRING_COST[Grade];
+        public override float GetWage(Grade g) => WAGE[g];
         internal override void ApplyWageToGame(float dailyWage, float hiringCost)
         {
             Singleton<IDManager>.Instance.CashierSO(Id).DailyWage = dailyWage;
@@ -156,6 +177,16 @@ namespace EmployeeTraining.EmployeeCashier
             Employee = null;
         }
 
+    }
+
+    [Serializable]
+    public class CashierSkillData : SkillData<CashierSkill>
+    {
+
+        public CashierSkillData() : base()
+        {
+            Skill = new CashierSkill(this);
+        }
     }
 
     public struct CashierSkillTier : ISkillTier

@@ -2,7 +2,9 @@
 using BepInEx;
 using EmployeeTraining.EmployeeCashier;
 using EmployeeTraining.EmployeeCsHelper;
+using EmployeeTraining.EmployeeJanitor;
 using EmployeeTraining.EmployeeRestocker;
+using EmployeeTraining.EmployeeSecurity;
 using EmployeeTraining.Localization;
 using EmployeeTraining.TrainingApp;
 using HarmonyLib;
@@ -42,24 +44,9 @@ namespace EmployeeTraining
 
             GamePatch.plugin = this;
 
-            Harmony harmony = new Harmony("jp.tsuteto.sms.CashierTraining.patches");
-            LogDebug("Patching SaveManager_Save_Patcher");
-            harmony.PatchAll(typeof(SaveManager_Save_Patcher));
-            LogDebug("Patching SaveManager_Load_Patcher");
-            harmony.PatchAll(typeof(SaveManager_Load_Patcher));
-            // harmony.PatchAll(typeof(Restocker_PlaceProducts_Patcher));
-            LogDebug("Patching GeneralPatch");
-            harmony.PatchAll(typeof(GamePatch));
-            LogDebug("Patching CashierPatch");
-            harmony.PatchAll(typeof(CashierPatch));
-            LogDebug("Patching EmployeeManagerPatch");
-            harmony.PatchAll(typeof(EmployeeManagerPatch));
-            LogDebug("Patching RestockerPatch");
-            harmony.PatchAll(typeof(RestockerPatch));
-            LogDebug("Patching CustomerHelperPatch");
-            harmony.PatchAll(typeof(CsHelperPatch));
-            LogDebug("Patching CustomerPatch");
-            harmony.PatchAll(typeof(CustomerPatch));
+            Logger.LogInfo("Applying EmployeeTraining patches");
+            Harmony harmony = new Harmony("jp.tsuteto.sms.EmployeeTraining");
+            harmony.PatchAll();
 
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
         }

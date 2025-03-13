@@ -40,12 +40,16 @@ namespace EmployeeTraining.Employee
             gaugeToggle.isOn = skill.IsGaugeDisplayed;
             gaugeToggle.onValueChanged = new Toggle.ToggleEvent();
             gaugeToggle.onValueChanged.AddListener(GaugeToggleChanged);
+            trainBtnObj = transform.Find("Interaction Zone/Training Button").gameObject;
             trainingBtn = transform.Find("Interaction Zone/Training Button").GetComponent<Button>();
             trainingBtn.onClick = new Button.ButtonClickedEvent();
             trainingBtn.onClick.AddListener(TrainingBtnClicked);
+            trainingBtn.onClick.AddListener(trainBtnObj.GetComponent<MouseClickSFX>().Click);
+            unlockBtnObj = transform.Find("Interaction Zone/Unlock Button").gameObject;
             unlockBtn = transform.Find("Interaction Zone/Unlock Button").GetComponent<Button>();
             unlockBtn.onClick = new Button.ButtonClickedEvent();
             unlockBtn.onClick.AddListener(UnlockBtnClicked);
+            unlockBtn.onClick.AddListener(unlockBtnObj.GetComponent<MouseClickSFX>().Click);
 
             expValue = transform.Find("Elements/Info/Exp Value").GetComponent<TextMeshProUGUI>();
             Plugin.LogDebug($"- expValue: {expValue}");
@@ -72,8 +76,6 @@ namespace EmployeeTraining.Employee
             ninjaLabel = transform.Find($"Elements/Info/Roadmap/{Grade.Ninja.Name}/Label").GetComponent<StringLocalizeTranslator>();
             Plugin.LogDebug($"- ninjaLabel: {ninjaLabel}");
 
-            unlockBtnObj = transform.Find("Interaction Zone/Unlock Button").gameObject;
-            trainBtnObj = transform.Find("Interaction Zone/Training Button").gameObject;
             priceText = transform.Find("Interaction Zone/Total Price Text").GetComponent<TextMeshProUGUI>();
 
             SetupDetailParams();
@@ -109,11 +111,13 @@ namespace EmployeeTraining.Employee
             {
                 var message = unlockApprovalObj.transform.Find("Window BG/Message").GetComponent<StringLocalizeTranslator>();
                 var employeeName = Plugin.Localizer.Get($"{skill.JobName} Name").Translate(skill.Id);
-                message.Translate(employeeName, Plugin.Localizer.Get(nextGrade.Name).Translate(), nextGrade.WageCashier.ToMoneyText(12));
+                message.Translate(employeeName, Plugin.Localizer.Get(nextGrade.Name).Translate(), skill.GetWage(nextGrade).ToMoneyText(12));
 
-                var approveBtn = unlockApprovalObj.transform.Find("Window BG/Approve Button").GetComponent<Button>();
+                var approveBtnObj = unlockApprovalObj.transform.Find("Window BG/Approve Button").gameObject;
+                var approveBtn = approveBtnObj.GetComponent<Button>();
                 approveBtn.onClick = new Button.ButtonClickedEvent();
                 approveBtn.onClick.AddListener(UnlockApproved);
+                approveBtn.onClick.AddListener(approveBtnObj.GetComponent<MouseClickSFX>().Click);
 
                 unlockApprovalObj.SetActive(true);
             }

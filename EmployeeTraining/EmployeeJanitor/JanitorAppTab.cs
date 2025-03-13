@@ -1,22 +1,22 @@
 using System.Collections.Generic;
 using EmployeeTraining.Employee;
-using EmployeeTraining.EmployeeCsHelper;
+using EmployeeTraining.TrainingApp;
 using HarmonyLib;
 using MyBox;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace EmployeeTraining.TrainingApp
+namespace EmployeeTraining.EmployeeJanitor
 {
-    public class EmployeeCsHelperAppUI : EmployeeAppUI<CsHelperTrainingProgressItem, CsHelperSkill>, IEmployeeAppUI
+    public class JanitorAppTab : EmployeeAppTab<JanitorTrainingProgressItem, JanitorSkill>, IEmployeeAppTab
     {
         public void ComposeTabButton(GameObject baseTabBtnObj, GameObject taskbarBtnsObj)
         {
             this.ComposeTabButton(baseTabBtnObj, taskbarBtnsObj,
-                "Customer Helper Tab Button", "icon_shopping_52", "Customer Helpers");
+                "Janitor Tab Button", "Janitor_Icon", "Janitors");
         }
 
-        void IEmployeeAppUI.CreateStatusPanel(GameObject panelObj, GameObject panelTmpl)
+        void IEmployeeAppTab.CreateStatusPanel(GameObject panelObj, GameObject panelTmpl)
         {
             this.CreateStatusPanel(panelObj, panelTmpl);
         }
@@ -24,7 +24,7 @@ namespace EmployeeTraining.TrainingApp
         public void ComposeStatusPanel()
         {
             this.ComposeStatusPanel(
-                "icon_shopping_52", "Customer Helper Name",
+                "Janitor_Icon", "Janitor Name",
                 bgColorPanel: new Color(0.349f, 0.6039f, 0.549f, 0.9412f),
                 bgColorIntr: new Color32(68, 200, 182, 255),
                 bgColorExp: new Color32(33, 108, 99, 255),
@@ -34,38 +34,38 @@ namespace EmployeeTraining.TrainingApp
                 detailParamCount: 3,
                 detailParams: new DetailParam[]
                 {
-                    new DetailParam() { Name="SPM", LabelKey="Scans Per Minute", ValueKey="SPM Range", ValueArgs=new string[]{"<MIN>", "<MAX>"} },
                     new DetailParam() { Name="Rapidity", LabelKey="Rapidity", ValueKey="Speed", ValueArgs=new string[]{"0"} },
+                    new DetailParam() { Name="Dexterity", LabelKey="Dexterity", ValueKey="Percentage", ValueArgs=new string[]{"0"} },
                     new DetailParamWage(),
                 }
             );
         }
 
-        void IEmployeeAppUI.CreateTabScreen(GameObject baseTabObj, GameObject tabsObj)
+        void IEmployeeAppTab.CreateTabScreen(GameObject baseTabObj, GameObject tabsObj)
         {
             this.CreateTabScreen(baseTabObj, tabsObj);
         }
 
         public void ComposeTabScreen()
         {
-            this.ComposeTabScreen("Customer Helpers Tab", "cshelpers", new Color32(228, 255, 251, 255));
-            this.ComposeNoEmployee("No Customer Helpers", "NO CUSTOMER HELPERS HIRED", new Color32(150, 212, 206, 255));
+            this.ComposeTabScreen("Janitor Tab", "janitors", new Color32(228, 255, 251, 255));
+            this.ComposeNoEmployee("No Janitors", "NO JANITORS HIRED", new Color32(150, 212, 206, 255));
         }
 
         public void AddTabEvent(GameObject taskbarObj, TabManager tabMgr)
         {
-            this.AddTabBtnEvent(taskbarObj, tabMgr, "Buttons/Customer Helper Tab Button", "cshelpers");
+            this.AddTabBtnEvent(taskbarObj, tabMgr, "Buttons/Janitor Tab Button", "janitors");
         }
 
         public void RegisterEmployee(IEmployeeSkill skill, GameObject panelTmpl, GameObject unlockApprWindowObj)
         {
-            this.RegisterEmployee("Customer Helper Status Panel", (CsHelperSkill)skill, unlockApprWindowObj);
+            this.RegisterEmployee("Janitor Status Panel", (JanitorSkill)skill, unlockApprWindowObj);
         }
 
         public void DeleteEmployee(IEmployeeSkill skill)
         {
-            List<int> employeeData = Traverse.Create(Singleton<EmployeeManager>.Instance).Field<List<int>>("m_CustomerHelpersData").Value;
-            this.DeleteEmployee((CsHelperSkill)skill, employeeData);
+            List<int> employeeData = Traverse.Create(Singleton<EmployeeManager>.Instance).Field<List<int>>("m_JanitorsData").Value;
+            this.DeleteEmployee((JanitorSkill)skill, employeeData);
         }
     }
 }

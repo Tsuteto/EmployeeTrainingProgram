@@ -7,6 +7,22 @@ namespace EmployeeTraining.EmployeeCsHelper
 {
     public class CsHelperSkill : EmployeeSkill<CsHelperSkill, CsHelperSkillTier, EmplCsHelper, CustomerHelper>
     {
+        private static readonly Dictionary<Grade, float> WAGE = new Dictionary<Grade, float>(){
+            {Grade.Rookie, 80f},
+            {Grade.Middle, 100f},
+            {Grade.Adv, 140f},
+            {Grade.Pro, 200f},
+            {Grade.Ninja, 280f}
+        };
+
+        private static readonly Dictionary<Grade, float> HIRING_COST = new Dictionary<Grade, float>(){
+            {Grade.Rookie, 150f},
+            {Grade.Middle, 200f},
+            {Grade.Adv, 270f},
+            {Grade.Pro, 350f},
+            {Grade.Ninja, 450f}
+        };
+
         private static readonly CsHelperSkillTier[] SKILL_TABLE = {
             new CsHelperSkillTier{Lvl=1, Exp=0, IntervalMax=2.400000f, IntervalMin=2.000000f, Rapidity=1.388889f},
             new CsHelperSkillTier{Lvl=2, Exp=50, IntervalMax=1.818182f, IntervalMin=1.500000f, Rapidity=1.444444f},
@@ -142,9 +158,11 @@ namespace EmployeeTraining.EmployeeCsHelper
         public float TurningSpeed => 5f * Tier.Rapidity; // Vanilla: 5
 
         internal override CsHelperSkillTier[] SkillTable => SKILL_TABLE;
+        protected override float CostRateToLevelUp => 2f;
 
-        public override float Wage => Grade.WageCsHelper;
-        public override float HiringCost => Grade.HiringCostCsHelper;
+        public override float Wage => WAGE[Grade];
+        public override float HiringCost => HIRING_COST[Grade];
+        public override float GetWage(Grade g) => WAGE[g];
         internal override void ApplyWageToGame(float dailyWage, float hiringCost)
         {
             Singleton<IDManager>.Instance.CustomerHelperSO(Id).DailyWage = dailyWage;
@@ -168,6 +186,15 @@ namespace EmployeeTraining.EmployeeCsHelper
 
     }
 
+    [Serializable]
+    public class CsHelperSkillData : SkillData<CsHelperSkill>
+    {
+        public CsHelperSkillData() : base()
+        {
+            Skill = new CsHelperSkill(this);
+        }
+    }
+
     public struct CsHelperSkillTier : ISkillTier
     {
         public int Lvl { get; set; }
@@ -176,7 +203,6 @@ namespace EmployeeTraining.EmployeeCsHelper
         public float IntervalMax { get; set; }
         public float Rapidity { get; set; }
     }
-
 
     public class EmplCsHelper : Employee<CustomerHelper>
     {

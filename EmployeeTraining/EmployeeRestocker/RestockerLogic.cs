@@ -1,9 +1,12 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using DG.Tweening;
 using EmployeeTraining.api;
+using EmployeeTraining.Employee;
 using HarmonyLib;
 using Lean.Pool;
 using MyBox;
@@ -31,46 +34,45 @@ namespace EmployeeTraining.EmployeeRestocker
             [BoxSize._40x26x26] = 839
         };
 
-        private RestockerState State { get => fldState.Value; set => fldState.Value = value; }
+        private RestockerState State { get => this.fldState.Value; set => this.fldState.Value = value; }
         private readonly PrivateFld<RestockerState> fldState = new PrivateFld<RestockerState>(typeof(Restocker), "m_State");
-        private int TargetProductID { get => fldTargetProductID.Value; set => fldTargetProductID.Value = value; }
+        private int TargetProductID { get => this.fldTargetProductID.Value; set => this.fldTargetProductID.Value = value; }
         private readonly PrivateFld<int> fldTargetProductID = new PrivateFld<int>(typeof(Restocker), "m_TargetProductID");
-        private DisplaySlot TargetDisplaySlot { get => fldTargetDisplaySlot.Value; set => fldTargetDisplaySlot.Value = value; }
+        private DisplaySlot TargetDisplaySlot { get => this.fldTargetDisplaySlot.Value; set => this.fldTargetDisplaySlot.Value = value; }
         private readonly PrivateFld<DisplaySlot> fldTargetDisplaySlot = new PrivateFld<DisplaySlot>(typeof(Restocker), "m_TargetDisplaySlot");
-        private RackSlot TargetRackSlot { get => fldTargetRackSlot.Value; set => fldTargetRackSlot.Value = value; }
+        private RackSlot TargetRackSlot { get => this.fldTargetRackSlot.Value; set => this.fldTargetRackSlot.Value = value; }
         private readonly PrivateFld<RackSlot> fldTargetRackSlot = new PrivateFld<RackSlot>(typeof(Restocker), "m_TargetRackSlot");
-        private bool CheckTasks { get => fldCheckTasks.Value; set => fldCheckTasks.Value = value; }
+        private bool CheckTasks { get => this.fldCheckTasks.Value; set => this.fldCheckTasks.Value = value; }
         private readonly PrivateFld<bool> fldCheckTasks = new PrivateFld<bool>(typeof(Restocker), "m_CheckTasks");
-        private LayerMask CurrentBoxLayer { get => fldCurrentBoxLayer.Value; set => fldCurrentBoxLayer.Value = value; }
+        private LayerMask CurrentBoxLayer { get => this.fldCurrentBoxLayer.Value; set => this.fldCurrentBoxLayer.Value = value; }
         private readonly PrivateFld<LayerMask> fldCurrentBoxLayer = new PrivateFld<LayerMask>(typeof(Restocker), "m_CurrentBoxLayer");
-        private Box Box { get => fldBox.Value; set => fldBox.Value = value; }
+        private Box Box { get => this.fldBox.Value; set => this.fldBox.Value = value; }
         private readonly PrivateFld<Box> fldBox = new PrivateFld<Box>(typeof(Restocker), "m_Box");
-        private Transform BoxHolder { get => fldBoxHolder.Value; set => fldBoxHolder.Value = value; }
+        private Transform BoxHolder { get => this.fldBoxHolder.Value; set => this.fldBoxHolder.Value = value; }
         private readonly PrivateFld<Transform> fldBoxHolder = new PrivateFld<Transform>(typeof(Restocker), "m_BoxHolder");
-        private NavMeshAgent Agent { get => fldAgent.Value; set => fldAgent.Value = value; }
+        private NavMeshAgent Agent { get => this.fldAgent.Value; set => this.fldAgent.Value = value; }
         private readonly PrivateFld<NavMeshAgent> fldAgent = new PrivateFld<NavMeshAgent>(typeof(Restocker), "m_Agent");
-        private float MinFillRateForDisplaySlotsToRestock { get => fldMinFillRateForDisplaySlotsToRestock.Value; set => fldMinFillRateForDisplaySlotsToRestock.Value = value; }
+        private float MinFillRateForDisplaySlotsToRestock { get => this.fldMinFillRateForDisplaySlotsToRestock.Value; set => this.fldMinFillRateForDisplaySlotsToRestock.Value = value; }
         private readonly PrivateFld<float> fldMinFillRateForDisplaySlotsToRestock = new PrivateFld<float>(typeof(Restocker), "m_MinFillRateForDisplaySlotsToRestock");
-        private bool IsCarryBoxToRack { get => fldIsCarryBoxToRack.Value; set => fldIsCarryBoxToRack.Value = value; }
+        private bool IsCarryBoxToRack { get => this.fldIsCarryBoxToRack.Value; set => this.fldIsCarryBoxToRack.Value = value; }
         private readonly PrivateFld<bool> fldIsCarryBoxToRack = new PrivateFld<bool>(typeof(Restocker), "m_IsCarryBoxToRack");
-        private Box TargetBox { get => fldTargetBox.Value; set => fldTargetBox.Value = value; }
+        private Box TargetBox { get => this.fldTargetBox.Value; set => this.fldTargetBox.Value = value; }
         private readonly PrivateFld<Box> fldTargetBox = new PrivateFld<Box>(typeof(Restocker), "m_TargetBox");
         // m_CurrentBoostLevel
-        private int CurrentBoostLevel { get => fldCurrentBoostLevel.Value; set => fldCurrentBoostLevel.Value = value; }
+        private int CurrentBoostLevel { get => this.fldCurrentBoostLevel.Value; set => this.fldCurrentBoostLevel.Value = value; }
         private readonly PrivateFld<int> fldCurrentBoostLevel = new PrivateFld<int>(typeof(Restocker), "m_CurrentBoostLevel");
         // m_RestockerWalkingSpeeds
-        private List<float> RestockerWalkingSpeeds { get => fldRestockerWalkingSpeeds.Value; set => fldRestockerWalkingSpeeds.Value = value; }
+        private List<float> RestockerWalkingSpeeds { get => this.fldRestockerWalkingSpeeds.Value; set => this.fldRestockerWalkingSpeeds.Value = value; }
         private readonly PrivateFld<List<float>> fldRestockerWalkingSpeeds = new PrivateFld<List<float>>(typeof(Restocker), "m_RestockerWalkingSpeeds");
         // m_RestockerPlacingSpeeds
-        private List<float> RestockerPlacingSpeeds { get => fldRestockerPlacingSpeeds.Value; set => fldRestockerPlacingSpeeds.Value = value; }
+        private List<float> RestockerPlacingSpeeds { get => this.fldRestockerPlacingSpeeds.Value; set => this.fldRestockerPlacingSpeeds.Value = value; }
         private readonly PrivateFld<List<float>> fldRestockerPlacingSpeeds = new PrivateFld<List<float>>(typeof(Restocker), "m_RestockerPlacingSpeeds");
 
 
-        private Dictionary<int, List<RackSlot>> RackSlots { get => fldRackSlots.Value; set => fldRackSlots.Value = value; }
+        private Dictionary<int, List<RackSlot>> RackSlots { get => this.fldRackSlots.Value; set => this.fldRackSlots.Value = value; }
         private readonly PrivateFld<Dictionary<int, List<RackSlot>>> fldRackSlots = new PrivateFld<Dictionary<int, List<RackSlot>>>(typeof(RackManager), "m_RackSlots");
-        private List<Rack> Racks { get => fldRacks.Value; set => fldRacks.Value = value; }
+        private List<Rack> Racks { get => this.fldRacks.Value; set => this.fldRacks.Value = value; }
         private readonly PrivateFld<List<Rack>> fldRacks = new PrivateFld<List<Rack>>(typeof(RackManager), "m_Racks");
- 
 
         private readonly Action ResetTargets;
         private readonly PrivateMtd mtdResetTargets = new PrivateMtd(typeof(Restocker), "ResetTargets");
@@ -99,6 +101,10 @@ namespace EmployeeTraining.EmployeeRestocker
         // Avoid to call the vanilla side of IsDisplaySlotAvailableToRestock because it's not needed in this logic and Pallets Display can cause an error
         // private readonly Func<DisplaySlot, bool> IsDisplaySlotAvailableToRestock;
         // private readonly PrivateMtd<bool> mtdIsDisplaySlotAvailableToRestock = new PrivateMtd<bool>(typeof(Restocker), "IsDisplaySlotAvailableToRestock", typeof(DisplaySlot));
+        private readonly Func<int, int, bool> IsAvailableRackSlotToPlaceBox;
+        private readonly PrivateMtd<bool> mtdIsAvailableRackSlotToPlaceBox = new PrivateMtd<bool>(typeof(Restocker), "IsAvailableRackSlotToPlaceBox", typeof(int), typeof(int));
+        private readonly Func<Box, bool> HasEmptySpaceForMergeInAnyRack;
+        private readonly PrivateMtd<bool> mtdHasEmptySpaceForMergeInAnyRack = new PrivateMtd<bool>(typeof(Restocker), "HasEmptySpaceForMergeInAnyRack", typeof(Box));
         private readonly Func<RackSlot, int, bool> IsRackSlotStillAvailable;
         private readonly PrivateMtd<bool> mtdIsRackSlotStillAvailable = new PrivateMtd<bool>(typeof(Restocker), "IsRackSlotStillAvailable", typeof(RackSlot), typeof(int));
         private readonly Func<IEnumerator> ThrowBoxToTrashBin;
@@ -122,18 +128,19 @@ namespace EmployeeTraining.EmployeeRestocker
         private int totalCarryingHeight;
         private readonly List<DisplaySlot> occupiedDisplaySlots = new List<DisplaySlot>();
         
-        private int CarryingCapacity => skill.CarryingCapacity;
-        private int CarryingMaxHeight => skill.CarryingMaxHeight;
-        private float ProductPlacingInterval => skill.ProductPlacingIntv; // 0.2s
-        private float UnpackingTime => skill.UnpackingTime; // 0.7s
-        private float TakingBoxTime => skill.TakingBoxTime; // 0.3s
-        private float ThrowingBoxTime => skill.ThrowingBoxTime;
-        private float MovingSpeed => skill.AgentSpeed;
-        private float AngularSpeed => skill.AgentAngularSpeed;
-        private float Acceleration => skill.AgentAcceleration;
-        private float TurningSpeed => skill.TurningSpeed;
-        private float RotationTime => skill.RotationTime;
+        private int CarryingCapacity => this.skill.CarryingCapacity;
+        private int CarryingMaxHeight => this.skill.CarryingMaxHeight;
+        private float ProductPlacingInterval => this.skill.ProductPlacingIntv; // 0.2s
+        private float UnpackingTime => this.skill.UnpackingTime; // 0.7s
+        private float TakingBoxTime => this.skill.TakingBoxTime; // 0.3s
+        private float ThrowingBoxTime => this.skill.ThrowingBoxTime;
+        private float MovingSpeed => this.skill.AgentSpeed;
+        private float AngularSpeed => this.skill.AgentAngularSpeed;
+        private float Acceleration => this.skill.AgentAcceleration;
+        private float TurningSpeed => this.skill.TurningSpeed;
+        private float RotationTime => this.skill.RotationTime;
 
+        private static bool VerboseLog => Plugin.Instance.Settings.RestockerLog;
         // private float lastTimeTryRestocking;
         // private int streakCounter;
 
@@ -142,116 +149,133 @@ namespace EmployeeTraining.EmployeeRestocker
             this.skill = skill;
             this.restocker = restocker;
 
-            fldState.Instance = restocker;
-            fldTargetProductID.Instance = restocker;
-            fldTargetDisplaySlot.Instance = restocker;
-            fldTargetRackSlot.Instance = restocker;
-            fldCheckTasks.Instance = restocker;
-            fldCurrentBoxLayer.Instance = restocker;
-            fldBox.Instance = restocker;
-            fldBoxHolder.Instance = restocker;
-            fldAgent.Instance = restocker;
-            fldIsCarryBoxToRack.Instance = restocker;
-            fldMinFillRateForDisplaySlotsToRestock.Instance = restocker;
-            fldTargetBox.Instance = restocker;
-            fldCurrentBoostLevel.Instance = restocker;
-            fldRestockerWalkingSpeeds.Instance = restocker;
-            fldRestockerPlacingSpeeds.Instance = restocker;
+            this.fldState.Instance = restocker;
+            this.fldTargetProductID.Instance = restocker;
+            this.fldTargetDisplaySlot.Instance = restocker;
+            this.fldTargetRackSlot.Instance = restocker;
+            this.fldCheckTasks.Instance = restocker;
+            this.fldCurrentBoxLayer.Instance = restocker;
+            this.fldBox.Instance = restocker;
+            this.fldBoxHolder.Instance = restocker;
+            this.fldAgent.Instance = restocker;
+            this.fldIsCarryBoxToRack.Instance = restocker;
+            this.fldMinFillRateForDisplaySlotsToRestock.Instance = restocker;
+            this.fldTargetBox.Instance = restocker;
+            this.fldCurrentBoostLevel.Instance = restocker;
+            this.fldRestockerWalkingSpeeds.Instance = restocker;
+            this.fldRestockerPlacingSpeeds.Instance = restocker;
 
-            fldRackSlots.Instance = Singleton<RackManager>.Instance;
-            fldRacks.Instance = Singleton<RackManager>.Instance;
+            this.fldRackSlots.Instance = Singleton<RackManager>.Instance;
+            this.fldRacks.Instance = Singleton<RackManager>.Instance;
 
-            ResetTargets = () => mtdResetTargets.Invoke();
-            mtdResetTargets.Instance = restocker;
-            TryRestocking = () => mtdTryRestocking.Invoke();
-            mtdTryRestocking.Instance = restocker;
-            PlaceBoxFromStreet = () => mtdPlaceBoxFromStreet.Invoke();
-            mtdPlaceBoxFromStreet.Instance = restocker;
-            PlaceBox = () => mtdPlaceBox.Invoke();
-            mtdPlaceBox.Instance = restocker;
-            DropBox = () => mtdDropBox.Invoke();
-            mtdDropBox.Instance = restocker;
-            PickUpBox = (isFromRack) => mtdPickUpBox.Invoke(isFromRack);
-            mtdPickUpBox.Instance = restocker;
-            PerformRestocking = () => mtdPerformRestocking.Invoke();
-            mtdPerformRestocking.Instance = restocker;
-            PlaceProducts = () => mtdPlaceProducts.Invoke();
-            mtdPlaceProducts.Instance = restocker;
-            PlaceBoxToRack = () => mtdPlaceBoxToRack.Invoke();
-            mtdPlaceBoxToRack.Instance = restocker;
-            GetAvailableDisplaySlotToRestock = () => mtdGetAvailableDisplaySlotToRestock.Invoke();
-            mtdGetAvailableDisplaySlotToRestock.Instance = restocker;
-            CheckForAvailableRackSlotToTakeBox = () => mtdCheckForAvailableRackSlotToTakeBox.Invoke();
-            mtdCheckForAvailableRackSlotToTakeBox.Instance = restocker;
-            CheckForAvailableRackSlotToPlaceBox = () => mtdCheckForAvailableRackSlotToPlaceBox.Invoke();
-            mtdCheckForAvailableRackSlotToPlaceBox.Instance = restocker;
+            this.ResetTargets = () => this.mtdResetTargets.Invoke();
+            this.mtdResetTargets.Instance = restocker;
+            this.TryRestocking = () => this.mtdTryRestocking.Invoke();
+            this.mtdTryRestocking.Instance = restocker;
+            this.PlaceBoxFromStreet = () => this.mtdPlaceBoxFromStreet.Invoke();
+            this.mtdPlaceBoxFromStreet.Instance = restocker;
+            this.PlaceBox = () => this.mtdPlaceBox.Invoke();
+            this.mtdPlaceBox.Instance = restocker;
+            this.DropBox = () => this.mtdDropBox.Invoke();
+            this.mtdDropBox.Instance = restocker;
+            this.PickUpBox = (isFromRack) => this.mtdPickUpBox.Invoke(isFromRack);
+            this.mtdPickUpBox.Instance = restocker;
+            this.PerformRestocking = () => this.mtdPerformRestocking.Invoke();
+            this.mtdPerformRestocking.Instance = restocker;
+            this.PlaceProducts = () => this.mtdPlaceProducts.Invoke();
+            this.mtdPlaceProducts.Instance = restocker;
+            this.PlaceBoxToRack = () => this.mtdPlaceBoxToRack.Invoke();
+            this.mtdPlaceBoxToRack.Instance = restocker;
+            this.GetAvailableDisplaySlotToRestock = () => this.mtdGetAvailableDisplaySlotToRestock.Invoke();
+            this.mtdGetAvailableDisplaySlotToRestock.Instance = restocker;
+            this.CheckForAvailableRackSlotToTakeBox = () => this.mtdCheckForAvailableRackSlotToTakeBox.Invoke();
+            this.mtdCheckForAvailableRackSlotToTakeBox.Instance = restocker;
+            this.CheckForAvailableRackSlotToPlaceBox = () => this.mtdCheckForAvailableRackSlotToPlaceBox.Invoke();
+            this.mtdCheckForAvailableRackSlotToPlaceBox.Instance = restocker;
             // this.IsDisplaySlotAvailableToRestock = (displaySlot) => mtdIsDisplaySlotAvailableToRestock.Invoke(displaySlot);
             // this.mtdIsDisplaySlotAvailableToRestock.Instance = restocker;
-            IsRackSlotStillAvailable = (rackSlot, productId) => mtdIsRackSlotStillAvailable.Invoke(rackSlot, productId);
-            mtdIsRackSlotStillAvailable.Instance = restocker;
-            ThrowBoxToTrashBin = () => mtdThrowBoxToTrashBin.Invoke();
-            mtdThrowBoxToTrashBin.Instance = restocker;
-            GoTo = (position, rotation) => mtdGoTo.Invoke(position, rotation);
-            mtdGoTo.Instance = restocker;
-            GoToWaiting = (state) => mtdGoToWaiting.Invoke(state);
-            mtdGoToWaiting.Instance = restocker;
-            HasBoxAtRackForMerge = (box) => mtdHasBoxAtRackForMerge.Invoke(box);
-            mtdHasBoxAtRackForMerge.Instance = restocker;
-            MergeBox = (slot) => mtdMergeBox.Invoke(slot);
-            mtdMergeBox.Instance = restocker;
+            this.IsAvailableRackSlotToPlaceBox = (productID, boxID) => this.mtdIsAvailableRackSlotToPlaceBox.Invoke(productID, boxID);
+            this.mtdIsAvailableRackSlotToPlaceBox.Instance = restocker;
+            this.HasEmptySpaceForMergeInAnyRack = (box) => this.mtdHasEmptySpaceForMergeInAnyRack.Invoke(box);
+            this.mtdHasEmptySpaceForMergeInAnyRack.Instance = restocker;
+            this.IsRackSlotStillAvailable = (rackSlot, productId) => this.mtdIsRackSlotStillAvailable.Invoke(rackSlot, productId);
+            this.mtdIsRackSlotStillAvailable.Instance = restocker;
+            this.ThrowBoxToTrashBin = () => this.mtdThrowBoxToTrashBin.Invoke();
+            this.mtdThrowBoxToTrashBin.Instance = restocker;
+            this.GoTo = (position, rotation) => this.mtdGoTo.Invoke(position, rotation);
+            this.mtdGoTo.Instance = restocker;
+            this.GoToWaiting = (state) => this.mtdGoToWaiting.Invoke(state);
+            this.mtdGoToWaiting.Instance = restocker;
+            this.HasBoxAtRackForMerge = (box) => this.mtdHasBoxAtRackForMerge.Invoke(box);
+            this.mtdHasBoxAtRackForMerge.Instance = restocker;
+            this.MergeBox = (slot) => this.mtdMergeBox.Invoke(slot);
+            this.mtdMergeBox.Instance = restocker;
         }
+
         public void AfterResetRestocker()
         {
-            inventory.Clear();
-            carryingBoxes.Clear();
-            planList.Clear();
+            this.UnoccupyBoxes();
+            this.inventory.Clear();
+            this.carryingBoxes.Clear();
+            this.planList.Clear();
+        }
+
+        public void UnoccupyBoxes()
+        {
+            // TODO: List locked boxes to unlock em all
+            this.inventory.ForEach(s => s.Box.SetOccupy(false, null));
+            // Task.Run(() => {
+            //     Box[] boxes = UnityEngine.Object.FindObjectsOfType<Box>();
+            //     boxes.Where(b => b.OccupyOwner == this.restocker.transform).ForEach(b => b.SetOccupy(false, null));
+            // });
         }
 
         public void Internal_DropTheBox()
         {
             // this.LogStat("Called DropTheBox");
             // Singleton<EmployeeManager>.Instance.OccupyProductID(this.TargetProductID, false);
-            if (Box == null || !restocker.CarryingBox)
+            if (this.Box == null || !this.restocker.CarryingBox)
             {
                 return;
             }
-            foreach (Box box in inventory.Boxes)
+            foreach (Box box in this.inventory.Boxes)
             {
                 Singleton<InventoryManager>.Instance.RemoveBox(box.Data);
                 LeanPool.Despawn(box.gameObject, 0f);
-                box.gameObject.layer = CurrentBoxLayer;
+                box.gameObject.layer = this.CurrentBoxLayer;
                 box.ResetBox();
             }
-            inventory.Clear();
-            carryingBoxes.Clear();
-            planList.Clear();
-            Box = null;
-            TargetBox = null;
-            restocker.CarryingBox = false;
-            State = RestockerState.IDLE;
-            CheckTasks = true;
+            this.UnoccupyBoxes();
+            this.inventory.Clear();
+            this.carryingBoxes.Clear();
+            this.planList.Clear();
+            this.Box = null;
+            this.TargetBox = null;
+            this.restocker.CarryingBox = false;
+            this.State = RestockerState.IDLE;
+            this.CheckTasks = true;
         }
 
         public void Internal_DropBoxToGround()
         {
-            foreach (Box box in inventory.Boxes)
+            foreach (Box box in this.inventory.Boxes)
             {
                 box.DropBox();
-                box.gameObject.layer = CurrentBoxLayer;
-        		box.SetOccupy(false, null);
+                box.gameObject.layer = this.CurrentBoxLayer;
             }
-            inventory.Clear();
-            carryingBoxes.Clear();
-            planList.Clear();
-            Box = null;
-            TargetBox = null;
-            restocker.CarryingBox = false;
-            CheckTasks = true;
+            this.UnoccupyBoxes();
+            this.inventory.Clear();
+            this.carryingBoxes.Clear();
+            this.planList.Clear();
+            this.Box = null;
+            this.TargetBox = null;
+            this.restocker.CarryingBox = false;
+            this.CheckTasks = true;
         }
 
         public IEnumerator Internal_TryRestocking()
         {
-            if (State != RestockerState.IDLE)
+            if (this.State != RestockerState.IDLE)
             {
                 yield break;
             }
@@ -266,57 +290,60 @@ namespace EmployeeTraining.EmployeeRestocker
             // }
             // lastTimeTryRestocking = timestamp;
 
-            State = RestockerState.RESTOCKING;
-            ResetTargets();
-            planList.Clear();
-            carryingBoxes.Clear();
-            MinFillRateForDisplaySlotsToRestock = 1;
-            totalCarryingWeight = 0;
-            totalCarryingHeight = 0;
+            this.State = RestockerState.RESTOCKING;
+            this.ResetTargets();
+            this.planList.Clear();
+            this.carryingBoxes.Clear();
+            this.MinFillRateForDisplaySlotsToRestock = 1;
+            this.totalCarryingWeight = 0;
+            this.totalCarryingHeight = 0;
             bool doneRestocking = false;
 
-            List<int> productsInInventory = FindProductNeededToStock();
+            List<int> productIdsToRestock = this.MakeAPlanToRestock();
 
-            restocker.FreeTargetDisplaySlot();
+            this.restocker.FreeTargetDisplaySlot();
             yield return null;
 
-            for (int j = 0; j < productsInInventory.Count; j++)
+            for (int j = 0; j < productIdsToRestock.Count; j++)
             {
-                TargetProductID = productsInInventory[j];
-                productsNeeded = GetTotalDisplayCapacity(TargetProductID) - Singleton<InventoryManager>.Instance.Products[TargetProductID];
+                this.TargetProductID = productIdsToRestock[j];
+                this.productsNeeded = this.GetTotalDisplayCapacity(this.TargetProductID) - Singleton<InventoryManager>.Instance.Products[this.TargetProductID];
                 // bool pickedUp = false;
-                LogStat($"TargetProductID={TargetProductID}, Demand={productsNeeded}");
+                this.LogStat($"TargetProductID={this.TargetProductID}, Demand={this.productsNeeded}");
                 List<DisplaySlot> checkedDisplaySlot = new List<DisplaySlot>();
-                while (productsNeeded > 0 && GetAvailableDisplaySlotToRestock() && restocker.ManagementData.RestockShelf)
+                while (this.productsNeeded > 0 && this.GetAvailableDisplaySlotToRestock() && this.restocker.ManagementData.RestockShelf)
                 {
-                    CheckTasks = false;
+                    Plugin.LogDebug($"Restocker[{restocker.RestockerID}]: Collecting goods {Singleton<IDManager>.Instance.ProductSO(this.TargetProductID).name}");
+                    this.CheckTasks = false;
     				bool isBoxFromRack = true;
-                    if (restocker.ManagementData.PickUpBoxGround)
+                    if (this.restocker.ManagementData.PickUpBoxGround)
                     {
-                        TargetBox = GetBoxFromStreet();
+                        Plugin.LogDebug($"Restocker[{restocker.RestockerID}]: Trying to get a box from street");
+                        this.TargetBox = this.GetBoxFromStreet();
                     }
-                    if (TargetBox != null && restocker.ManagementData.PickUpBoxGround)
+                    if (this.TargetBox != null && this.restocker.ManagementData.PickUpBoxGround)
                     {
-                        TargetBox.SetOccupy(true, restocker.transform);
+                        Plugin.LogDebug($"Restocker[{restocker.RestockerID}]: Found a box and aiming for TargetBox={this.TargetBox?.ToBoxInfo() ?? "NULL"}");
+                        this.TargetBox.SetOccupy(true, this.restocker.transform);
                         isBoxFromRack = false;
-                        Vector3 target = Vector3.MoveTowards(TargetBox.transform.position, restocker.transform.position, 0.35f);
-						Vector3 position = TargetBox.transform.position;
-						position.y = restocker.transform.position.y;
+                        Vector3 target = Vector3.MoveTowards(this.TargetBox.transform.position, this.restocker.transform.position, 0.35f);
+						Vector3 position = this.TargetBox.transform.position;
+						position.y = this.restocker.transform.position.y;
                         Quaternion rotation = Quaternion.LookRotation(position, Vector3.up);
-                        yield return restocker.StartCoroutine(GoTo(target, rotation));
+                        yield return this.restocker.StartCoroutine(this.GoTo(target, rotation));
                     }
                     else
                     {
-                        TargetBox = null;
+                        this.TargetBox = null;
                         bool foundAvailableRack = false;
-                        while (!foundAvailableRack && CheckForAvailableRackSlotToTakeBox())
+                        while (!foundAvailableRack && this.CheckForAvailableRackSlotToTakeBox())
                         {
-                            LogStat($"going to the rack {TargetRackSlot}");
-                            yield return restocker.StartCoroutine(GoTo(TargetRackSlot.InteractionPosition, TargetRackSlot.InteractionRotation));
-                            if (TargetRackSlot != null)
+                            this.LogStat($"going to the rack {this.TargetRackSlot}");
+                            yield return this.restocker.StartCoroutine(this.GoTo(this.TargetRackSlot.InteractionPosition, this.TargetRackSlot.InteractionRotation));
+                            if (this.TargetRackSlot != null)
                             {
-                                bool isRackActive = TargetRackSlot.gameObject.activeInHierarchy;
-                                bool isRackStillAvailable = IsRackSlotStillAvailable(TargetRackSlot, TargetProductID);
+                                bool isRackActive = this.TargetRackSlot.gameObject.activeInHierarchy;
+                                bool isRackStillAvailable = this.IsRackSlotStillAvailable(this.TargetRackSlot, this.TargetProductID);
                                 Plugin.LogDebug($"active={isRackActive}, still available={isRackStillAvailable}");
                                 if (isRackActive && isRackStillAvailable)
                                 {
@@ -331,104 +358,107 @@ namespace EmployeeTraining.EmployeeRestocker
                         }
                     }
 
-                    if (!IsDisplaySlotAvailableToRestock(TargetDisplaySlot))
+                    if (!this.IsDisplaySlotAvailableToRestock(this.TargetDisplaySlot))
                     {
-                        TargetDisplaySlot.OccupiedRestocker = null;
-                        occupiedDisplaySlots.Remove(TargetDisplaySlot);
-                        if (!GetAvailableDisplaySlotToRestock())
+                        this.TargetDisplaySlot.OccupiedRestocker = null;
+                        this.occupiedDisplaySlots.Remove(this.TargetDisplaySlot);
+                        Plugin.LogDebug($"Restocker[{restocker.RestockerID}]: Trying to get another display slot");
+                        if (!this.GetAvailableDisplaySlotToRestock())
                         {
                             break;
                         }
                     }
-                    if (TargetBox == null || !TargetBox.IsBoxOccupied || TargetBox.OccupyOwner == restocker.transform)
+                    // TargetBox is null or (not null and) not occupied or occupied by me)
+                    Plugin.LogDebug($"Restocker[{restocker.RestockerID}]: Trying to pick up TargetBox={this.TargetBox?.ToBoxInfo() ?? "NULL"}");
+                    if (this.TargetBox == null || !this.TargetBox.IsBoxOccupied || this.TargetBox.OccupyOwner == this.restocker.transform)
                     {
-                        yield return restocker.StartCoroutine(PickUpBox(isBoxFromRack));
-                        if (isBoxFromRack && TargetRackSlot != null && restocker.ManagementData.RemoveLabelRack && !TargetRackSlot.HasBox)
+                        yield return this.restocker.StartCoroutine(this.PickUpBox(isBoxFromRack));
+                        if (isBoxFromRack && this.TargetRackSlot != null && this.restocker.ManagementData.RemoveLabelRack && !this.TargetRackSlot.HasBox)
                         {
-                            TargetRackSlot.ClearLabel();
+                            this.TargetRackSlot.ClearLabel();
                         }
                     }
                 }
             }
 
-            LogStat("has finished collection, will restock");
-            var productIds = inventory.ProductIds;
+            this.LogStat("has finished collection, will restock");
+            var productIds = this.inventory.ProductIds;
             foreach (int id in productIds)
             {
-                TargetProductID = id;
+                this.TargetProductID = id;
                 //this.GetAvailableDisplaySlotToRestock();
 
                 // Get every available slot to restock
-                List<DisplaySlot> slots = Singleton<DisplayManager>.Instance.GetDisplaySlots(TargetProductID, false);
-    			slots.AddRange(Singleton<DisplayManager>.Instance.GetLabeledEmptyDisplaySlots(TargetProductID));
+                List<DisplaySlot> slots = Singleton<DisplayManager>.Instance.GetDisplaySlots(this.TargetProductID, false);
+    			slots.AddRange(Singleton<DisplayManager>.Instance.GetLabeledEmptyDisplaySlots(this.TargetProductID));
 
-                Box = inventory.Boxes.FirstOrDefault(b => b.HasProducts && b.Data.ProductID == TargetProductID);
+                this.Box = this.inventory.Boxes.FirstOrDefault(b => b.HasProducts && b.Data.ProductID == this.TargetProductID);
                 bool foundAvailableDisplaySlot = false;
                 foreach (DisplaySlot slot in slots)
                 {
-                    TargetDisplaySlot = slot;
-                    if (!IsDisplaySlotAvailableToRestock(slot))
+                    this.TargetDisplaySlot = slot;
+                    if (!this.IsDisplaySlotAvailableToRestock(slot))
                     {
                         continue;
                     }
-                    if (TargetBox != null && !TargetBox.HasProducts
-                        || TargetBox != null && TargetBox.OccupyOwner != restocker.transform)
+                    if (this.TargetBox != null && !this.TargetBox.HasProducts
+                        || this.TargetBox != null && this.TargetBox.OccupyOwner != this.restocker.transform)
                     {
                         break;
                     }
-                    LogStat($"going to the display {TargetDisplaySlot}");
-                    TargetDisplaySlot.OccupiedRestocker = restocker;
-                    occupiedDisplaySlots.Add(TargetDisplaySlot);
-                    yield return restocker.StartCoroutine(
-                            GoTo(TargetDisplaySlot.InteractionPosition - TargetDisplaySlot.InteractionPositionForward * 0.3f,
-                                TargetDisplaySlot.InteractionRotation));
-                    if (TargetDisplaySlot != null
-                            && TargetDisplaySlot.gameObject.activeInHierarchy
-                            && !TargetDisplaySlot.Full
-                            && IsDisplaySlotAvailableToRestock(TargetDisplaySlot) 
-                            && TargetProductID == TargetDisplaySlot.ProductID)
+                    this.LogStat($"going to the display {this.TargetDisplaySlot}");
+                    this.TargetDisplaySlot.OccupiedRestocker = this.restocker;
+                    this.occupiedDisplaySlots.Add(this.TargetDisplaySlot);
+                    yield return this.restocker.StartCoroutine(
+                            this.GoTo(this.TargetDisplaySlot.InteractionPosition - this.TargetDisplaySlot.InteractionPositionForward * 0.3f,
+                                this.TargetDisplaySlot.InteractionRotation));
+                    if (this.TargetDisplaySlot != null
+                            && this.TargetDisplaySlot.gameObject.activeInHierarchy
+                            && !this.TargetDisplaySlot.Full
+                            && this.IsDisplaySlotAvailableToRestock(this.TargetDisplaySlot) 
+                            && this.TargetProductID == this.TargetDisplaySlot.ProductID)
                     {
                         foundAvailableDisplaySlot = true;
                         break;
                     }
-                    TargetDisplaySlot.OccupiedRestocker = null;
-                    occupiedDisplaySlots.Remove(TargetDisplaySlot);
+                    this.TargetDisplaySlot.OccupiedRestocker = null;
+                    this.occupiedDisplaySlots.Remove(this.TargetDisplaySlot);
                 }
 
                 if (!foundAvailableDisplaySlot)
                 {
-                    TargetDisplaySlot.OccupiedRestocker = null;
-                    occupiedDisplaySlots.Remove(TargetDisplaySlot);
+                    this.TargetDisplaySlot.OccupiedRestocker = null;
+                    this.occupiedDisplaySlots.Remove(this.TargetDisplaySlot);
                 }
                 else
                 {
-                    LogStat($"restocking to {TargetDisplaySlot}");
-                    yield return restocker.StartCoroutine(PerformRestocking());
-                    LogStat($"done restocking");
+                    this.LogStat($"restocking to {this.TargetDisplaySlot}");
+                    yield return this.restocker.StartCoroutine(this.PerformRestocking());
+                    this.LogStat($"done restocking");
                 }
                 doneRestocking = true;
             }
 
-            LogStat($"goes dropping box");
-            yield return restocker.StartCoroutine(DropBox());
+            this.LogStat($"goes dropping box");
+            yield return this.restocker.StartCoroutine(this.DropBox());
             if (doneRestocking)
             {
-                skill.AddExp(2);
+                this.skill.AddExp(2);
                 yield break;
             }
 
-            if (!HasBox())
+            if (!this.HasBox())
             {
-                restocker.FreeTargetDisplaySlot();
-                planList.Clear();
-                IsCarryBoxToRack = false;
-                if (restocker.ManagementData.PickUpBoxGround)
+                this.restocker.FreeTargetDisplaySlot();
+                this.planList.Clear();
+                this.IsCarryBoxToRack = false;
+                if (this.restocker.ManagementData.PickUpBoxGround)
                 {
-                    yield return restocker.StartCoroutine(PlaceBoxFromStreet());
+                    yield return this.restocker.StartCoroutine(this.PlaceBoxFromStreet());
                 }
-                if (!restocker.CarryingBox && !IsCarryBoxToRack && State != RestockerState.IDLE)
+                if (!this.restocker.CarryingBox && !this.IsCarryBoxToRack && this.State != RestockerState.IDLE)
                 {
-                    yield return restocker.StartCoroutine(restocker.SoftResetRestocker());
+                    yield return this.restocker.StartCoroutine(this.restocker.SoftResetRestocker());
                 }
             }
         }
@@ -440,51 +470,57 @@ namespace EmployeeTraining.EmployeeRestocker
             Singleton<StorageStreet>.Instance.boxes.RemoveAll(x => !x.gameObject.activeInHierarchy);
             // Get a target box from the street
             List<Box> boxesOnStreet = Singleton<StorageStreet>.Instance.GetBoxesFromStreet();
-            bool includeEmptyBox = restocker.ManagementData.PickUpBoxGround;
-            List<Box> boxes = boxesOnStreet.FindAll(x => x.HasProducts && !x.Racked && x.Product.ID == TargetProductID
+            bool includeEmptyBox = this.restocker.ManagementData.PickUpBoxGround;
+            List<Box> boxes = boxesOnStreet.FindAll(x => x.HasProducts && !x.Racked && x.Product.ID == this.TargetProductID
                 && x.gameObject.activeInHierarchy
-                && (!x.IsBoxOccupied || x.IsBoxOccupied && x.OccupyOwner == restocker.transform));
+                && (!x.IsBoxOccupied || x.IsBoxOccupied && x.OccupyOwner == this.restocker.transform));
             if (includeEmptyBox)
             {
                 boxes.AddRange(boxesOnStreet.FindAll(x => !x.HasProducts
-                    && (!x.IsBoxOccupied || x.IsBoxOccupied && x.OccupyOwner == restocker.transform)));
+                    && (!x.IsBoxOccupied || x.IsBoxOccupied && x.OccupyOwner == this.restocker.transform)));
             }
             
             return boxes.Count > 0 ? boxes.GetRandom() : null;
         }
 
-        public List<int> FindProductNeededToStock()
+        private List<int> MakeAPlanToRestock()
         {
             var customers = Singleton<ShoppingCustomerList>.Instance.CustomersInShopping;
             bool isCustomerInShopping = customers.Count > 0 && customers.Any(c => c.ShoppingList != null && c.ShoppingList.HasProduct);
             bool canFullyStock = !isCustomerInShopping;
-            // Plugin.LogDebug($"Restocker[{skill.Id}] canFullyStock: {canFullyStock}");
-            // Plugin.LogDebug($"ActiveCustomers={customers.Count}, {customers.Select(c => $"[{c.ShoppingList?.Products.Keys.Join()}]").Join()}");
+            if (VerboseLog)
+            {
+                Plugin.LogDebug($"Restocker[{skill.Id}] canFullyStock: {canFullyStock}");
+                Plugin.LogDebug($"ActiveCustomers={customers.Count}, {customers.Select(c => $"[{c.ShoppingList?.Products.Keys.Join()}]").Join()}");
+            }
 
-            var carrying = CollectProductsCarrying();
-            var capacities = (from i in Singleton<InventoryManager>.Instance.Products
-                    select new KeyValuePair<int, int>(i.Key, GetTotalDisplayCapacity(i.Key)))
-                    .ToDictionary(p => p.Key, p => p.Value);
-            var demand = (from i in Singleton<InventoryManager>.Instance.Products
-                    where i.Value + carrying.Get(i.Key, 0) < capacities[i.Key] * (canFullyStock ? 1 : 0.8f)
-                    orderby i.Value + carrying.Get(i.Key, 0) ascending
-                    select new KeyValuePair<int, int>(i.Key, capacities[i.Key] - i.Value - carrying.Get(i.Key, 0)))
+            var dispMgr = Singleton<DisplayManager>.Instance;
+            var carrying = this.CollectProductsCarrying();
+            var demands = (from i in dispMgr.DisplayedProducts.AsParallel()
+                    where i.Value.Count > 0
+                    let capacity = this.GetTotalDisplayCapacity(i.Key)
+                    let displayed = dispMgr.GetDisplayedProductCount(i.Key)
+                    let stocking = displayed + carrying.Get(i.Key, 0)
+                    where stocking < capacity * (canFullyStock ? 1 : 0.8f)
+                    orderby stocking ascending
+                    select new KeyValuePair<int, int>(i.Key, capacity - displayed - carrying.Get(i.Key, 0)))
                     .ToList();
-            // Plugin.LogDebug($"Restocker[{this.restocker.RestockerID}] Demands:");
-            // Plugin.LogDebug(demand.Select(p => $"[productID={Singleton<IDManager>.Instance.ProductSO(p.Key).name}, count={p.Value}]").Join(delimiter: ", "));
-
-            // Plugin.LogDebug($"Products in a box:");
-            // Singleton<IDManager>.Instance.Products.ForEach(p => Plugin.LogDebug($"{p.ID}\t{p.GridLayoutInBox.productCount}"));
+            if (VerboseLog)
+            {
+                Plugin.LogDebug($"Restocker[{this.restocker.RestockerID}] Demands: {demands.Select(p => $"[{Singleton<IDManager>.Instance.ProductSO(p.Key).name} x {p.Value}]").Join(delimiter: "")}");
+                // Plugin.LogDebug($"Products in a box:");
+                // Singleton<IDManager>.Instance.Products.ForEach(p => Plugin.LogDebug($"{p.ID}\t{p.GridLayoutInBox.productCount}"));
+            }
 
             int totalWeightOfPlan = 0;
             int totalHeightOfPlan = 0;
-            foreach (KeyValuePair<int, int> p in demand)
+            foreach (KeyValuePair<int, int> p in demands)
             {
-                if (totalWeightOfPlan > CarryingCapacity || totalHeightOfPlan > CarryingMaxHeight) break;
+                if (totalWeightOfPlan > this.CarryingCapacity || totalHeightOfPlan > this.CarryingMaxHeight) break;
 
                 int id = p.Key;
                 int count = p.Value;
-                List<List<BoxData>> racks = GetBoxesInRacks(id);
+                List<List<BoxData>> racks = this.GetBoxesInRacks(id);
                 if (racks != null)
                 {
                     BoxSize boxSize = Singleton<IDManager>.Instance.ProductSO(id).GridLayoutInBox.boxSize;
@@ -497,12 +533,12 @@ namespace EmployeeTraining.EmployeeRestocker
                             BoxData box = boxes.Pop();
                             int boxWeight = ProductWeight.CalcWeight(box);
                             if (count > 0
-                                    && (totalWeightOfPlan == 0 || totalWeightOfPlan + boxWeight <= CarryingCapacity)
-                                    && (totalHeightOfPlan == 0 || totalHeightOfPlan + boxHeight <= CarryingMaxHeight))
+                                    && (totalWeightOfPlan == 0 || totalWeightOfPlan + boxWeight <= this.CarryingCapacity)
+                                    && (totalHeightOfPlan == 0 || totalHeightOfPlan + boxHeight <= this.CarryingMaxHeight))
                             {
-                                if (!planList.TryAdd(id, box.ProductCount))
+                                if (!this.planList.TryAdd(id, box.ProductCount))
                                 {
-                                    planList[id] += box.ProductCount;
+                                    this.planList[id] += box.ProductCount;
                                 }
                                 count -= box.ProductCount;
                                 totalWeightOfPlan += boxWeight;
@@ -516,19 +552,19 @@ namespace EmployeeTraining.EmployeeRestocker
                     }
                 }
             }
-            // Plugin.LogDebug($"Restocker[{this.skill.Id}] Planned:");
-            // Plugin.LogDebug(this.planList.Select(p => $"[productID={Singleton<IDManager>.Instance.ProductSO(p.Key).name}, count={p.Value}]").Join(delimiter: ", "));
-            // Plugin.LogDebug($"Weight: {totalWeightOfPlan}, Capacity: {this.CarryingCapacity}");
+            if (VerboseLog)
+            {
+                Plugin.LogDebug($"Restocker[{this.skill.Id}] Planned: {this.planList.Select(p => $"[{Singleton<IDManager>.Instance.ProductSO(p.Key).name} x{p.Value}]").Join(delimiter: "")}");
+                Plugin.LogDebug($"Restocker[{this.skill.Id}] Total weight: {totalWeightOfPlan}, Capacity: {this.CarryingCapacity}");
+            }
 
-            return planList.Select(p => p.Key).ToList();
+            return this.planList.Select(p => p.Key).ToList();
         }
 
         private int GetTotalDisplayCapacity(int productId)
         {
-            List<DisplaySlot> displaySlots = Singleton<DisplayManager>.Instance.GetDisplaySlots(productId, false)?
-                    .Distinct().ToList();
-            var total = displaySlots?.Sum(i => GetCapacityInDisplaySlot(i)) ?? 0;
-            return total;
+            return Singleton<DisplayManager>.Instance.GetDisplaySlots(productId, false)?
+                    .Distinct().Sum(i => this.GetCapacityInDisplaySlot(i)) ?? 0;
         }
 
         private int GetCapacityInDisplaySlot(DisplaySlot displaySlot)
@@ -565,9 +601,9 @@ namespace EmployeeTraining.EmployeeRestocker
                     where box.HasProducts && !box.Racked && box.Product.ID == productID && box.gameObject.activeInHierarchy
                     select box.Data;
 
-            if (RackSlots.ContainsKey(productID))
+            if (this.RackSlots.ContainsKey(productID))
             {
-                boxesInRacks = from rack in RackSlots[productID]
+                boxesInRacks = from rack in this.RackSlots[productID]
                         where rack.HasProduct
                         select rack.Data.RackedBoxDatas;
             }
@@ -581,7 +617,7 @@ namespace EmployeeTraining.EmployeeRestocker
 
         private List<Box> GetBoxListOnStreet()
         {
-            List<int> idList = restocker.GetAvailableProductIDList();
+            List<int> idList = this.restocker.GetAvailableProductIDList();
             List<Box> boxes = Singleton<StorageStreet>.Instance.boxes;
             boxes.RemoveAll(x => x.Racked);
             boxes.RemoveAll(x => !x.gameObject.activeInHierarchy);
@@ -593,11 +629,11 @@ namespace EmployeeTraining.EmployeeRestocker
 
         private int GetRackCapacityOfSpaceFor(int productID)
         {
-            LogStat($"called GetRackCapacityOfSpaceFor: productId={productID}");
-            Plugin.LogDebug($"Racks: {Racks?.Count}");
+            this.LogStat($"called GetRackCapacityOfSpaceFor: productId={productID}");
+            Plugin.LogDebug($"Racks: {this.Racks?.Count}");
             ProductSO pso = Singleton<IDManager>.Instance.ProductSO(productID);
             BoxSO bso = Singleton<IDManager>.Instance.Boxes.First(so => so.BoxSize == pso.GridLayoutInBox.boxSize);
-            int slots = Racks.SelectMany(rack => rack.RackSlots)
+            int slots = this.Racks.SelectMany(rack => rack.RackSlots)
                     .Where(slot => slot.Data.ProductID == productID && !slot.Full)
                     .Sum(slot => bso.GridLayout.boxCount - slot.Data.BoxCount);
             if (slots > 0)
@@ -605,8 +641,8 @@ namespace EmployeeTraining.EmployeeRestocker
                 Plugin.LogDebug($"Slots: {slots}");
                 return slots;
             }
-            LogStat($"collecting empty rack slots");
-            return Racks.SelectMany(rack => rack.RackSlots)
+            this.LogStat($"collecting empty rack slots");
+            return this.Racks.SelectMany(rack => rack.RackSlots)
                     .Where(slot => slot.Data.ProductID == -1 && !slot.HasBox)
                     .Sum(slot => bso.GridLayout.boxCount);
         }
@@ -619,290 +655,302 @@ namespace EmployeeTraining.EmployeeRestocker
                 .ToDictionary(g => g.Key, g => g.Sum());
         }
 
+        public List<int> Internal_GetAvailableProductIDList()
+        {
+            List<int> list = new List<int>();
+            foreach (Box item in Singleton<StorageStreet>.Instance.GetBoxesFromStreet())
+            {
+                if (item != null && item.Product != null && item.Product.ID > -1)
+                {
+                    if (this.IsAvailableRackSlotToPlaceBox(item.Data.ProductID, item.BoxID))
+                    {
+                        list.Add(item.Data.ProductID);
+                    }
+                    else if (this.HasEmptySpaceForMergeInAnyRack(item))
+                    {
+                        list.Add(item.Data.ProductID);
+                    }
+                }
+            }
+
+            return list;
+        }
+
         public IEnumerator Internal_PlaceBoxFromStreet()
         {
-            LogStat($"called PlaceBoxFromStreet");
-            IsCarryBoxToRack = false;
+            this.LogStat($"called PlaceBoxFromStreet");
+            this.IsCarryBoxToRack = false;
             List<Box> boxesToCarry = new List<Box>();
             int totalCarryingWeight = 0;
             int totalCarryingHeight = 0;
-            var totalCarryingBoxes = CollectBoxesCarryingFromStreet();
-            foreach (Box box in GetBoxListOnStreet())
+            var totalCarryingBoxes = this.CollectBoxesCarryingFromStreet();
+            foreach (Box box in this.GetBoxListOnStreet())
             {
-                if (box == null || box.IsBoxOccupied && box.OccupyOwner != restocker.transform || box.Racked || !box.HasProducts)
+                if (box == null || box.IsBoxOccupied && box.OccupyOwner != this.restocker.transform || box.Racked || !box.HasProducts)
                 {
                     continue;
                 }
-                int boxWeight = ProductWeight.CalcWeight(box.Data);
+                int boxWeight = ProductWeight.CalcWeight(box);
                 int boxHeight = BoxHeights[box.Data.Size];
-                if (totalCarryingWeight > 0 && boxWeight + totalCarryingWeight > CarryingCapacity
-                    || totalCarryingHeight > 0 && boxHeight + totalCarryingHeight > CarryingMaxHeight)
+                if (totalCarryingWeight > 0 && boxWeight + totalCarryingWeight > this.CarryingCapacity
+                    || totalCarryingHeight > 0 && boxHeight + totalCarryingHeight > this.CarryingMaxHeight)
                 {
                     continue;
                 }
                 int pid = box.Data.ProductID;
                 int productBoxCnt = boxesToCarry.Where(b => b.Data.ProductID == pid).Count();
-                if (productBoxCnt < GetRackCapacityOfSpaceFor(pid) - totalCarryingBoxes.Get(pid, 0))
+                if (productBoxCnt < this.GetRackCapacityOfSpaceFor(pid) - totalCarryingBoxes.Get(pid, 0))
                 {
-                    box.SetOccupy(true, restocker.transform);
+                    box.SetOccupy(true, this.restocker.transform);
                     boxesToCarry.Add(box);
                     totalCarryingWeight += boxWeight;
                     totalCarryingHeight += boxHeight;
-                    if (!carryingBoxes.TryAdd(pid, 1))
+                    if (!this.carryingBoxes.TryAdd(pid, 1))
                     {
-                        carryingBoxes[pid] += 1;
+                        this.carryingBoxes[pid] += 1;
                     }
                 }
             }
 
             foreach (Box box in boxesToCarry)
             {
-                TargetBox = box;
-                TargetProductID = TargetBox.Data.ProductID;
-                Box = TargetBox;
-                Vector3 target = Vector3.MoveTowards(TargetBox.transform.position, restocker.transform.position, 0.35f);
-                Quaternion rotation = Quaternion.LookRotation(TargetBox.transform.position, Vector3.up);
-                yield return restocker.StartCoroutine(GoTo(target, rotation));
-                if (TargetBox == null || TargetBox.Racked)
+                this.TargetBox = box;
+                this.TargetProductID = this.TargetBox.Data.ProductID;
+                this.Box = this.TargetBox;
+                Vector3 target = Vector3.MoveTowards(this.TargetBox.transform.position, this.restocker.transform.position, 0.35f);
+                Quaternion rotation = Quaternion.LookRotation(this.TargetBox.transform.position, Vector3.up);
+                yield return this.restocker.StartCoroutine(this.GoTo(target, rotation));
+                if (this.TargetBox == null || this.TargetBox.Racked)
                 {
-                    DoneCarryingBox(TargetBox);
-                    TargetBox = null;
-                    TargetProductID = -1;
+                    this.DoneCarryingBox(this.TargetBox);
+                    this.TargetBox = null;
+                    this.TargetProductID = -1;
                 }
                 else
                 {
-                    LogStat($"picking up from street: {TargetBox.ToBoxInfo()}");
-                    yield return restocker.StartCoroutine(PickUpBox(false));
-                    if (HasBox())
+                    this.LogStat($"picking up from street: {this.TargetBox.ToBoxInfo()}");
+                    yield return this.restocker.StartCoroutine(this.PickUpBox(false));
+                    if (this.HasBox())
                     {
-                        IsCarryBoxToRack = true;
+                        this.IsCarryBoxToRack = true;
                     }
                 }
             }
 
-            yield return restocker.StartCoroutine(DropBox());
-            if (IsCarryBoxToRack)
+            yield return this.restocker.StartCoroutine(this.DropBox());
+            if (this.IsCarryBoxToRack)
             {
-                skill.AddExp(2);
+                this.skill.AddExp(2);
             }
 
-            LogStat($"finished PlaceBoxFromStreet");
+            this.LogStat($"finished PlaceBoxFromStreet");
         }
 
         public IEnumerator Internal_DropBox()
         {
             // this.LogStat($"Called DropBox");
-            if (TargetDisplaySlot != null && TargetDisplaySlot.IsOccupiedByOthers(restocker))
+            if (this.TargetDisplaySlot != null && this.TargetDisplaySlot.IsOccupiedByOthers(this.restocker))
             {
-                occupiedDisplaySlots.Remove(TargetDisplaySlot);
-                TargetDisplaySlot.OccupiedRestocker = null;
+                this.occupiedDisplaySlots.Remove(this.TargetDisplaySlot);
+                this.TargetDisplaySlot.OccupiedRestocker = null;
             }
-            if (!HasBox())
+            if (!this.HasBox())
             {
                 yield break;
             }
-            if (inventory.Boxes.Any(b => !b.HasProducts))
+            if (this.inventory.Boxes.Any(b => !b.HasProducts))
             {
-                yield return restocker.StartCoroutine(ThrowBoxToTrashBin());
+                yield return this.restocker.StartCoroutine(this.ThrowBoxToTrashBin());
             }
-            if (inventory.Boxes.Any(b => b.HasProducts))
+            if (this.inventory.Boxes.Any(b => b.HasProducts))
             {
-                yield return restocker.StartCoroutine(PlaceBoxToRack());
+                yield return this.restocker.StartCoroutine(this.PlaceBoxToRack());
             }
         }
 
         public IEnumerator Internal_PerformRestocking()
         {
-            DoneRestocking(Box);
-            yield return restocker.StartCoroutine(PlaceProducts());
-            Box = inventory.Boxes.FirstOrDefault(b => b.HasProducts && b.Data.ProductID == TargetProductID);
-            while (Box != null && Box.HasProducts && GetAvailableDisplaySlotToRestock())
+            this.DoneRestocking(this.Box);
+            yield return this.restocker.StartCoroutine(this.PlaceProducts());
+            this.Box = this.inventory.Boxes.FirstOrDefault(b => b.HasProducts && b.Data.ProductID == this.TargetProductID);
+            while (this.Box != null && this.Box.HasProducts && this.GetAvailableDisplaySlotToRestock())
             {
-                yield return restocker.StartCoroutine(GoTo(
-                        TargetDisplaySlot.InteractionPosition - TargetDisplaySlot.InteractionPositionForward * 0.3f,
-                        TargetDisplaySlot.InteractionRotation));
-                DoneRestocking(Box);
-                if (TargetDisplaySlot == null
-                        || !TargetDisplaySlot.gameObject.activeInHierarchy
-                        || TargetDisplaySlot.Full
-                        || !IsDisplaySlotAvailableToRestock(TargetDisplaySlot)
-                        || TargetProductID != TargetDisplaySlot.ProductID)
+                Plugin.LogDebug($"Restocker[{restocker.RestockerID}]: Trying to restock {this.Box.ToBoxInfo()}");
+                yield return this.restocker.StartCoroutine(this.GoTo(
+                        this.TargetDisplaySlot.InteractionPosition - this.TargetDisplaySlot.InteractionPositionForward * 0.3f,
+                        this.TargetDisplaySlot.InteractionRotation));
+                this.DoneRestocking(this.Box);
+                if (this.TargetDisplaySlot == null
+                        || !this.TargetDisplaySlot.gameObject.activeInHierarchy
+                        || this.TargetDisplaySlot.Full
+                        || !this.IsDisplaySlotAvailableToRestock(this.TargetDisplaySlot)
+                        || this.TargetProductID != this.TargetDisplaySlot.ProductID)
                 {
-                    occupiedDisplaySlots.Remove(TargetDisplaySlot);
-                    TargetDisplaySlot.OccupiedRestocker = null;
+                    this.occupiedDisplaySlots.Remove(this.TargetDisplaySlot);
+                    this.TargetDisplaySlot.OccupiedRestocker = null;
                 }
                 else
                 {
-                    LogStat("calling PlaceProducts");
-                    yield return restocker.StartCoroutine(PlaceProducts());
+                    this.LogStat("calling PlaceProducts");
+                    yield return this.restocker.StartCoroutine(this.PlaceProducts());
                 }
-                Box = inventory.Boxes.FirstOrDefault(b => b.HasProducts && b.Data.ProductID == TargetProductID);
+                this.Box = this.inventory.Boxes.FirstOrDefault(b => b.HasProducts && b.Data.ProductID == this.TargetProductID);
             }
-            if (State == RestockerState.WAITING_FOR_AVAILABLE_RACK_SLOT)
+            if (this.State == RestockerState.WAITING_FOR_AVAILABLE_RACK_SLOT)
             {
-                restocker.StartCoroutine(DropBox());
+                this.restocker.StartCoroutine(this.DropBox());
             }
         }
 
         public IEnumerator Internal_PlaceBoxToRack()
         {
-            Box = inventory.Boxes.FirstOrDefault(b => b.HasProducts);
-            LogStat($"called PlaceBoxToRack");
-            TargetProductID = Box.Data.ProductID;
-
-            while (restocker.CarryingBox)
+            this.LogStat($"called PlaceBoxToRack");
+            this.Box = this.inventory.Boxes.FirstOrDefault(b => b.HasProducts);
+            if (this.Box == null)
             {
-                RackSlot rackSlot = HasBoxAtRackForMerge(Box);
-                LogStat($"trying to merge {Box.ToBoxInfo()} to {rackSlot}");
-                yield return restocker.StartCoroutine(MergeBox(rackSlot));
-                if (!Box.HasProducts)
+                Plugin.LogDebug($"Restocker[{restocker.RestockerID}]: No box to place");
+                if (this.inventory.Boxes.Any(b => !b.HasProducts))
                 {
-                    DoneCarryingBox(TargetProductID);
-                    Box = inventory.Boxes.FirstOrDefault(b => b.HasProducts && b.Data.ProductID == TargetProductID);
-                    if (Box != null)
+                    yield return this.restocker.StartCoroutine(this.ThrowBoxToTrashBin());
+                }
+                this.restocker.CarryingBox = false;
+                this.State = RestockerState.IDLE;
+                this.restocker.StartCoroutine(this.TryRestocking());
+                yield break;
+            }
+
+            this.TargetProductID = this.Box.Data.ProductID;
+
+            while (this.restocker.CarryingBox)
+            {
+                RackSlot rackSlot = this.HasBoxAtRackForMerge(this.Box);
+                this.LogStat($"trying to merge {this.Box.ToBoxInfo()} to rack slot");
+                yield return this.restocker.StartCoroutine(this.MergeBox(rackSlot));
+                if (!this.Box.HasProducts)
+                {
+                    this.DoneCarryingBox(this.TargetProductID);
+                    this.Box = this.inventory.Boxes.FirstOrDefault(b => b.HasProducts && b.Data.ProductID == this.TargetProductID);
+                    if (this.Box != null)
                     {
                         continue;
                     }
-                    Box = inventory.Boxes.FirstOrDefault(b => b.HasProducts);
-                    if (Box == null)
+                    this.Box = this.inventory.Boxes.FirstOrDefault(b => b.HasProducts);
+                    if (this.Box == null)
                     {
-                        Box = inventory.Boxes.FirstOrDefault();
+                        this.Box = this.inventory.Boxes.FirstOrDefault();
                     }
                     else
                     {
-                        TargetProductID = Box.Data.ProductID;
+                        this.TargetProductID = this.Box.Data.ProductID;
                         continue;
                     }
                 }
 
-                if (Box.HasProducts)
+                if (this.Box.HasProducts)
                 {
-                    if (!CheckForAvailableRackSlotToPlaceBox())
+                    if (!this.CheckForAvailableRackSlotToPlaceBox())
                     {
                         break;
                     }
 
-                    LogStat($"going to rack {TargetRackSlot}");
-                    yield return restocker.StartCoroutine(
-                            GoTo(TargetRackSlot.InteractionPosition, TargetRackSlot.InteractionRotation));
+                    this.LogStat($"going to rack {this.TargetRackSlot}");
+                    yield return this.restocker.StartCoroutine(
+                            this.GoTo(this.TargetRackSlot.InteractionPosition, this.TargetRackSlot.InteractionRotation));
                     
-                    if (!(TargetRackSlot == null) 
-                            && TargetRackSlot.gameObject.activeInHierarchy 
-                            && !TargetRackSlot.Full 
-                            && (!TargetRackSlot.HasProduct
-                                || TargetRackSlot.Data.ProductID == TargetProductID)
-                            && (TargetRackSlot.Data.ProductID == -1
-                                || TargetRackSlot.Data.ProductID == TargetProductID)
-                            && (TargetRackSlot.HasProduct || !TargetRackSlot.HasBox))
+                    if (!(this.TargetRackSlot == null) 
+                            && this.TargetRackSlot.gameObject.activeInHierarchy 
+                            && !this.TargetRackSlot.Full 
+                            && (!this.TargetRackSlot.HasProduct
+                                || this.TargetRackSlot.Data.ProductID == this.TargetProductID)
+                            && (this.TargetRackSlot.Data.ProductID == -1
+                                || this.TargetRackSlot.Data.ProductID == this.TargetProductID)
+                            && (this.TargetRackSlot.HasProduct || !this.TargetRackSlot.HasBox)
+                            && (this.restocker.ManagementData.UseUnlabeledRacks || TargetRackSlot.HasLabel))
                     {
-                        LogStat($"placing box {Box.ToBoxInfo()}");
-                        DoneCarryingBox(Box);
-                        PlaceBox();
+                        this.LogStat($"placing box {this.Box.ToBoxInfo()}");
+                        this.DoneCarryingBox(this.Box);
+                        this.PlaceBox();
                     }
                 }
-                if (!HasBox() || !inventory.Boxes.Any(b => b.HasProducts))
+                if (!this.HasBox() || !this.inventory.Boxes.Any(b => b.HasProducts))
                 {
-                    if (inventory.Boxes.Any(b => !b.HasProducts))
+                    if (this.inventory.Boxes.Any(b => !b.HasProducts))
                     {
-                        yield return restocker.StartCoroutine(ThrowBoxToTrashBin());
+                        yield return this.restocker.StartCoroutine(this.ThrowBoxToTrashBin());
                     }
 
-                    LogStat($"done placing box");
-                    restocker.CarryingBox = false;
-                    State = RestockerState.IDLE;
-                    restocker.StartCoroutine(TryRestocking());
+                    this.LogStat($"done placing box");
+                    this.restocker.CarryingBox = false;
+                    this.State = RestockerState.IDLE;
+                    this.restocker.StartCoroutine(this.TryRestocking());
                     yield break;
                 }
             }
 
-            if (restocker.CarryingBox)
+            if (this.restocker.CarryingBox)
             {
-                LogStat($"not done placing box, wating for rack to place");
-                restocker.StartCoroutine(GoToWaiting(RestockerState.WAITING_FOR_AVAILABLE_RACK_SLOT));
+                this.LogStat($"not done placing box, wating for rack to place");
+                this.restocker.StartCoroutine(this.GoToWaiting(RestockerState.WAITING_FOR_AVAILABLE_RACK_SLOT));
             }
         }
 
         public IEnumerator Internal_ThrowBoxToTrashBin()
         {
-            LogStat($"Called ThrowBoxToTrashBin");
-            yield return restocker.StartCoroutine(GoTo(
+            this.LogStat($"Called ThrowBoxToTrashBin");
+            yield return this.restocker.StartCoroutine(this.GoTo(
                 Singleton<FurnitureManager>.Instance.TrashBin.position,
                 Singleton<FurnitureManager>.Instance.TrashBin.rotation));
 
-            Box = inventory.Boxes.Where(b => !b.HasProducts).FirstOrDefault();
+            this.Box = this.inventory.Boxes.Where(b => !b.HasProducts).FirstOrDefault();
             
-            while (Box != null)
+            while (this.Box != null)
             {
-                yield return new WaitForSeconds(ThrowingBoxTime);
+                yield return new WaitForSeconds(this.ThrowingBoxTime);
                 // this.LogStat();
-                Singleton<InventoryManager>.Instance.RemoveBox(Box.Data);
-                LeanPool.Despawn(Box.gameObject, 0f);
-                Box.gameObject.layer = CurrentBoxLayer;
-                Box.ResetBox();
-                inventory.Remove(Box);
-                ArrangeBoxTower();
-                DoneCarryingBox(Box);
-                Box = inventory.Boxes.Where(b => !b.HasProducts).FirstOrDefault();
+                Singleton<InventoryManager>.Instance.RemoveBox(this.Box.Data);
+                LeanPool.Despawn(this.Box.gameObject, 0f);
+                this.Box.gameObject.layer = this.CurrentBoxLayer;
+                this.Box.ResetBox();
+                this.inventory.Remove(this.Box);
+                this.ArrangeBoxTower();
+                this.DoneCarryingBox(this.Box);
+                this.Box = this.inventory.Boxes.Where(b => !b.HasProducts).FirstOrDefault();
             }
-            LogStat("threw boxes to trash bin");
+            this.LogStat("threw boxes to trash bin");
 
-            Box = inventory.Boxes.FirstOrDefault();
+            this.Box = this.inventory.Boxes.FirstOrDefault();
             // this.LogStat();
-            if (Box == null)
+            if (this.Box == null)
             {
-                TargetBox = null;
-                restocker.CarryingBox = false;
-                State = RestockerState.IDLE;
+                this.TargetBox = null;
+                this.restocker.CarryingBox = false;
+                this.State = RestockerState.IDLE;
                 // Singleton<EmployeeManager>.Instance.OccupyProductID(this.TargetProductID, false);
-                restocker.StartCoroutine(TryRestocking());
+                this.restocker.StartCoroutine(this.TryRestocking());
             }
-            else if (State == RestockerState.WAITING_FOR_AVAILABLE_RACK_SLOT)
+            else if (this.State == RestockerState.WAITING_FOR_AVAILABLE_RACK_SLOT)
             {
-                Plugin.LogDebug($"Restocker[{skill.Id}] waiting for avalilable rack slot");
-                restocker.StartCoroutine(PlaceBoxToRack());
+                Plugin.LogDebug($"Restocker[{this.skill.Id}] waiting for avalilable rack slot");
+                this.restocker.StartCoroutine(this.PlaceBoxToRack());
             }
         }
 
         public IEnumerator Internal_MoveTo(Vector3 target)
         {
-            var boost = RestockerWalkingSpeeds[CurrentBoostLevel] / 2f;
-            var speed = MovingSpeed * boost;
-            var linearMotion = speed >= 10;
-            Agent.speed = speed;
-            Agent.angularSpeed = AngularSpeed * boost;
-            Agent.acceleration = Acceleration * boost;
+            var boost = this.RestockerWalkingSpeeds[this.CurrentBoostLevel] / 2f; // 2f at no boost
+            var speed = this.MovingSpeed * boost;
+            this.Agent.speed = speed;
+            this.Agent.angularSpeed = this.AngularSpeed * boost;
+            this.Agent.acceleration = this.Acceleration * boost;
             // Plugin.LogDebug($"Agent: speed={this.Agent.speed}, angularSpeed={this.Agent.angularSpeed}, acceleration={this.Agent.acceleration}");
 
-            if (NavMesh.SamplePosition(target, out NavMeshHit navMeshHit, 20f, -1))
-            {
-                Agent.SetDestination(navMeshHit.position);
-            }
-            else
-            {
-                Agent.SetDestination(target);
-            }
-            while (Vector3.Distance(restocker.transform.position, Agent.destination) > Agent.stoppingDistance)
-            {
-                if (linearMotion)
-                {
-                    Agent.velocity = (Agent.steeringTarget - restocker.transform.position).normalized * Agent.speed;
-                    restocker.transform.forward = Agent.steeringTarget - restocker.transform.position;
-                }
-                else
-                {
-                    if (Agent.velocity.magnitude > 0f)
-                    {
-                        restocker.transform.rotation = Quaternion.Slerp(restocker.transform.rotation, Quaternion.LookRotation(Agent.velocity), TurningSpeed * boost * Time.deltaTime);
-                    }
-                }
-                yield return null;
-            }
+            yield return EmployeeLogicHelper.MoveTo(this.restocker, target, this.Agent, boost, this.TurningSpeed, 20f);
         }
 
         public IEnumerator Internal_RotateTo(Quaternion rotation)
         {
-            restocker.transform.DORotateQuaternion(rotation, RotationTime);
-            yield return new WaitForSeconds(RotationTime);
+            this.restocker.transform.DORotateQuaternion(rotation, this.RotationTime);
+            yield return new WaitForSeconds(this.RotationTime);
             yield break;
         }
 
@@ -910,60 +958,61 @@ namespace EmployeeTraining.EmployeeRestocker
         {
             if (isFromRack)
             {
-                while (productsNeeded > 0)
+                while (this.productsNeeded > 0)
                 {
-                    if (TargetRackSlot.Data.BoxCount == 0 || TargetRackSlot.Data.BoxID == -1) yield break;
-                    BoxData nextBoxData = TargetRackSlot.Data.RackedBoxDatas.Last();
+                    if (this.TargetRackSlot.Data.BoxCount == 0 || this.TargetRackSlot.Data.BoxID == -1) yield break;
+                    BoxData nextBoxData = this.TargetRackSlot.Data.RackedBoxDatas.Last();
                     int boxWeight = ProductWeight.CalcWeight(nextBoxData);
                     int boxHeight = BoxHeights[nextBoxData.Size];
-                    if (totalCarryingWeight > 0 && boxWeight + totalCarryingWeight > CarryingCapacity
-                        || totalCarryingHeight > 0 && boxHeight + totalCarryingHeight > CarryingMaxHeight)
+                    if (this.totalCarryingWeight > 0 && boxWeight + this.totalCarryingWeight > this.CarryingCapacity
+                        || this.totalCarryingHeight > 0 && boxHeight + this.totalCarryingHeight > this.CarryingMaxHeight)
                     {
-                        productsNeeded -= nextBoxData.ProductCount;
-                        DoneRestocking(nextBoxData);
+                        Plugin.LogDebug($"Restocker[{restocker.RestockerID}]: Overcapacity! {this.productsNeeded} of needs decreasing by {nextBoxData.ProductCount}");
+                        this.productsNeeded -= nextBoxData.ProductCount;
+                        this.DoneRestocking(nextBoxData);
                         continue;
                     }
-                    Box box = TargetRackSlot.TakeBoxFromRack();
+                    Box box = this.TargetRackSlot.TakeBoxFromRack();
                     if (box == null)
                     {
                         yield break;
                     }
-                    if (!carryingBoxes.TryAdd(box.Data.ProductID, 1))
+                    if (!this.carryingBoxes.TryAdd(box.Data.ProductID, 1))
                     {
-                        carryingBoxes[box.Data.ProductID] += 1;
+                        this.carryingBoxes[box.Data.ProductID] += 1;
                     }
-                    LogStat($"picking up {box.ToBoxInfo()} from a rack");
-                    yield return GrabBox(box, isFromRack, boxWeight, boxHeight);
+                    this.LogStat($"picking up {box.ToBoxInfo()} from a rack");
+                    yield return this.GrabBox(box, isFromRack, boxWeight, boxHeight);
                 }
             }
             else
             {
                 // From street
-                int boxWeight = ProductWeight.CalcWeight(TargetBox);
-                int boxHeight = BoxHeights[TargetBox.Size];
-                if (totalCarryingWeight > 0 && boxWeight + totalCarryingWeight > CarryingCapacity
-                    || totalCarryingHeight > 0 && boxHeight + totalCarryingHeight > CarryingMaxHeight)
+                if (this.TargetBox == null) yield break;
+                int boxWeight = ProductWeight.CalcWeight(this.TargetBox);
+                int boxHeight = BoxHeights[this.TargetBox.Size];
+                if (this.totalCarryingWeight > 0 && boxWeight + this.totalCarryingWeight > this.CarryingCapacity
+                    || this.totalCarryingHeight > 0 && boxHeight + this.totalCarryingHeight > this.CarryingMaxHeight)
                 {
-                    TargetBox.SetOccupy(false, null);
+                    Plugin.LogDebug($"Restocker[{restocker.RestockerID}]: Overcapacity! {this.productsNeeded} of needs decreasing by {this.TargetBox.ProductCount} from street");
+                    this.TargetBox.SetOccupy(false, null);
+                    this.productsNeeded -= this.TargetBox.ProductCount;
                     yield break;
                 }
 
-                Box box = TargetBox;
-                box.FrezeeBox();
-                if (TargetBox != null && TargetBox.OccupyOwner != restocker.transform)
+                if (this.TargetBox.OccupyOwner != this.restocker.transform)
                 {
-                    Box = null;
-                    TargetBox = null;
+                    this.TargetBox = null;
                     yield break;
                 }
-                LogStat($"picking up {box.ToBoxInfo()} from streets or floor");
-                yield return GrabBox(box, isFromRack, boxWeight, boxHeight);
+                this.LogStat($"picking up {this.TargetBox?.ToBoxInfo()} from streets or floor");
+                yield return this.GrabBox(this.TargetBox, isFromRack, boxWeight, boxHeight);
             }
         }
 
         private IEnumerator GrabBox(Box box, bool isFromRack, int boxWeight, int boxHeight)
         {
-            productsNeeded -= box.Data.ProductCount;
+            this.productsNeeded -= box.Data.ProductCount;
 
             Collider[] componentsInChildren = box.GetComponentsInChildren<Collider>();
             for (int i = 0; i < componentsInChildren.Length; i++)
@@ -974,41 +1023,42 @@ namespace EmployeeTraining.EmployeeRestocker
             {
                 Singleton<StorageStreet>.Instance.OnTakeBoxFromStreet?.Invoke(box);
             }
-            inventory.Add(box);
+            this.inventory.Add(box);
             box.FrezeeBox();
-            box.transform.SetParent(BoxHolder);
-            box.transform.DOLocalRotate(Vector3.zero, 0.3f, RotateMode.Fast);
-            ArrangeBoxTower();
-            Box = box;
-            Box.SetOccupy(true, restocker.transform);
-            Box.Racked = false;
-            totalCarryingWeight += boxWeight;
-            totalCarryingHeight += boxHeight;
-            CurrentBoxLayer = box.gameObject.layer;
+            box.transform.SetParent(this.BoxHolder);
+            box.transform.DOLocalMove(Vector3.zero, 0.3f);
+            box.transform.DOLocalRotate(Vector3.zero, 0.3f);
+            this.ArrangeBoxTower();
+            this.Box = box;
+            this.Box.SetOccupy(true, this.restocker.transform);
+            this.Box.Racked = false;
+            this.totalCarryingWeight += boxWeight;
+            this.totalCarryingHeight += boxHeight;
+            this.CurrentBoxLayer = box.gameObject.layer;
             box.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
-            restocker.CarryingBox = true;
-            yield return new WaitForSeconds(TakingBoxTime);
+            this.restocker.CarryingBox = true;
+            yield return new WaitForSeconds(this.TakingBoxTime);
         }
 
         private void DoneRestocking(Box box)
         {
-            DoneRestocking(box.Data);
+            this.DoneRestocking(box.Data);
         }
 
         private void DoneRestocking(BoxData box)
         {
             int id = box.ProductID;
-            if (planList.ContainsKey(id))
+            if (this.planList.ContainsKey(id))
             {
-                int fullCount = GetCapacityInDisplaySlot(TargetDisplaySlot);
-                int countToRestock = Math.Min(box.ProductCount, fullCount - TargetDisplaySlot.Data.FirstItemCount);
-                if (planList[id] <= countToRestock)
+                int fullCount = this.GetCapacityInDisplaySlot(this.TargetDisplaySlot);
+                int countToRestock = Math.Min(box.ProductCount, fullCount - this.TargetDisplaySlot.Data.FirstItemCount);
+                if (this.planList[id] <= countToRestock)
                 {
-                    planList.Remove(id);
+                    this.planList.Remove(id);
                 }
                 else
                 {
-                    planList[id] -= countToRestock;
+                    this.planList[id] -= countToRestock;
                 }
             }
         }
@@ -1017,48 +1067,52 @@ namespace EmployeeTraining.EmployeeRestocker
         {
             if (box == null || box.Data.ProductID == -1) return;
             int id = box.Data.ProductID;
-            DoneCarryingBox(id);
+            this.DoneCarryingBox(id);
         }
         private void DoneCarryingBox(int id)
         {
             if (id == -1) return;
-            if (carryingBoxes.ContainsKey(id))
+            if (this.carryingBoxes.ContainsKey(id))
             {
-                if (carryingBoxes[id] <= 1)
+                if (this.carryingBoxes[id] <= 1)
                 {
-                    carryingBoxes.Remove(id);
+                    this.carryingBoxes.Remove(id);
                 }
                 else
                 {
-                    carryingBoxes[id] -= 1;
+                    this.carryingBoxes[id] -= 1;
                 }
             }
         }
 
         public IEnumerator Internal_PlaceProducts()
         {
-            if (Box == null || TargetProductID != TargetDisplaySlot.ProductID)
+            Plugin.LogDebug($"Restocker[{restocker.RestockerID}]: Called PlaceProducts(): Box={this.Box?.ToBoxInfo()}, TargetProductID={this.TargetProductID}, TargetDisplaySlot={this.TargetDisplaySlot}");
+            if (this.Box == null || this.TargetDisplaySlot == null || this.TargetProductID != this.TargetDisplaySlot.ProductID)
             {
+                Plugin.LogDebug($"Restocker[{restocker.RestockerID}]: Not passed validation");
                 yield break;
             }
-            float boost = RestockerPlacingSpeeds[CurrentBoostLevel] / 0.2f;
-            if (!Box.IsOpen)
+            float boost = this.RestockerPlacingSpeeds[this.CurrentBoostLevel] / 0.2f;
+            if (!this.Box.IsOpen)
             {
-                Box.OpenBox();
+                this.Box.OpenBox();
                 // Plugin.LogDebug($"UnpackingTime: {UnpackingTime}");
-                yield return new WaitForSeconds(UnpackingTime * boost);
+                yield return new WaitForSeconds(this.UnpackingTime * boost);
             }
-            if (TargetProductID != TargetDisplaySlot.ProductID)
+            if (this.TargetProductID != this.TargetDisplaySlot.ProductID)
             {
+                Plugin.LogDebug($"Restocker[{restocker.RestockerID}]: Tried to place wrong product ID");
                 yield break;
             }
             int exp = 0;
-            while (TargetDisplaySlot != null && !TargetDisplaySlot.Full && Box.HasProducts)
+            while (TargetDisplaySlot != null && !this.TargetDisplaySlot.Full && this.Box.HasProducts)
             {
                 Product productFromBox = null;
                 try
                 {
-                    productFromBox = Box.GetProductFromBox();
+                    productFromBox = this.Box.GetProductFromBox();
+                    Plugin.LogDebug($"Restocker[{restocker.RestockerID}]: Placing a product from the box {this.Box.ToBoxInfo()}");
                 }
                 catch (ArgumentOutOfRangeException) { } // It can happen accidentally...
                 if (productFromBox == null)
@@ -1066,107 +1120,118 @@ namespace EmployeeTraining.EmployeeRestocker
                     break;
                 }
 
-                TargetDisplaySlot.AddProduct(TargetProductID, productFromBox);
+                if (productFromBox.ProductSO.ID != this.TargetDisplaySlot.ProductID)
+                {
+                    // Drop product from the box
+                    Plugin.LogDebug($"Restocker[{restocker.RestockerID}]: Tried to mix the wrong product! {productFromBox.ProductSO.name} slapped down to the floor");
+        			productFromBox.transform.parent = null;
+                    productFromBox.transform.DOKill(false);
+                    productFromBox.SpreadOn(productFromBox.ProductSO.ID, out var _rb);
+                    _rb.AddForce(2f * new Vector3(UnityEngine.Random.Range(-22f, 22f), 45f, UnityEngine.Random.Range(-22f, 22f)));
+                    continue;
+                }
+
+                this.TargetDisplaySlot.AddProduct(this.TargetProductID, productFromBox);
                 Singleton<InventoryManager>.Instance.AddProductToDisplay(new ItemQuantity{
                     Products = new Dictionary<int, int>{
-                        { TargetProductID, 1 }
+                        { this.TargetProductID, 1 }
                     }
                 });
                 exp++;
-                yield return new WaitForSeconds(ProductPlacingInterval * boost);
+                yield return new WaitForSeconds(this.ProductPlacingInterval * boost);
             }
-            occupiedDisplaySlots.Remove(TargetDisplaySlot);
-            TargetDisplaySlot.OccupiedRestocker = null;
-            skill.AddExp(exp);
-            yield break;
+            this.occupiedDisplaySlots.Remove(this.TargetDisplaySlot);
+            this.TargetDisplaySlot.OccupiedRestocker = null;
+            this.skill.AddExp(exp);
+            Plugin.LogDebug($"Restocker[{restocker.RestockerID}]: Finished PlaceProducts()");
         }
 
         public void Internal_PlaceBox()
         {
-            LogStat($"Called PlaceBox");
-            if (Box == null)
+            this.LogStat($"Called PlaceBox");
+            if (this.Box == null)
             {
                 return;
             }
-            if (TargetRackSlot.IsBoxAlreadyExistInRack(Box.BoxID, Box))
+            if (this.TargetRackSlot.IsBoxAlreadyExistInRack(this.Box.BoxID, this.Box))
             {
                 return;
             }
-            if (Box.Racked)
+            if (this.Box.Racked)
             {
                 return;
             }
-            Plugin.LogDebug($"Restocker[{skill.Id}] placing {Box?.ToBoxInfo()} on {TargetDisplaySlot}");
-            Box.gameObject.layer = CurrentBoxLayer;
-            Collider[] componentsInChildren = Box.GetComponentsInChildren<Collider>();
+            Plugin.LogDebug($"Restocker[{this.skill.Id}] placing {this.Box?.ToBoxInfo()} on {this.TargetDisplaySlot}");
+            this.Box.gameObject.layer = this.CurrentBoxLayer;
+            Collider[] componentsInChildren = this.Box.GetComponentsInChildren<Collider>();
             for (int i = 0; i < componentsInChildren.Length; i++)
             {
                 componentsInChildren[i].isTrigger = false;
             }
-            TargetRackSlot.AddBox(Box.BoxID, Box);
-            Box.Racked = true;
-            Box.SetOccupy(false, null);
-            TargetBox = null;
+            this.TargetRackSlot.AddBox(this.Box.BoxID, this.Box);
+            this.Box.Racked = true;
+            this.Box.SetOccupy(false, null);
+            this.TargetBox = null;
 
-            inventory.Remove(Box);
-            ArrangeBoxTower();
+            this.inventory.Remove(this.Box);
+            this.ArrangeBoxTower();
 
-            var nextBox = inventory.Boxes.Where(b => b.Data.ProductID == TargetProductID).FirstOrDefault();
+            var nextBox = this.inventory.Boxes.Where(b => b.Data.ProductID == this.TargetProductID).FirstOrDefault();
             if (nextBox == null)
             {
-                nextBox = inventory.Boxes.FirstOrDefault(b => b.HasProducts);
+                nextBox = this.inventory.Boxes.FirstOrDefault(b => b.HasProducts);
             }
             if (nextBox != null)
             {
-                TargetProductID = nextBox.Data.ProductID;
+                this.TargetProductID = nextBox.Data.ProductID;
             }
-            Box = nextBox;
+            this.Box = nextBox;
         }
 
         public bool Internal_GetAvailableDisplaySlotToRestock()
         {
-            Plugin.LogDebug($"Restocker[{skill.Id}] called GetAvailableDisplaySlotToRestock");
-            List<DisplaySlot> displaySlots = Singleton<DisplayManager>.Instance.GetDisplaySlots(TargetProductID, false);
+            Plugin.LogDebug($"Restocker[{this.skill.Id}] called GetAvailableDisplaySlotToRestock");
+            List<DisplaySlot> displaySlots = Singleton<DisplayManager>.Instance.GetDisplaySlots(this.TargetProductID, false);
             if (displaySlots == null || displaySlots.Count <= 0)
             {
                 Plugin.LogDebug($"-> Not found");
                 return false;
             }
-            DisplaySlot displaySlot = displaySlots.FirstOrDefault(d => IsDisplaySlotAvailableToRestock(d));
+            DisplaySlot displaySlot = displaySlots.FirstOrDefault(d => this.IsDisplaySlotAvailableToRestock(d));
             if (displaySlot == null)
             {
                 Plugin.LogDebug($"-> finding labeledEmptyDisplaySlots");
-                List<DisplaySlot> labeledEmptyDisplaySlots = Singleton<DisplayManager>.Instance.GetLabeledEmptyDisplaySlots(TargetProductID);
+                List<DisplaySlot> labeledEmptyDisplaySlots = Singleton<DisplayManager>.Instance.GetLabeledEmptyDisplaySlots(this.TargetProductID);
                 if (labeledEmptyDisplaySlots == null || labeledEmptyDisplaySlots.Count <= 0)
                 {
                     Plugin.LogDebug($"-> Not found");
                     return false;
                 }
                 DisplaySlot targetDisplaySlot = labeledEmptyDisplaySlots[UnityEngine.Random.Range(0, labeledEmptyDisplaySlots.Count)];
-                TargetDisplaySlot = targetDisplaySlot;
+                this.TargetDisplaySlot = targetDisplaySlot;
             }
             else
             {
                 Plugin.LogDebug($"-> Found: {displaySlot}");
-                TargetDisplaySlot = displaySlot;
+                this.TargetDisplaySlot = displaySlot;
             }
-            if (!occupiedDisplaySlots.Contains(TargetDisplaySlot))
+            if (!this.occupiedDisplaySlots.Contains(this.TargetDisplaySlot))
             {
-                occupiedDisplaySlots.Add(TargetDisplaySlot);
+                this.occupiedDisplaySlots.Add(this.TargetDisplaySlot);
             }
-            TargetDisplaySlot.OccupiedRestocker = restocker;
+            this.TargetDisplaySlot.OccupiedRestocker = this.restocker;
             return true;
         }
 
         public bool IsDisplaySlotAvailableToRestock(DisplaySlot displaySlot)
         {
             if (displaySlot.Data == null || displaySlot.Data.FirstItemID <= 0
-                    || displaySlot.IsOccupiedByOthers(restocker))
+                    || displaySlot.IsOccupiedByOthers(this.restocker))
             {
                 return false;
             }
             ProductSO productSO = Singleton<IDManager>.Instance.ProductSO(displaySlot.Data.FirstItemID);
-            if (Box != null && Box.Data.ProductID == productSO.ID)
+            if (this.Box != null && this.Box.Data.ProductID == productSO.ID)
             {
                 return !displaySlot.Full;
             }
@@ -1175,7 +1240,7 @@ namespace EmployeeTraining.EmployeeRestocker
 
         private void ArrangeBoxTower()
         {
-            var tower = new List<Box>(inventory.Boxes);
+            var tower = new List<Box>(this.inventory.Boxes);
             tower.Sort((a, b) => BoxTowerOrder.IndexOfItem(a.Size) - BoxTowerOrder.IndexOfItem(b.Size));
             var height = 0f;
             foreach(Box box in tower)
@@ -1187,22 +1252,25 @@ namespace EmployeeTraining.EmployeeRestocker
 
         private bool HasBox()
         {
-            return inventory.Count > 0;
+            return this.inventory.Count > 0;
         }
 
         public void LogStat(string msg = null)
         {
             var call = msg != null ? $"{msg} " : ""; 
-            Plugin.LogDebug($"Restocker[{skill.Id}] {call}carryingBox={Box}, boxCount={inventory.Count}");
-            Plugin.LogDebug(inventory.Boxes.ToBoxStackInfo());
+            Plugin.LogDebug($"Restocker[{this.skill.Id}] {call}carryingBox={this.Box}, boxCount={this.inventory.Count}");
+            if (Plugin.Instance.Settings.RestockerLog)
+            {
+                Plugin.LogDebug($"Restocker[{this.skill.Id}] {this.inventory.Boxes.ToBoxStackInfo()}");
+            }
         }
 
         internal void AfterFreeTargetDisplaySlot()
         {
-            occupiedDisplaySlots
-                    .Where(s => s.IsOccupiedByMe(restocker))
+            this.occupiedDisplaySlots
+                    .Where(s => s.IsOccupiedByMe(this.restocker))
                     .ForEach(s => s.OccupiedRestocker = null);
-            occupiedDisplaySlots.Clear();
+            this.occupiedDisplaySlots.Clear();
         }
 
         public class Inventory : List<InventorySlot>
@@ -1211,12 +1279,12 @@ namespace EmployeeTraining.EmployeeRestocker
 
             public void Add(Box box)
             {
-                Add(new InventorySlot(box));
+                this.Add(new InventorySlot(box));
             }
 
             public void Remove(Box box)
             {
-                Remove(Find(s => s.Box.Equals(box)));
+                this.Remove(this.Find(s => s.Box.Equals(box)));
             }
 
             public IEnumerable<int> ProductIds => this.Where(s => s.Box.HasProducts).Select(s => s.Box.Data.ProductID).Distinct();
@@ -1229,7 +1297,7 @@ namespace EmployeeTraining.EmployeeRestocker
 
             public InventorySlot(Box box)
             {
-                Box = box;
+                this.Box = box;
             }
         }
 

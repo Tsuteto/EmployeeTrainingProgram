@@ -22,7 +22,7 @@ namespace EmployeeTraining.Localization
 			}
 		}
 
-		public Texts getText(string text)
+		public Texts GetText(string text)
 		{
 			if (this.ContainsKey(text))
 			{

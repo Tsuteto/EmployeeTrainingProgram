@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace EmployeeTraining
 {
@@ -6,8 +7,17 @@ namespace EmployeeTraining
     {
         public static int CalcWeight(Box box)
         {
-            return ProductWeight.CalcWeight(box.Data);
+            BoxData data = box.Data;
+            if (data != null)
+            {
+                return CalcWeight(data);
+            }
+            else
+            {
+                return ProductWeight.Boxes[box.Size];
+            }
         }
+        
         public static int CalcWeight(BoxData data)
         {
             if (data.ProductID != -1)

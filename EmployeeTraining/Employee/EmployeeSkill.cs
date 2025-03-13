@@ -13,6 +13,7 @@ namespace EmployeeTraining.Employee
         int Lvl { get; }
         Grade Grade { get; }
         float Wage { get; }
+        float GetWage(Grade g);
 
         GameObject TrainingStatusPanelObj { get; set; }
         GameObject ExpGaugeObj { get; set; }
@@ -116,6 +117,7 @@ namespace EmployeeTraining.Employee
 
         internal ST Tier { get; set; }
 
+        public abstract float GetWage(Grade g);
         internal abstract void ApplyWageToGame(float dailyWage, float hiringCost);
 
         public abstract float Wage { get; }
@@ -253,8 +255,10 @@ namespace EmployeeTraining.Employee
             {
                 return null;
             }
-            return (expForNext - Exp) * 2;
+            return (expForNext - Exp) * CostRateToLevelUp;
         }
+
+        protected abstract float CostRateToLevelUp { get; }
 
         public void TrainToLevelup()
         {

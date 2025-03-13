@@ -1,6 +1,6 @@
 using EmployeeTraining.Employee;
-using EmployeeTraining.EmployeeCashier;
 using EmployeeTraining.Localization;
+using EmployeeTraining.TrainingApp;
 using MyBox;
 using TMPro;
 using UnityEngine;
@@ -8,19 +8,19 @@ using UnityEngine.Events;
 using UnityEngine.Localization.Components;
 using UnityEngine.UI;
 
-namespace EmployeeTraining.TrainingApp
+namespace EmployeeTraining.EmployeeCashier
 {
-    public class EmployeeCashierAppUI : EmployeeAppUI<CashierTrainingProgressItem, CashierSkill>, IEmployeeAppUI
+    public class CashierAppTab : EmployeeAppTab<CashierTrainingProgressItem, CashierSkill>, IEmployeeAppTab
     {
         public void ComposeTabButton(GameObject managementApp, GameObject taskbarBtnsObj, out GameObject tabBtnObj)
         {
             var orgTabBtnObj = managementApp.transform.Find("Taskbar/Buttons").transform.GetChild(0).gameObject;
             // Plugin.LogDebug($"orgTabBtnObj: {orgTabBtnObj}");
 
-            tabBtnObj = GameObject.Instantiate(orgTabBtnObj, taskbarBtnsObj.transform, true);
+            tabBtnObj = Object.Instantiate(orgTabBtnObj, taskbarBtnsObj.transform, true);
             // Plugin.LogDebug($"cashierBtnObj: {tabBtnObj}");
             tabBtnObj.name = "Cashiers Tab Button";
-            GameObject.Destroy(tabBtnObj.GetComponentInChildren<LocalizeStringEvent>());
+            Object.Destroy(tabBtnObj.GetComponentInChildren<LocalizeStringEvent>());
             var icon = Utils.FindResourceByName<Sprite>("icon_shopping_52");
             // Plugin.LogDebug($"icon: {icon}");
             var tabIconObj = tabBtnObj.transform.Find("Tab Icon");
@@ -30,13 +30,15 @@ namespace EmployeeTraining.TrainingApp
             var btn = tabBtnObj.GetComponent<Button>();
             btn.onClick.RemoveAllListeners();
             btn.onClick.m_PersistentCalls = new PersistentCallGroup();
+            var sfx = tabBtnObj.GetComponent<MouseClickSFX>();
+            btn.onClick.AddListener(sfx.Click);
         }
 
         public void ComposeTabButton(GameObject baseTabBtnObj, GameObject taskbarBtnsObj)
         {
         }
 
-        void IEmployeeAppUI.CreateStatusPanel(GameObject basePanelObj, GameObject panelTmpl)
+        void IEmployeeAppTab.CreateStatusPanel(GameObject basePanelObj, GameObject panelTmpl)
         {
             this.StatusPanelTmpl = basePanelObj;
         }
@@ -56,7 +58,7 @@ namespace EmployeeTraining.TrainingApp
 
         }
 
-        void IEmployeeAppUI.CreateTabScreen(GameObject baseTabObj, GameObject tabsObj)
+        void IEmployeeAppTab.CreateTabScreen(GameObject baseTabObj, GameObject tabsObj)
         {
             this.TabObj = baseTabObj;
         }

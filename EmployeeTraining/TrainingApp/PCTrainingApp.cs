@@ -6,6 +6,11 @@ using __Project__.Scripts.ControllerInputModule;
 using __Project__.Scripts.ControllerInputModule.EventHandlers;
 using __Project__.Scripts.UI;
 using EmployeeTraining.Employee;
+using EmployeeTraining.EmployeeCashier;
+using EmployeeTraining.EmployeeCsHelper;
+using EmployeeTraining.EmployeeJanitor;
+using EmployeeTraining.EmployeeRestocker;
+using EmployeeTraining.EmployeeSecurity;
 using EmployeeTraining.Localization;
 using HarmonyLib;
 using MyBox;
@@ -25,20 +30,22 @@ namespace EmployeeTraining.TrainingApp
         private GameObject unlockApprWindowObj;
         private GameObject panelTmpl;
 
-        private EmployeeCashierAppUI cashierAppUI;
-        private IEmployeeAppUI[] employeeUIRegistry;
+        private CashierAppTab cashierTab;
+        private IEmployeeAppTab[] employeeTabRegistry;
 
         private void Awake()
         {
             Plugin.LogDebug("Initializing Training App");
 
-            this.cashierAppUI = new EmployeeCashierAppUI();
-            this.employeeUIRegistry = new IEmployeeAppUI[]{
-                this.cashierAppUI,
-                new EmployeeRestockerAppUI(),
-                new EmployeeCsHelperAppUI()
+            this.cashierTab = new CashierAppTab();
+            this.employeeTabRegistry = new IEmployeeAppTab[] {
+                this.cashierTab,
+                new RestockerAppTab(),
+                new CsHelperAppTab(),
+                new SecurityAppTab(),
+                new JanitorAppTab(),
             };
-            Plugin.LogDebug($"len={this.employeeUIRegistry.Length}, 0={this.employeeUIRegistry[0]}, 1={this.employeeUIRegistry[1]}, 2={this.employeeUIRegistry[2]}");
+            Plugin.LogDebug($"len={this.employeeTabRegistry.Length}, 0={this.employeeTabRegistry[0]}, 1={this.employeeTabRegistry[1]}, 2={this.employeeTabRegistry[2]}");
 
             var screenObject = GameObject.Find("---GAME---/Computer/Screen");
             GameObject appShortcuts = GameObject.Find("---GAME---/Computer/Screen/Desktop Canvas/App Shortcuts");
@@ -68,6 +75,7 @@ namespace EmployeeTraining.TrainingApp
             // Plugin.LogDebug($"Generate shortcut click event");
             UnityEvent unityEvent = new UnityEvent();
             unityEvent.AddListener(new UnityAction(PCTrainingApp.OpenApp));
+            unityEvent.AddListener(shortcutIconObj.GetComponent<MouseClickSFX>().Click);
             Traverse.Create(shortcutIconObj.GetComponent<ButtonHandler>())
                     .Field("m_OnClick").SetValue(unityEvent);
 
@@ -157,9 +165,9 @@ namespace EmployeeTraining.TrainingApp
             }
 
             // Employee Tab btns
-            Plugin.LogDebug(this.cashierAppUI.GetType());
-            this.cashierAppUI.ComposeTabButton(managementApp, taskbarBtnsObj, out var cashierBtnObj);
-            foreach (var ui in this.employeeUIRegistry)
+            Plugin.LogDebug(this.cashierTab.GetType());
+            this.cashierTab.ComposeTabButton(managementApp, taskbarBtnsObj, out var cashierBtnObj);
+            foreach (var ui in this.employeeTabRegistry)
             {
                 ui.ComposeTabButton(cashierBtnObj, taskbarBtnsObj);
             }
@@ -224,11 +232,11 @@ namespace EmployeeTraining.TrainingApp
             }
 
             // Instantiate all tabs first
-            foreach (var ui in this.employeeUIRegistry)
+            foreach (var ui in this.employeeTabRegistry)
             {
                 ui.CreateTabScreen(cashiersTabObj, tabsObj);
             }
-            foreach (var ui in this.employeeUIRegistry)
+            foreach (var ui in this.employeeTabRegistry)
             {
                 ui.ComposeTabScreen();
             }
@@ -242,11 +250,11 @@ namespace EmployeeTraining.TrainingApp
 
             /* === Compose Status Panel === */
             // Instantiate all panels first
-            foreach (var ui in this.employeeUIRegistry)
+            foreach (var ui in this.employeeTabRegistry)
             {
                 ui.CreateStatusPanel(basePanelObj, panelTmpl);
             }
-            foreach (var ui in this.employeeUIRegistry)
+            foreach (var ui in this.employeeTabRegistry)
             {
                 ui.ComposeStatusPanel();
             }
@@ -255,7 +263,7 @@ namespace EmployeeTraining.TrainingApp
             // Plugin.LogDebug("Adding event listeners");
             // Plugin.LogDebug("Registering events in taskbar buttons");
             var tabMgr = tabsObj.GetComponent<TabManager>();
-            foreach (var ui in this.employeeUIRegistry)
+            foreach (var ui in this.employeeTabRegistry)
             {
                 ui.AddTabEvent(taskbarObj, tabMgr);
             }
@@ -263,13 +271,13 @@ namespace EmployeeTraining.TrainingApp
 
         public void RegisterEmployee(IEmployeeSkill skill)
         {
-            this.employeeUIRegistry.First(ui => ui.Matches(skill))
+            this.employeeTabRegistry.First(ui => ui.Matches(skill))
                 .RegisterEmployee(skill, panelTmpl, unlockApprWindowObj);
         }
 
         public void DeleteEmployee(IEmployeeSkill skill)
         {
-            this.employeeUIRegistry.First(ui => ui.Matches(skill))
+            this.employeeTabRegistry.First(ui => ui.Matches(skill))
                 .DeleteEmployee(skill);
         }
 
@@ -550,7 +558,7 @@ namespace EmployeeTraining.TrainingApp
             msgText.verticalAlignment = VerticalAlignmentOptions.Top;
             msgText.horizontalAlignment = HorizontalAlignmentOptions.Center;
 
-            var apprBtnObj = new GameObject("Approve Button", typeof(Button), typeof(Image), typeof(Outline));
+            var apprBtnObj = new GameObject("Approve Button", typeof(Button), typeof(Image), typeof(Outline), typeof(MouseClickSFX));
             apprBtnObj.transform.SetParent(windowBgObj.transform);
             apprBtnObj.SetupObject(pos: new Vector3(-60, -55, 0), size: new Vector2(80, 30), pivot: new Vector2(0.5f, 0.5f));
             {
@@ -589,6 +597,7 @@ namespace EmployeeTraining.TrainingApp
             var cancelBtn = windowObj.transform.Find("Window BG/Cancel Button").GetComponent<Button>();
             cancelBtn.onClick = new Button.ButtonClickedEvent();
             cancelBtn.onClick.AddListener(() => windowObj.SetActive(false));
+            cancelBtn.onClick.AddListener(cancelBtnObj.GetComponent<MouseClickSFX>().Click);
 
             return windowObj;
         }

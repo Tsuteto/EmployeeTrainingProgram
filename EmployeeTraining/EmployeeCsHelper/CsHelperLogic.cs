@@ -15,11 +15,8 @@ namespace EmployeeTraining.EmployeeCsHelper
         {
             Plugin.Instance.GameLoadedEvent += () =>
             {
+                // Not needed to unsubscribe
                 Singleton<ScaleManager>.Instance.ScaleBarcodeApplied += GiveExpOnScaleBarcodeApplied;
-            };
-            Plugin.Instance.GameQuitEvent += () =>
-            {
-                Singleton<ScaleManager>.Instance.ScaleBarcodeApplied -= GiveExpOnScaleBarcodeApplied;
             };
         }
 
@@ -28,11 +25,14 @@ namespace EmployeeTraining.EmployeeCsHelper
             var agent = fldAgent.GetValue(cshelper);
 
             CsHelperSkill skill = CsHelperSkillManager.Instance.GetSkill(cshelper);
-            var boost = skill.CustomerHelperWalkingSpeeds[skill.CurrentBoostLevel] / 2f;
-            var speed = skill.AgentSpeed * boost;
-            agent.speed = speed;
-            agent.angularSpeed = skill.AgentAngularSpeed * boost;
-            agent.acceleration = skill.AgentAcceleration * boost;
+            if (skill != null)
+            {
+                var boost = skill.CustomerHelperWalkingSpeeds[skill.CurrentBoostLevel] / 2f; // 2f at no boost
+                var speed = skill.AgentSpeed * boost;
+                agent.speed = speed;
+                agent.angularSpeed = skill.AgentAngularSpeed * boost;
+                agent.acceleration = skill.AgentAcceleration * boost;
+            }
         }
 
         public static void PerformScanning(SelfCheckout __instance, Checkout m_Checkout, SFXInstance m_CashierSFX, GameObject m_RepairIndicator)

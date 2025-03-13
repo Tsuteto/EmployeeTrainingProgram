@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using EmployeeTraining.Employee;
-using EmployeeTraining.EmployeeRestocker;
+using EmployeeTraining.TrainingApp;
 using HarmonyLib;
 using MyBox;
 using UnityEngine;
 
-namespace EmployeeTraining.TrainingApp
+namespace EmployeeTraining.EmployeeRestocker
 {
-    public class EmployeeRestockerAppUI : EmployeeAppUI<RestockerTrainingProgressItem, RestockerSkill>, IEmployeeAppUI
+    public class RestockerAppTab : EmployeeAppTab<RestockerTrainingProgressItem, RestockerSkill>, IEmployeeAppTab
     {
         public void ComposeTabButton(GameObject baseTabBtnObj, GameObject taskbarBtnsObj)
         {
@@ -15,7 +15,7 @@ namespace EmployeeTraining.TrainingApp
                 "Restockers Tab Button", "icon_shopping_28", "Restockers");
         }
 
-        void IEmployeeAppUI.CreateStatusPanel(GameObject panelObj, GameObject panelTmpl)
+        void IEmployeeAppTab.CreateStatusPanel(GameObject panelObj, GameObject panelTmpl)
         {
             this.CreateStatusPanel(panelObj, panelTmpl);
         }
@@ -41,7 +41,7 @@ namespace EmployeeTraining.TrainingApp
             );
         }
 
-        void IEmployeeAppUI.CreateTabScreen(GameObject baseTabObj, GameObject tabsObj)
+        void IEmployeeAppTab.CreateTabScreen(GameObject baseTabObj, GameObject tabsObj)
         {
             this.CreateTabScreen(baseTabObj, tabsObj);
         }

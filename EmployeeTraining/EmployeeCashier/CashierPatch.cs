@@ -6,6 +6,7 @@ using UnityEngine;
 
 namespace EmployeeTraining.EmployeeCashier
 {
+    [HarmonyPatch]
     public static class CashierPatch
     {
         [HarmonyPatch(typeof(EmployeeManager), "SpawnCashier")]

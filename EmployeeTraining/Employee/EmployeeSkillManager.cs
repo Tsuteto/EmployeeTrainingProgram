@@ -31,7 +31,7 @@ namespace EmployeeTraining.Employee
 
         public virtual void Fire(int id)
         {
-            Plugin.LogInfo($"Firing {typeof(T).Name}[{id}]");
+            Plugin.LogDebug($"Firing {typeof(T).Name}[{id}]");
             var data = TrainingData.First(c => c.Id == id);
             if (data != null)
             {
@@ -44,7 +44,7 @@ namespace EmployeeTraining.Employee
 
         public virtual T Spawn(List<T> employees, int employeeID)
         {
-            Plugin.LogInfo($"Spawned a {typeof(T)}: id={employeeID}");
+            Plugin.LogDebug($"Spawned {typeof(T).Name}[{employeeID}]");
             // Plugin.LogDebug($"Stack trace:\n{Environment.StackTrace}");
 
             T employee = employees.Last(c => GetId(c) == employeeID);
@@ -55,14 +55,14 @@ namespace EmployeeTraining.Employee
 
         public virtual void Despawn(T employee)
         {
-            Plugin.LogInfo($"Despawned {typeof(T)}[{GetId(employee)}]");
+            Plugin.LogDebug($"Despawned {typeof(T).Name}[{GetId(employee)}]");
             GetSkill(employee)?.Despawn();
         }
 
         public virtual void OnGameQuit()
         {
-            Plugin.LogInfo($"SkillManager Clearing training data");
             TrainingData.Clear();
+            Plugin.LogInfo($"Cleared training data of {this.GetType().Name}");
         }
 
         public virtual S Register(int id)
@@ -99,7 +99,7 @@ namespace EmployeeTraining.Employee
             {
                 skill.Employee = employee;
             }
-            Plugin.LogInfo($"{typeof(T).Name} {id} is assigned to the skill data: {skill}");
+            Plugin.LogInfo($"{typeof(T).Name}[{id}] loaded: {skill}");
             // foreach (CashierSkillData d in CTSaveManager.Data.Skills)
             // {
             //     Plugin.LogDebug($"Skill[{d.Skill.GetHashCode(),12}] => cashierID={d.Skill.Cashier?.CashierID}, instanceID={d.Skill.Cashier?.GetInstanceID()}, hashcode={d.Skill.Cashier?.GetHashCode()}]");
@@ -119,7 +119,7 @@ namespace EmployeeTraining.Employee
             var employee = skill.Employee;
             if (employee.GetComponentInChildren<SkillIndicator>() == null)
             {
-                Plugin.LogInfo($"Adding Skill Indicator for {typeof(T)} {GetId(employee)}");
+                Plugin.LogDebug($"Adding Skill Indicator for {typeof(T)} {GetId(employee)}");
                 var displayObj = UnityEngine.Object.Instantiate(SkillIndicatorGenerator.SkillIndicatorTmpl, employee.transform, false);
                 SkillIndicator display = displayObj.GetComponent<SkillIndicator>();
                 display.transform.localPosition = new Vector3(0, Plugin.Instance.Settings.GaugeHeight, 0);

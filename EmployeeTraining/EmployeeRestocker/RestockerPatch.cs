@@ -203,6 +203,31 @@ namespace EmployeeTraining.EmployeeRestocker
             __result = skill.Logic.Internal_RotateTo(rotation);
             return false;
         }
+
+        [HarmonyPatch("GetAvailableProductIDList")]
+        [HarmonyPrefix]
+        public static bool GetAvailableProductIDList_Prefix(Restocker __instance, ref List<int> __result)
+        {
+            RestockerSkill skill = RestockerSkillManager.Instance.GetSkill(__instance);
+            __result = skill.Logic.Internal_GetAvailableProductIDList();
+            return false;
+        }
+
+        // [HarmonyPatch("Update")]
+        // [HarmonyPrefix]
+        // public static bool DEBUG_Update(Restocker __instance, RestockerState ___m_State, bool ___m_Available, bool ___m_CheckTasks)
+        // {
+        //     Plugin.LogDebug($"Restocker[{__instance.RestockerID}] Called Update(): state={___m_State}, available={___m_Available}, checkTasks={___m_CheckTasks}");
+        //     return true;
+        // }
+
+        // [HarmonyPatch("Start")]
+        // [HarmonyPrefix]
+        // public static bool DEBUG_Start(Restocker __instance, RestockerState ___m_State, bool ___m_Available, bool ___m_CheckTasks)
+        // {
+        //     Plugin.LogDebug($"Restocker[{__instance.RestockerID}] Called Start(): state={___m_State}, available={___m_Available}, checkTasks={___m_CheckTasks}");
+        //     return true;
+        // }
     }
 
     [HarmonyPatch(typeof(Customer))]
