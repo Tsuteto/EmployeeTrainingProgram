@@ -45,12 +45,11 @@ namespace EmployeeTraining.TrainingApp
                 new SecurityAppTab(),
                 new JanitorAppTab(),
             };
-            Plugin.LogDebug($"len={this.employeeTabRegistry.Length}, 0={this.employeeTabRegistry[0]}, 1={this.employeeTabRegistry[1]}, 2={this.employeeTabRegistry[2]}");
 
-            var screenObject = GameObject.Find("---GAME---/Computer/Screen");
-            GameObject appShortcuts = GameObject.Find("---GAME---/Computer/Screen/Desktop Canvas/App Shortcuts");
-            GameObject orgApp = GameObject.Find("---GAME---/Computer/Screen/Management App");
-            GameObject orgShortcutIcon = GameObject.Find("---GAME---/Computer/Screen/Desktop Canvas/App Shortcuts/Management.Exe");
+            var screenObject = GameObject.Find("---GAME---/Computer &&/Screen");
+            GameObject appShortcuts = GameObject.Find("---GAME---/Computer &&/Screen/Desktop Canvas/App Shortcuts");
+            GameObject orgApp = GameObject.Find("---GAME---/Computer &&/Screen/Management App");
+            GameObject orgShortcutIcon = GameObject.Find("---GAME---/Computer &&/Screen/Desktop Canvas/App Shortcuts/Management.Exe");
 
             this.LoadScreen(screenObject, orgApp);
             Plugin.LogDebug("Loaded Training App");
@@ -85,6 +84,7 @@ namespace EmployeeTraining.TrainingApp
         private void LoadScreen(GameObject screenObject, GameObject managementApp)
         {
             // Compose gameobject
+            // Plugin.LogDebug($"Instantiate App from {managementApp}");
             var app = Object.Instantiate(managementApp, screenObject.transform, true);
             app.name = "Training App";
             app.SetActive(false);
@@ -93,6 +93,7 @@ namespace EmployeeTraining.TrainingApp
             // Plugin.LogDebug($"seApplication: {this.baseApp}");
             this.baseApp.WindowName = "Training";
 
+            // Plugin.LogDebug("Composing UnlockApprovalWindow");
             this.unlockApprWindowObj = this.ComposeUnlockApprovalWindow(app);
 
             var appTitleObj = app.transform.Find("App Title").gameObject;
@@ -115,6 +116,7 @@ namespace EmployeeTraining.TrainingApp
             app.transform.localScale = new Vector3(localScale.x, localScale.y, localScale.z);
 
             // Remove gamepad things
+            // Plugin.LogDebug($"Removing gamepad UI components");
             GameObject.Destroy(app.GetComponent<GamePadUIPanel>());
             GameObject.Destroy(app.GetComponent<GamepadUIFunctionLibrary>());
             GameObject.Destroy(app.GetComponent<GamepadUIConfirm>());
@@ -299,7 +301,7 @@ namespace EmployeeTraining.TrainingApp
             Plugin.LogDebug("Preparing interaction zone of base panel");
             var intrObj = new GameObject("Interaction Zone", typeof(RectTransform), typeof(Image));
             intrObj.transform.SetParent(panelObj.transform);
-            intrObj.SetupObject(pos: new Vector3(155, -49.5f, 0), size: new Vector2(152, 20f), pivot: new Vector2(1, 1));
+            intrObj.SetupObject(pos: new Vector3(155 + 80, -49.5f - 57.5f, 0), size: new Vector2(152, 20f), pivot: new Vector2(1, 1));
             {
                 var img = intrObj.GetComponent<Image>();
                 img.sprite = Utils.FindResourceByName<Sprite>("button_corner_square2_23");
@@ -347,7 +349,7 @@ namespace EmployeeTraining.TrainingApp
 
             var gaugeToggleObj = new GameObject("Head Gauge Toggle", typeof(RectTransform), typeof(Toggle));
             gaugeToggleObj.transform.SetParent(panelObj.transform);
-            gaugeToggleObj.SetupObject(pos: new Vector3(-145, -59.5f), size: new Vector2(12, 12), pivot: new Vector2(0, 0.5f));
+            gaugeToggleObj.SetupObject(pos: new Vector3(-145 + 80, -59.5f - 57.5f), size: new Vector2(12, 12), pivot: new Vector2(0, 0.5f));
             {
                 var bgObj = new GameObject("Background", typeof(Image));
                 bgObj.transform.SetParent(gaugeToggleObj.transform);
@@ -378,7 +380,7 @@ namespace EmployeeTraining.TrainingApp
 
             var gaugeLabelObj = new GameObject("Head Gauge Option", typeof(TextMeshProUGUI), typeof(StringLocalizeTranslator));
             gaugeLabelObj.transform.SetParent(panelObj.transform);
-            gaugeLabelObj.SetupText(pos: new Vector3(-135, -59.5f, 0), size: new Vector2(130, 10), pivot: new Vector2(0, 0.5f),
+            gaugeLabelObj.SetupText(pos: new Vector3(-135 + 80, -59.5f - 57.5f, 0), size: new Vector2(130, 10), pivot: new Vector2(0, 0.5f),
                     fontsize: 10f, align: HorizontalAlignmentOptions.Left, key: "Show head gauge");
 
 

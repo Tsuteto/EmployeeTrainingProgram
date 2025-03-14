@@ -262,6 +262,8 @@ namespace EmployeeTraining.EmployeeRestocker
             {
                 box.DropBox();
                 box.gameObject.layer = this.CurrentBoxLayer;
+                // The vanilla somehow don't do this and the box is abandoned...
+                Singleton<StorageStreet>.Instance.SubscribeBox(box);
             }
             this.UnoccupyBoxes();
             this.inventory.Clear();
@@ -421,13 +423,19 @@ namespace EmployeeTraining.EmployeeRestocker
                         foundAvailableDisplaySlot = true;
                         break;
                     }
-                    this.TargetDisplaySlot.OccupiedRestocker = null;
-                    this.occupiedDisplaySlots.Remove(this.TargetDisplaySlot);
+                    if (this.TargetDisplaySlot != null)
+                    {
+                        this.TargetDisplaySlot.OccupiedRestocker = null;
+                        this.occupiedDisplaySlots.Remove(this.TargetDisplaySlot);
+                    }
                 }
 
                 if (!foundAvailableDisplaySlot)
                 {
-                    this.TargetDisplaySlot.OccupiedRestocker = null;
+                    if (this.TargetDisplaySlot != null)
+                    {
+                        this.TargetDisplaySlot.OccupiedRestocker = null;
+                    }
                     this.occupiedDisplaySlots.Remove(this.TargetDisplaySlot);
                 }
                 else
