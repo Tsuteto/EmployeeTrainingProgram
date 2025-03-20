@@ -241,7 +241,7 @@ namespace EmployeeTraining.EmployeeRestocker
             foreach (Box box in this.inventory.Boxes)
             {
                 Singleton<InventoryManager>.Instance.RemoveBox(box.Data);
-                LeanPool.Despawn(box.gameObject, 0f);
+                LeanPool.Despawn(box.gameObject);
                 box.gameObject.layer = this.CurrentBoxLayer;
                 box.ResetBox();
             }
@@ -916,7 +916,7 @@ namespace EmployeeTraining.EmployeeRestocker
                 yield return new WaitForSeconds(this.ThrowingBoxTime);
                 // this.LogStat();
                 Singleton<InventoryManager>.Instance.RemoveBox(this.Box.Data);
-                LeanPool.Despawn(this.Box.gameObject, 0f);
+                LeanPool.Despawn(this.Box.gameObject);
                 this.Box.gameObject.layer = this.CurrentBoxLayer;
                 this.Box.ResetBox();
                 this.inventory.Remove(this.Box);
