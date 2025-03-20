@@ -36,80 +36,19 @@ namespace EmployeeTraining
 
             var instructionsToInsert = new List<CodeInstruction>
                 {
-                    new CodeInstruction(OpCodes.Ldloc_0),
-                    new CodeInstruction(OpCodes.Ldarg_0),
-                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(SaveManager), "m_ES3Settings")),
+                    new CodeInstruction(OpCodes.Ldloc_0), // filePath
+                    // new CodeInstruction(OpCodes.Ldarg_0),
+                    // new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(SaveManager), "m_ES3Settings")),
                     new CodeInstruction(OpCodes.Call, AccessTools.Method(
                             typeof(ETSaveManager), nameof(ETSaveManager.Save),
-                            new Type[]{typeof(string), typeof(ES3Settings)})),
+                            new Type[]{typeof(string)/*filePath*/})
+                    ),
                 };
 
             if (insertionIndex != -1)
             {
                 code.InsertRange(insertionIndex, instructionsToInsert);
             }
-            // for (int i = 0; i < code.Count; i++)
-            // {
-            //     Plugin.LogDebug($"-- {i,3} | {code[i].opcode,8} | {code[i].operand}");
-            // }
-            return code;
-        }
-    }
-
-    [HarmonyPatch(typeof(SaveManager))]
-    [HarmonyPatch(nameof(SaveManager.Load))]
-    public class SaveManager_Load_Patcher
-    {
-        static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
-        {
-            // Plugin.LogDebug("Applying SaveManager_Load_Patcher");
-            var code = new List<CodeInstruction>(instructions);
-
-            int insertionIndex = -1;
-            bool isAfterStorage = false;
-            for (int i = 0; i < code.Count; i++)
-            {
-                // Console.Write($"-- {i:###} | {code[i].opcode,8} | {code[i].operand}");
-                // if (code[i].opcode == OpCodes.Leave) Console.Write($"----> operand: {code[i].operand.GetType()}");
-                /* Search following code:
-                       ldstr | Storage
-                     ldarg.0 |
-                       ldfld | System.String m_CurrentSaveFilePath
-                     ldarg.0 |
-                       ldfld | SaveManager+CustomizationContainer Customization
-                     ldarg.0 |
-                       ldfld | ES3Settings m_ES3Settings
-                        call | Void LoadInto[StorageData](System.String, System.String, StorageData, ES3Settings)
-                    <--- INSERT HERE --->
-                       leave | System.Reflection.Emit.Label
-                 */ 
-                if (code[i].opcode == OpCodes.Ldstr && (string)code[i].operand == "Customization")
-                {
-                    isAfterStorage = true;
-                }
-                if (isAfterStorage && code[i].opcode == OpCodes.Leave)
-                {
-                    insertionIndex = i;
-                    break;
-                }
-            }
-
-            var instructionsToInsert = new List<CodeInstruction>
-                {
-                    new CodeInstruction(OpCodes.Ldarg_0),
-                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(SaveManager), "m_CurrentSaveFilePath")),
-                    new CodeInstruction(OpCodes.Ldarg_0),
-                    new CodeInstruction(OpCodes.Ldfld, AccessTools.Field(typeof(SaveManager), "m_ES3Settings")),
-                    new CodeInstruction(OpCodes.Call, AccessTools.Method(
-                            typeof(ETSaveManager), nameof(ETSaveManager.Load),
-                            new Type[]{typeof(string), typeof(ES3Settings)})),
-                };
-
-            if (insertionIndex != -1)
-            {
-                code.InsertRange(insertionIndex, instructionsToInsert);
-            }
-
             // for (int i = 0; i < code.Count; i++)
             // {
             //     Plugin.LogDebug($"-- {i,3} | {code[i].opcode,8} | {code[i].operand}");

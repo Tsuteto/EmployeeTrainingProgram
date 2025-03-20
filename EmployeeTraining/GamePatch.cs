@@ -1,3 +1,4 @@
+using System;
 using __Project__.Scripts.Computer;
 using EmployeeTraining.TrainingApp;
 using HarmonyLib;
@@ -49,5 +50,11 @@ namespace EmployeeTraining
             return true;
         }
 
+        [HarmonyPatch(typeof(SaveManager), "Awake")]
+        [HarmonyPostfix]
+        public static void SaveManager_Awake_Postfix(SaveManager __instance, string ___m_CurrentSaveFilePath)
+        {
+            ETSaveManager.Load(___m_CurrentSaveFilePath);
+        }
     }
 }

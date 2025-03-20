@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using EmployeeTraining.EmployeeCashier;
 using EmployeeTraining.EmployeeCsHelper;
 using EmployeeTraining.EmployeeJanitor;
@@ -22,6 +23,8 @@ namespace EmployeeTraining
         private static readonly string SAVE_DIR_REV1 = $"{Application.persistentDataPath}/CashierTraining";
         private const string TRAINING_DATA_KEY_REV1 = "CashierSkills";
 
+        private static readonly ES3Settings es3Settings = new ES3Settings(new Enum[]{ES3.Location.Cache});
+
         public static bool IsReadyToSave = false;
 
         public static Action SaveDataLoadedEvent;
@@ -38,10 +41,11 @@ namespace EmployeeTraining
             return $"{ETSaveManager.SAVE_DIR_REV1}/CashierTraining-{gameFileName}";
         }
 
-        public static void Load(string gameFilePath, ES3Settings es3Settings)
+        public static void Load(string gameFilePath, int tries = -1)
         {
-            if (gameFilePath == null || gameFilePath.Length == 0) return;
+            if (string.IsNullOrEmpty(gameFilePath)) return;
 
+            bool loaded = false;
             try
             {
                 var filePath = GetSaveFilePath(gameFilePath);
@@ -58,12 +62,13 @@ namespace EmployeeTraining
                     {
                         ETSaveManager.SaveDataLoadedEvent.Invoke();
                     }
+                    loaded = true;
                 }
                 else
                 {
                     // MIGRATION from CashierTrainingProgram
                     Plugin.LogInfo($"Training data NOT FOUND");
-                    var filePathRev1 = GetSaveFilePathRev1(gameFilePath);
+                    var filePathRev1 = GetSaveFilePathRev1(filePath);
                     Plugin.LogInfo($"Migrating cashier skill data from {filePathRev1}");
                     if (File.Exists(filePathRev1))
                     {
@@ -87,6 +92,7 @@ namespace EmployeeTraining
                         }
                         File.Delete(tempPath);
                         Plugin.LogInfo($"Cashier skill data has been successfully migrated");
+                        loaded = true;
                     }
                     else
                     {
@@ -101,11 +107,36 @@ namespace EmployeeTraining
             }
             finally
             {
+                if (!loaded)
+                {
+                    if (tries == -1) Plugin.LogWarn("Trying to load from backups");
+                    tries += 1;
+                    if (GetNextFileToLoad(tries, out string nextFile))
+                    {
+                        Load(nextFile, tries);
+                    }
+                }
                 IsReadyToSave = true;
             }
         }
 
-        public static void Save(string gameFilePath, ES3Settings es3Settings)
+        private static bool GetNextFileToLoad(int failed, out string nextFile)
+        {
+            string[] files = Directory.GetFiles(ETSaveManager.SAVE_DIR, "*.es3");
+            files = files.OrderByDescending(f => new FileInfo(f).LastWriteTime).ToArray();
+            if (failed < files.Length)
+            {
+                nextFile = Regex.Replace(files[failed], @"\\(?:Employee|Cashier)Training-(.+\.es3)$", @"\\$1");
+                return true;
+            }
+            else
+            {
+                nextFile = null;
+                return false;
+            }
+        }
+
+        public static void Save(string gameFilePath)
         {
             if (!IsReadyToSave) return;
             try
