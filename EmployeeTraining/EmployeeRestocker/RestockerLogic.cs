@@ -67,7 +67,8 @@ namespace EmployeeTraining.EmployeeRestocker
         // m_RestockerPlacingSpeeds
         private List<float> RestockerPlacingSpeeds { get => this.fldRestockerPlacingSpeeds.Value; set => this.fldRestockerPlacingSpeeds.Value = value; }
         private readonly PrivateFld<List<float>> fldRestockerPlacingSpeeds = new PrivateFld<List<float>>(typeof(Restocker), "m_RestockerPlacingSpeeds");
-
+        private List<DisplaySlot> CachedSlots { get => this.fldCashedSlots.Value; set => this.fldCashedSlots.Value = value; }
+        private readonly PrivateFld<List<DisplaySlot>> fldCashedSlots = new PrivateFld<List<DisplaySlot>>(typeof(Restocker), "m_CachedSlots");
 
         private Dictionary<int, List<RackSlot>> RackSlots { get => this.fldRackSlots.Value; set => this.fldRackSlots.Value = value; }
         private readonly PrivateFld<Dictionary<int, List<RackSlot>>> fldRackSlots = new PrivateFld<Dictionary<int, List<RackSlot>>>(typeof(RackManager), "m_RackSlots");
@@ -127,6 +128,7 @@ namespace EmployeeTraining.EmployeeRestocker
         private int totalCarryingWeight;
         private int totalCarryingHeight;
         private readonly List<DisplaySlot> occupiedDisplaySlots = new List<DisplaySlot>();
+        private readonly List<DisplaySlot> labeledEmptySlotsCache = new List<DisplaySlot>(250);
         
         private int CarryingCapacity => this.skill.CarryingCapacity;
         private int CarryingMaxHeight => this.skill.CarryingMaxHeight;
@@ -164,6 +166,7 @@ namespace EmployeeTraining.EmployeeRestocker
             this.fldCurrentBoostLevel.Instance = restocker;
             this.fldRestockerWalkingSpeeds.Instance = restocker;
             this.fldRestockerPlacingSpeeds.Instance = restocker;
+            this.fldCashedSlots.Instance = restocker;
 
             this.fldRackSlots.Instance = Singleton<RackManager>.Instance;
             this.fldRacks.Instance = Singleton<RackManager>.Instance;
@@ -391,12 +394,13 @@ namespace EmployeeTraining.EmployeeRestocker
                 //this.GetAvailableDisplaySlotToRestock();
 
                 // Get every available slot to restock
-                List<DisplaySlot> slots = Singleton<DisplayManager>.Instance.GetDisplaySlots(this.TargetProductID, false);
-    			slots.AddRange(Singleton<DisplayManager>.Instance.GetLabeledEmptyDisplaySlots(this.TargetProductID));
+                Singleton<DisplayManager>.Instance.GetDisplaySlots(this.TargetProductID, false, CachedSlots);
+    			Singleton<DisplayManager>.Instance.GetLabeledEmptyDisplaySlots(this.TargetProductID, this.labeledEmptySlotsCache);
+                CachedSlots.AddRange(this.labeledEmptySlotsCache);
 
                 this.Box = this.inventory.Boxes.FirstOrDefault(b => b.HasProducts && b.Data.ProductID == this.TargetProductID);
                 bool foundAvailableDisplaySlot = false;
-                foreach (DisplaySlot slot in slots)
+                foreach (DisplaySlot slot in CachedSlots)
                 {
                     this.TargetDisplaySlot = slot;
                     if (!this.IsDisplaySlotAvailableToRestock(slot))
@@ -423,7 +427,7 @@ namespace EmployeeTraining.EmployeeRestocker
                         foundAvailableDisplaySlot = true;
                         break;
                     }
-                    if (this.TargetDisplaySlot != null)
+                    if (this.TargetDisplaySlot)
                     {
                         this.TargetDisplaySlot.OccupiedRestocker = null;
                         this.occupiedDisplaySlots.Remove(this.TargetDisplaySlot);
@@ -432,7 +436,7 @@ namespace EmployeeTraining.EmployeeRestocker
 
                 if (!foundAvailableDisplaySlot)
                 {
-                    if (this.TargetDisplaySlot != null)
+                    if (this.TargetDisplaySlot)
                     {
                         this.TargetDisplaySlot.OccupiedRestocker = null;
                     }
@@ -496,7 +500,7 @@ namespace EmployeeTraining.EmployeeRestocker
             var customers = Singleton<ShoppingCustomerList>.Instance.CustomersInShopping;
             bool isCustomerInShopping = customers.Count > 0 && customers.Any(c => c.ShoppingList != null && c.ShoppingList.HasProduct);
             bool canFullyStock = !isCustomerInShopping;
-            if (VerboseLog)
+            if (RestockerLogic.VerboseLog)
             {
                 Plugin.LogDebug($"Restocker[{skill.Id}] canFullyStock: {canFullyStock}");
                 Plugin.LogDebug($"ActiveCustomers={customers.Count}, {customers.Select(c => $"[{c.ShoppingList?.Products.Keys.Join()}]").Join()}");
@@ -513,7 +517,7 @@ namespace EmployeeTraining.EmployeeRestocker
                     orderby stocking ascending
                     select new KeyValuePair<int, int>(i.Key, capacity - displayed - carrying.Get(i.Key, 0)))
                     .ToList();
-            if (VerboseLog)
+            if (RestockerLogic.VerboseLog)
             {
                 Plugin.LogDebug($"Restocker[{this.restocker.RestockerID}] Demands: {demands.Select(p => $"[{Singleton<IDManager>.Instance.ProductSO(p.Key).name} x {p.Value}]").Join(delimiter: "")}");
                 // Plugin.LogDebug($"Products in a box:");
@@ -560,7 +564,7 @@ namespace EmployeeTraining.EmployeeRestocker
                     }
                 }
             }
-            if (VerboseLog)
+            if (RestockerLogic.VerboseLog)
             {
                 Plugin.LogDebug($"Restocker[{this.skill.Id}] Planned: {this.planList.Select(p => $"[{Singleton<IDManager>.Instance.ProductSO(p.Key).name} x{p.Value}]").Join(delimiter: "")}");
                 Plugin.LogDebug($"Restocker[{this.skill.Id}] Total weight: {totalWeightOfPlan}, Capacity: {this.CarryingCapacity}");
@@ -571,8 +575,9 @@ namespace EmployeeTraining.EmployeeRestocker
 
         private int GetTotalDisplayCapacity(int productId)
         {
-            return Singleton<DisplayManager>.Instance.GetDisplaySlots(productId, false)?
-                    .Distinct().Sum(i => this.GetCapacityInDisplaySlot(i)) ?? 0;
+            var slots = new List<DisplaySlot>();
+            Singleton<DisplayManager>.Instance.GetDisplaySlots(productId, false, slots);
+            return slots.Distinct().Sum(i => this.GetCapacityInDisplaySlot(i));
         }
 
         private int GetCapacityInDisplaySlot(DisplaySlot displaySlot)
@@ -728,7 +733,7 @@ namespace EmployeeTraining.EmployeeRestocker
                 Vector3 target = Vector3.MoveTowards(this.TargetBox.transform.position, this.restocker.transform.position, 0.35f);
                 Quaternion rotation = Quaternion.LookRotation(this.TargetBox.transform.position, Vector3.up);
                 yield return this.restocker.StartCoroutine(this.GoTo(target, rotation));
-                if (this.TargetBox == null || this.TargetBox.Racked)
+                if (!this.TargetBox || this.TargetBox.Racked)
                 {
                     this.DoneCarryingBox(this.TargetBox);
                     this.TargetBox = null;
@@ -1114,7 +1119,7 @@ namespace EmployeeTraining.EmployeeRestocker
                 yield break;
             }
             int exp = 0;
-            while (TargetDisplaySlot != null && !this.TargetDisplaySlot.Full && this.Box.HasProducts)
+            while (TargetDisplaySlot && !this.TargetDisplaySlot.Full && this.Box.HasProducts)
             {
                 Product productFromBox = null;
                 try
@@ -1199,23 +1204,27 @@ namespace EmployeeTraining.EmployeeRestocker
         public bool Internal_GetAvailableDisplaySlotToRestock()
         {
             Plugin.LogDebug($"Restocker[{this.skill.Id}] called GetAvailableDisplaySlotToRestock");
-            List<DisplaySlot> displaySlots = Singleton<DisplayManager>.Instance.GetDisplaySlots(this.TargetProductID, false);
-            if (displaySlots == null || displaySlots.Count <= 0)
+            if (Singleton<DisplayManager>.Instance.GetDisplaySlots(this.TargetProductID, false, this.CachedSlots) <= 0)
             {
                 Plugin.LogDebug($"-> Not found");
                 return false;
             }
-            DisplaySlot displaySlot = displaySlots.FirstOrDefault(d => this.IsDisplaySlotAvailableToRestock(d));
+
+            // Instead of GetAvailableDisplaySlotsNonAlloc()
+            DisplaySlot displaySlot = this.CachedSlots.FirstOrDefault(d => this.IsDisplaySlotAvailableToRestock(d));
             if (displaySlot == null)
             {
                 Plugin.LogDebug($"-> finding labeledEmptyDisplaySlots");
-                List<DisplaySlot> labeledEmptyDisplaySlots = Singleton<DisplayManager>.Instance.GetLabeledEmptyDisplaySlots(this.TargetProductID);
-                if (labeledEmptyDisplaySlots == null || labeledEmptyDisplaySlots.Count <= 0)
+                if (Singleton<DisplayManager>.Instance.GetLabeledEmptyDisplaySlots(this.TargetProductID, this.labeledEmptySlotsCache) <= 0)
                 {
                     Plugin.LogDebug($"-> Not found");
                     return false;
                 }
-                DisplaySlot targetDisplaySlot = labeledEmptyDisplaySlots[UnityEngine.Random.Range(0, labeledEmptyDisplaySlots.Count)];
+                DisplaySlot targetDisplaySlot = this.CachedSlots[UnityEngine.Random.Range(0, this.labeledEmptySlotsCache.Count)];
+                if (targetDisplaySlot.IsOccupiedByOthers(restocker))
+                {
+                    return false;
+                }
                 this.TargetDisplaySlot = targetDisplaySlot;
             }
             else

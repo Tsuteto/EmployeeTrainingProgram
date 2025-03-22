@@ -46,7 +46,7 @@ namespace EmployeeTraining
         public static bool BankruptcyManager_CheckForBankruptcy_Postfix()
         {
             ETSaveManager.Clear();
-            Plugin.Instance.GameQuitEvent.Invoke();
+            Plugin.Instance.GameQuitEvent?.Invoke();
             return true;
         }
 

@@ -78,7 +78,7 @@ namespace EmployeeTraining
         {
             if (nextScene.name == "Main Menu")
             {
-                this.GameQuitEvent.Invoke();
+                this.GameQuitEvent?.Invoke();
                 ETSaveManager.IsReadyToSave = false;
             }
             if (nextScene.name == "Main Scene")
@@ -89,7 +89,7 @@ namespace EmployeeTraining
                 var appObj = new GameObject("Training App", typeof(PCTrainingApp));
                 appObj.transform.SetParent(GameObject.Find("---MANAGERS---").transform);
 
-                this.GameLoadedEvent.Invoke();
+                this.GameLoadedEvent?.Invoke();
 
                 // Output all Product info
                 // var products = Singleton<IDManager>.Instance.Products;

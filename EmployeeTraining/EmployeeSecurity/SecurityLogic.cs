@@ -97,7 +97,7 @@ namespace EmployeeTraining.EmployeeSecurity
         }
     }
 
-        public static IEnumerator ProductRestockLoop(RestockingState state, Restocker m_Restocker, Crate m_Crate)
+        public static IEnumerator ProductRestockLoop(RestockingState state, Restocker m_Restocker, Crate m_Crate, List<DisplaySlot> slots)
         {
             SecuritySkill skill = SecuritySkillManager.Instance.GetSkill(state.securityGuard);
 
@@ -118,15 +118,14 @@ namespace EmployeeTraining.EmployeeSecurity
                 }
 
                 int productID = item.ProductSO.ID;
-                List<DisplaySlot> displaySlots = Singleton<DisplayManager>.Instance.GetDisplaySlots(productID, hasProduct: false);
-                if (displaySlots == null)
+                if (Singleton<DisplayManager>.Instance.GetDisplaySlots(productID, false, slots) <= 0)
                 {
                     Debug.LogWarning("Guard: No display slot!");
                     continue;
                 }
 
-                DisplaySlot targetDisplaySlot = displaySlots.Where((DisplaySlot x) => !x.Full).FirstOrDefault();
-                if (targetDisplaySlot == null)
+                DisplaySlot targetDisplaySlot = slots.Where(x => !x.Full).FirstOrDefault();
+                if (!targetDisplaySlot)
                 {
                     Debug.LogWarning("Guard: No empty display slot!");
                     continue;
@@ -149,7 +148,7 @@ namespace EmployeeTraining.EmployeeSecurity
                 }
 
                 Product product = m_Crate.RemoveProduct(productID);
-                if (product == null)
+                if (!product)
                 {
                     Debug.LogWarning("Guard: Remove product failed!");
                     continue;

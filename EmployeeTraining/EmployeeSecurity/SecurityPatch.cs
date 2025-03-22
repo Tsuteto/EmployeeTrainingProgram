@@ -87,9 +87,11 @@ namespace EmployeeTraining.EmployeeSecurity
 
         [HarmonyPatch(typeof(RestockingState), "ProductRestockLoop")]
         [HarmonyPrefix]
-        public static bool RestockingState_ProductRestockLoop_Prefix(RestockingState __instance, Restocker ___m_Restocker, Crate ___m_Crate, ref IEnumerator __result)
+        public static bool RestockingState_ProductRestockLoop_Prefix(RestockingState __instance,
+            Restocker ___m_Restocker, Crate ___m_Crate, List<DisplaySlot> ___m_CachedDisplaySlots,
+            ref IEnumerator __result)
         {
-            __result = SecurityLogic.ProductRestockLoop(__instance, ___m_Restocker, ___m_Crate);
+            __result = SecurityLogic.ProductRestockLoop(__instance, ___m_Restocker, ___m_Crate, ___m_CachedDisplaySlots);
             return false;
         }
     }

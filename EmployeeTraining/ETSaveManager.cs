@@ -60,7 +60,7 @@ namespace EmployeeTraining
                     }
                     if (Singleton<IDManager>.Instance)
                     {
-                        ETSaveManager.SaveDataLoadedEvent.Invoke();
+                        ETSaveManager.SaveDataLoadedEvent?.Invoke();
                     }
                     loaded = true;
                 }
