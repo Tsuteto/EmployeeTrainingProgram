@@ -67,6 +67,15 @@ namespace EmployeeTraining.EmployeeRestocker
             return false;
         }
 
+        [HarmonyPatch("PlaceBoxFromVehicle")]
+        [HarmonyPrefix]
+        public static bool PlaceBoxFromVehicle_Prefix(Restocker __instance, ref IEnumerator __result)
+        {
+            RestockerSkill skill = RestockerSkillManager.Instance.GetSkill(__instance);
+            __result = skill.Logic.Internal_PlaceBoxFromVehicle();
+            return false;
+        }
+
         [HarmonyPatch("PlaceBoxFromStreet")]
         [HarmonyPrefix]
         public static bool PlaceBoxFromStreet_Prefix(Restocker __instance, ref IEnumerator __result)

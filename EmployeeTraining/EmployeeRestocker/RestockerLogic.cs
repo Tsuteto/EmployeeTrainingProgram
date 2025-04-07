@@ -37,7 +37,7 @@ namespace EmployeeTraining.EmployeeRestocker
         private RestockerState State { get => this.fldState.Value; set => this.fldState.Value = value; }
         private readonly PrivateFld<RestockerState> fldState = new PrivateFld<RestockerState>(typeof(Restocker), "m_State");
         private int TargetProductID { get => this.fldTargetProductID.Value; set => this.fldTargetProductID.Value = value; }
-        private readonly PrivateFld<int> fldTargetProductID = new PrivateFld<int>(typeof(Restocker), "m_TargetProductID");
+        private readonly PrivateProp<int> fldTargetProductID = new PrivateProp<int>(typeof(Restocker), "m_TargetProductID");
         private DisplaySlot TargetDisplaySlot { get => this.fldTargetDisplaySlot.Value; set => this.fldTargetDisplaySlot.Value = value; }
         private readonly PrivateFld<DisplaySlot> fldTargetDisplaySlot = new PrivateFld<DisplaySlot>(typeof(Restocker), "m_TargetDisplaySlot");
         private RackSlot TargetRackSlot { get => this.fldTargetRackSlot.Value; set => this.fldTargetRackSlot.Value = value; }
@@ -69,6 +69,8 @@ namespace EmployeeTraining.EmployeeRestocker
         private readonly PrivateFld<List<float>> fldRestockerPlacingSpeeds = new PrivateFld<List<float>>(typeof(Restocker), "m_RestockerPlacingSpeeds");
         private List<DisplaySlot> CachedSlots { get => this.fldCashedSlots.Value; set => this.fldCashedSlots.Value = value; }
         private readonly PrivateFld<List<DisplaySlot>> fldCashedSlots = new PrivateFld<List<DisplaySlot>>(typeof(Restocker), "m_CachedSlots");
+        private bool UsingVehicle { get => this.fldUsingVehicle.Value; set => this.fldUsingVehicle.Value = value; }
+        private readonly PrivateFld<bool> fldUsingVehicle = new PrivateFld<bool>(typeof(Restocker), "m_UsingVehicle");
 
         private Dictionary<int, List<RackSlot>> RackSlots { get => this.fldRackSlots.Value; set => this.fldRackSlots.Value = value; }
         private readonly PrivateFld<Dictionary<int, List<RackSlot>>> fldRackSlots = new PrivateFld<Dictionary<int, List<RackSlot>>>(typeof(RackManager), "m_RackSlots");
@@ -118,6 +120,8 @@ namespace EmployeeTraining.EmployeeRestocker
         private readonly PrivateMtd<RackSlot> mtdHasBoxAtRackForMerge = new PrivateMtd<RackSlot>(typeof(Restocker), "HasBoxAtRackForMerge", typeof(Box));
         private readonly Func<RackSlot, IEnumerator> MergeBox;
         private readonly PrivateMtd<IEnumerator> mtdMergeBox = new PrivateMtd<IEnumerator>(typeof(Restocker), "MergeBox", typeof(RackSlot));
+        private readonly Func<IEnumerator> PlaceBoxFromVehicle;
+        private readonly PrivateMtd<IEnumerator> mtdPlaceBoxFromVehicle = new PrivateMtd<IEnumerator>(typeof(Restocker), "PlaceBoxFromVehicle");
 
         private readonly RestockerSkill skill;
         private readonly Restocker restocker;
@@ -125,8 +129,8 @@ namespace EmployeeTraining.EmployeeRestocker
         private readonly Dictionary<int, int> planList = new Dictionary<int, int>();
         private readonly Dictionary<int, int> carryingBoxes = new Dictionary<int, int>();
         private int productsNeeded;
-        private int totalCarryingWeight;
-        private int totalCarryingHeight;
+        private int totalCarryingWeight = 0;
+        private int totalCarryingHeight = 0;
         private readonly List<DisplaySlot> occupiedDisplaySlots = new List<DisplaySlot>();
         private readonly List<DisplaySlot> labeledEmptySlotsCache = new List<DisplaySlot>(250);
         
@@ -167,6 +171,7 @@ namespace EmployeeTraining.EmployeeRestocker
             this.fldRestockerWalkingSpeeds.Instance = restocker;
             this.fldRestockerPlacingSpeeds.Instance = restocker;
             this.fldCashedSlots.Instance = restocker;
+            this.fldUsingVehicle.Instance = restocker;
 
             this.fldRackSlots.Instance = Singleton<RackManager>.Instance;
             this.fldRacks.Instance = Singleton<RackManager>.Instance;
@@ -213,6 +218,8 @@ namespace EmployeeTraining.EmployeeRestocker
             this.mtdHasBoxAtRackForMerge.Instance = restocker;
             this.MergeBox = (slot) => this.mtdMergeBox.Invoke(slot);
             this.mtdMergeBox.Instance = restocker;
+            this.PlaceBoxFromVehicle = () => this.mtdPlaceBoxFromVehicle.Invoke();
+            this.mtdPlaceBoxFromVehicle.Instance = restocker;
         }
 
         public void AfterResetRestocker()
@@ -221,6 +228,7 @@ namespace EmployeeTraining.EmployeeRestocker
             this.inventory.Clear();
             this.carryingBoxes.Clear();
             this.planList.Clear();
+            this.UpdateCarryingWeightAndHeight();
         }
 
         public void UnoccupyBoxes()
@@ -252,6 +260,7 @@ namespace EmployeeTraining.EmployeeRestocker
             this.inventory.Clear();
             this.carryingBoxes.Clear();
             this.planList.Clear();
+            this.UpdateCarryingWeightAndHeight();
             this.Box = null;
             this.TargetBox = null;
             this.restocker.CarryingBox = false;
@@ -265,13 +274,14 @@ namespace EmployeeTraining.EmployeeRestocker
             {
                 box.DropBox();
                 box.gameObject.layer = this.CurrentBoxLayer;
-                // The vanilla somehow don't do this and the box is abandoned...
+                // The vanilla somehow doesn't do this and the box is abandoned...
                 Singleton<StorageStreet>.Instance.SubscribeBox(box);
             }
             this.UnoccupyBoxes();
             this.inventory.Clear();
             this.carryingBoxes.Clear();
             this.planList.Clear();
+            this.UpdateCarryingWeightAndHeight();
             this.Box = null;
             this.TargetBox = null;
             this.restocker.CarryingBox = false;
@@ -297,22 +307,31 @@ namespace EmployeeTraining.EmployeeRestocker
 
             this.State = RestockerState.RESTOCKING;
             this.ResetTargets();
+    		Singleton<InventoryManager>.Instance.UpdateOrderedProducts();
             this.planList.Clear();
             this.carryingBoxes.Clear();
             this.MinFillRateForDisplaySlotsToRestock = 1;
-            this.totalCarryingWeight = 0;
-            this.totalCarryingHeight = 0;
+            this.UpdateCarryingWeightAndHeight();
             bool doneRestocking = false;
 
-            List<int> productIdsToRestock = this.MakeAPlanToRestock();
+            if (restocker.ManagementData.RestockFromVehicles)
+            {
+                yield return this.PlaceBoxFromVehicle();
+                if (this.UsingVehicle)
+                {
+                    yield break;
+                }
+            }
+
+            List<int> productsToRestock = this.MakeAPlanToRestock();
 
             this.restocker.FreeTargetDisplaySlot();
             yield return null;
 
-            for (int j = 0; j < productIdsToRestock.Count; j++)
+            for (int j = 0; j < productsToRestock.Count; j++)
             {
-                this.TargetProductID = productIdsToRestock[j];
-                this.productsNeeded = this.GetTotalDisplayCapacity(this.TargetProductID) - Singleton<InventoryManager>.Instance.Products[this.TargetProductID];
+                this.TargetProductID = productsToRestock[j];
+                this.productsNeeded = this.GetTotalDisplayCapacity(this.TargetProductID) - Singleton<DisplayManager>.Instance.GetDisplayedProductCount(this.TargetProductID);
                 // bool pickedUp = false;
                 this.LogStat($"TargetProductID={this.TargetProductID}, Demand={this.productsNeeded}");
                 List<DisplaySlot> checkedDisplaySlot = new List<DisplaySlot>();
@@ -519,7 +538,7 @@ namespace EmployeeTraining.EmployeeRestocker
                     .ToList();
             if (RestockerLogic.VerboseLog)
             {
-                Plugin.LogDebug($"Restocker[{this.restocker.RestockerID}] Demands: {demands.Select(p => $"[{Singleton<IDManager>.Instance.ProductSO(p.Key).name} x {p.Value}]").Join(delimiter: "")}");
+                Plugin.LogDebug($"Restocker[{this.restocker.RestockerID}] Demands: {demands.Select(p => $"[{Singleton<IDManager>.Instance.ProductSO(p.Key).name} x{p.Value}]").Join(delimiter: "")}");
                 // Plugin.LogDebug($"Products in a box:");
                 // Singleton<IDManager>.Instance.Products.ForEach(p => Plugin.LogDebug($"{p.ID}\t{p.GridLayoutInBox.productCount}"));
             }
@@ -660,7 +679,7 @@ namespace EmployeeTraining.EmployeeRestocker
                     .Sum(slot => bso.GridLayout.boxCount);
         }
 
-        private Dictionary<int, int> CollectBoxesCarryingFromStreet()
+        private Dictionary<int, int> CollectBoxesBeingCarried()
         {
             return (from k in from i in RestockerSkillManager.Instance.GetActiveLogics()
                 from j in i.carryingBoxes select j
@@ -689,24 +708,82 @@ namespace EmployeeTraining.EmployeeRestocker
             return list;
         }
 
+        public IEnumerator Internal_PlaceBoxFromVehicle()
+        {
+            this.UsingVehicle = false;
+            List<Box> boxesToCarry = new List<Box>();
+            var totalCarryingBoxes = this.CollectBoxesBeingCarried();
+
+            foreach (GameObject gameObject in Singleton<VehicleManager>.Instance.GetVehicles())
+            {
+                VehicleRigidbodyStopDuration vehicleRigidbodyStopDuration;
+                if (gameObject && gameObject.activeInHierarchy && Singleton<StorageStreet>.Instance.IsWithinRestockableArea(gameObject.transform.position) && (!gameObject.TryGetComponent<VehicleRigidbodyStopDuration>(out vehicleRigidbodyStopDuration) || vehicleRigidbodyStopDuration.HasStopped))
+                {
+                    BoxPlacementArea componentInChildren = gameObject.GetComponentInChildren<BoxPlacementArea>();
+                    if (componentInChildren)
+                    {
+                        foreach (Box box in componentInChildren.GetBoxes())
+                        {
+                            RestockAreaBoxController restockAreaBoxController;
+                            if (box && box.TryGetComponent<RestockAreaBoxController>(out restockAreaBoxController)
+                                && restockAreaBoxController.HasLeftArea)
+                            {
+                                if (!box.IsBoxOccupied && !box.Racked && box.HasProducts && !this.IsBoxOvercapacity(box))
+                                {
+                                    int pid = box.Data.ProductID;
+                                    int productBoxCnt = boxesToCarry.Where(b => b.Data.ProductID == pid).Count();
+                                    if (productBoxCnt < this.GetRackCapacityOfSpaceFor(pid) - totalCarryingBoxes.Get(pid, 0))
+                                    {
+                                        this.TargetBox = box;
+                                        this.Box = this.TargetBox;
+                                        this.TargetProductID = this.Box.Product.ID;
+                                        box.SetOccupy(true, restocker.transform);
+                                        boxesToCarry.Add(box);
+                                        this.AddCarryingBox(box);
+                                        break;
+                                    }
+                                }
+                                this.TargetBox = null;
+                            }
+                        }
+                    }
+                }
+            }
+            foreach (Box box in boxesToCarry)
+            {
+                this.TargetBox = box;
+                this.Box = box;
+                this.UsingVehicle = true;
+                Vector3 target = this.TargetBox.transform.position - (this.TargetBox.transform.position - restocker.transform.position).normalized * 1f;
+                Quaternion rotation = Quaternion.LookRotation(this.TargetBox.transform.position, Vector3.up);
+                yield return this.GoTo(target, rotation);
+                if (this.Box.OccupyOwner != restocker.transform)
+                {
+                    this.State = RestockerState.IDLE;
+                    this.CheckTasks = true;
+                    this.TargetBox = null;
+                    this.Box = null;
+                    continue;
+                }
+                this.CheckTasks = false;
+                yield return this.PickUpBox(false);
+                this.GetAvailableDisplaySlotToRestock();
+                this.CheckTasks = true;
+            }
+            yield return this.DropBox();
+            yield return null;
+        }
+
         public IEnumerator Internal_PlaceBoxFromStreet()
         {
             this.LogStat($"called PlaceBoxFromStreet");
             this.IsCarryBoxToRack = false;
             List<Box> boxesToCarry = new List<Box>();
-            int totalCarryingWeight = 0;
-            int totalCarryingHeight = 0;
-            var totalCarryingBoxes = this.CollectBoxesCarryingFromStreet();
+            var totalCarryingBoxes = this.CollectBoxesBeingCarried();
             foreach (Box box in this.GetBoxListOnStreet())
             {
-                if (box == null || box.IsBoxOccupied && box.OccupyOwner != this.restocker.transform || box.Racked || !box.HasProducts)
-                {
-                    continue;
-                }
-                int boxWeight = ProductWeight.CalcWeight(box);
-                int boxHeight = BoxHeights[box.Data.Size];
-                if (totalCarryingWeight > 0 && boxWeight + totalCarryingWeight > this.CarryingCapacity
-                    || totalCarryingHeight > 0 && boxHeight + totalCarryingHeight > this.CarryingMaxHeight)
+                if (box == null || box.IsBoxOccupied && box.OccupyOwner != this.restocker.transform
+                        || box.Racked || !box.HasProducts || this.IsBoxOvercapacity(box))
                 {
                     continue;
                 }
@@ -716,8 +793,7 @@ namespace EmployeeTraining.EmployeeRestocker
                 {
                     box.SetOccupy(true, this.restocker.transform);
                     boxesToCarry.Add(box);
-                    totalCarryingWeight += boxWeight;
-                    totalCarryingHeight += boxHeight;
+                    this.AddCarryingBox(box);
                     if (!this.carryingBoxes.TryAdd(pid, 1))
                     {
                         this.carryingBoxes[pid] += 1;
@@ -750,7 +826,7 @@ namespace EmployeeTraining.EmployeeRestocker
                 }
             }
 
-            yield return this.restocker.StartCoroutine(this.DropBox());
+            yield return this.DropBox();
             if (this.IsCarryBoxToRack)
             {
                 this.skill.AddExp(2);
@@ -769,6 +845,7 @@ namespace EmployeeTraining.EmployeeRestocker
             }
             if (!this.HasBox())
             {
+                this.UpdateCarryingWeightAndHeight();
                 yield break;
             }
             if (this.inventory.Boxes.Any(b => !b.HasProducts))
@@ -779,6 +856,7 @@ namespace EmployeeTraining.EmployeeRestocker
             {
                 yield return this.restocker.StartCoroutine(this.PlaceBoxToRack());
             }
+            this.UpdateCarryingWeightAndHeight();
         }
 
         public IEnumerator Internal_PerformRestocking()
@@ -975,10 +1053,7 @@ namespace EmployeeTraining.EmployeeRestocker
                 {
                     if (this.TargetRackSlot.Data.BoxCount == 0 || this.TargetRackSlot.Data.BoxID == -1) yield break;
                     BoxData nextBoxData = this.TargetRackSlot.Data.RackedBoxDatas.Last();
-                    int boxWeight = ProductWeight.CalcWeight(nextBoxData);
-                    int boxHeight = BoxHeights[nextBoxData.Size];
-                    if (this.totalCarryingWeight > 0 && boxWeight + this.totalCarryingWeight > this.CarryingCapacity
-                        || this.totalCarryingHeight > 0 && boxHeight + this.totalCarryingHeight > this.CarryingMaxHeight)
+                    if (this.IsBoxOvercapacity(nextBoxData))
                     {
                         Plugin.LogDebug($"Restocker[{restocker.RestockerID}]: Overcapacity! {this.productsNeeded} of needs decreasing by {nextBoxData.ProductCount}");
                         this.productsNeeded -= nextBoxData.ProductCount;
@@ -994,36 +1069,27 @@ namespace EmployeeTraining.EmployeeRestocker
                     {
                         this.carryingBoxes[box.Data.ProductID] += 1;
                     }
+                    this.AddCarryingBox(box);
                     this.LogStat($"picking up {box.ToBoxInfo()} from a rack");
-                    yield return this.GrabBox(box, isFromRack, boxWeight, boxHeight);
+                    yield return this.GrabBox(box, isFromRack);
                 }
             }
             else
             {
-                // From street
+                // From street or vehicles
                 if (this.TargetBox == null) yield break;
-                int boxWeight = ProductWeight.CalcWeight(this.TargetBox);
-                int boxHeight = BoxHeights[this.TargetBox.Size];
-                if (this.totalCarryingWeight > 0 && boxWeight + this.totalCarryingWeight > this.CarryingCapacity
-                    || this.totalCarryingHeight > 0 && boxHeight + this.totalCarryingHeight > this.CarryingMaxHeight)
-                {
-                    Plugin.LogDebug($"Restocker[{restocker.RestockerID}]: Overcapacity! {this.productsNeeded} of needs decreasing by {this.TargetBox.ProductCount} from street");
-                    this.TargetBox.SetOccupy(false, null);
-                    this.productsNeeded -= this.TargetBox.ProductCount;
-                    yield break;
-                }
 
                 if (this.TargetBox.OccupyOwner != this.restocker.transform)
                 {
                     this.TargetBox = null;
                     yield break;
                 }
-                this.LogStat($"picking up {this.TargetBox?.ToBoxInfo()} from streets or floor");
-                yield return this.GrabBox(this.TargetBox, isFromRack, boxWeight, boxHeight);
+                this.LogStat($"picking up {this.TargetBox?.ToBoxInfo()} from the ground or vehicles");
+                yield return this.GrabBox(this.TargetBox, isFromRack);
             }
         }
 
-        private IEnumerator GrabBox(Box box, bool isFromRack, int boxWeight, int boxHeight)
+        private IEnumerator GrabBox(Box box, bool isFromRack)
         {
             this.productsNeeded -= box.Data.ProductCount;
 
@@ -1045,8 +1111,6 @@ namespace EmployeeTraining.EmployeeRestocker
             this.Box = box;
             this.Box.SetOccupy(true, this.restocker.transform);
             this.Box.Racked = false;
-            this.totalCarryingWeight += boxWeight;
-            this.totalCarryingHeight += boxHeight;
             this.CurrentBoxLayer = box.gameObject.layer;
             box.gameObject.layer = LayerMask.NameToLayer("Ignore Raycast");
             this.restocker.CarryingBox = true;
@@ -1166,6 +1230,11 @@ namespace EmployeeTraining.EmployeeRestocker
             {
                 return;
             }
+            if (this.TargetRackSlot.Data.ProductID != -1 && this.TargetRackSlot.Data.ProductID != this.TargetProductID)
+            {
+                Plugin.LogDebug($"Restocker[{this.skill.Id}] tried to place box with wrong product ID: {this.TargetRackSlot.Data.ProductID} != {this.TargetProductID}");
+                return;
+            }
             if (this.TargetRackSlot.IsBoxAlreadyExistInRack(this.Box.BoxID, this.Box))
             {
                 return;
@@ -1270,6 +1339,43 @@ namespace EmployeeTraining.EmployeeRestocker
         private bool HasBox()
         {
             return this.inventory.Count > 0;
+        }
+
+        private bool IsBoxOvercapacity(BoxData box)
+        {
+            int boxWeight = ProductWeight.CalcWeight(box);
+            int boxHeight = BoxHeights[box.Size];
+            return totalCarryingWeight > 0 && boxWeight + totalCarryingWeight > this.CarryingCapacity
+                || totalCarryingHeight > 0 && boxHeight + totalCarryingHeight > this.CarryingMaxHeight;
+        }
+
+        private bool IsBoxOvercapacity(Box box)
+        {
+            int boxWeight = ProductWeight.CalcWeight(box);
+            int boxHeight = BoxHeights[box.Size];
+            Plugin.LogDebug($"Restocker[{this.skill.Id}] {box.ToBoxInfo()} weight={boxWeight} + {this.totalCarryingWeight} <= {this.CarryingCapacity}, height={boxHeight} + {this.totalCarryingHeight} <= {this.CarryingMaxHeight}");
+            return this.totalCarryingWeight > 0 && boxWeight + this.totalCarryingWeight > this.CarryingCapacity
+                || this.totalCarryingHeight > 0 && boxHeight + this.totalCarryingHeight > this.CarryingMaxHeight;
+        }
+
+        private void AddCarryingBox(Box box)
+        {
+            this.totalCarryingWeight += ProductWeight.CalcWeight(box);
+            this.totalCarryingHeight += BoxHeights[box.Size];
+        }
+
+        private void AddCarryingBox(BoxData box)
+        {
+            this.totalCarryingWeight += ProductWeight.CalcWeight(box);
+            this.totalCarryingHeight += BoxHeights[box.Size];
+        }
+
+        private void UpdateCarryingWeightAndHeight()
+        {
+            this.totalCarryingWeight = 0;
+            this.totalCarryingHeight = 0;
+            this.inventory.Boxes.ForEach(this.AddCarryingBox);
+            Plugin.LogDebug($"Restocker[{this.skill.Id}] carrying {this.totalCarryingWeight / 1000:0.#}kg");
         }
 
         public void LogStat(string msg = null)
