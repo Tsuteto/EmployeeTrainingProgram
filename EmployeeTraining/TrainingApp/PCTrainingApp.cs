@@ -436,7 +436,7 @@ namespace EmployeeTraining.TrainingApp
             var levelObj = new GameObject("Level", typeof(TextMeshProUGUI), typeof(StringLocalizeTranslator));
             levelObj.transform.SetParent(infoObj.transform);
             levelObj.SetupText(
-                pos: new Vector3(45f, -25f, -0f), size: new Vector2(150, 15),
+                pos: new Vector3(45f, -25f, -0f), size: new Vector2(135, 15),
                 fontsize: 12f, key: "Level", args: new string[]{"<LVL>", "<GRADE>"});
 
             // Skill detail parameters

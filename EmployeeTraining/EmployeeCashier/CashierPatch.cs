@@ -53,6 +53,7 @@ namespace EmployeeTraining.EmployeeCashier
         /***** LOGIC *****/
 
         [HarmonyPatch(typeof(AutomatedCheckout), "StartCashierCheckout")]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool AutomatedCheckout_StartCashierCheckout_Prefix(AutomatedCheckout __instance, ref GameObject ___m_ShoppingBag, ref Checkout ___m_Checkout, ref SFXInstance ___m_CashierSFX)
         {
@@ -61,6 +62,7 @@ namespace EmployeeTraining.EmployeeCashier
         }
 
         [HarmonyPatch(typeof(AutomatedCheckout), "FinishCheckout", new Type[] { typeof(bool) })]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool AutomatedCheckout_FinishCheckout_Prefix(
                 AutomatedCheckout __instance,

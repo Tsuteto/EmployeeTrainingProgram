@@ -59,6 +59,7 @@ namespace EmployeeTraining.EmployeeRestocker
         }
 
         [HarmonyPatch("TryRestocking")]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool TryRestocking_Prefix(Restocker __instance, ref IEnumerator __result)
         {
@@ -68,6 +69,7 @@ namespace EmployeeTraining.EmployeeRestocker
         }
 
         [HarmonyPatch("PlaceBoxFromVehicle")]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool PlaceBoxFromVehicle_Prefix(Restocker __instance, ref IEnumerator __result)
         {
@@ -77,6 +79,7 @@ namespace EmployeeTraining.EmployeeRestocker
         }
 
         [HarmonyPatch("PlaceBoxFromStreet")]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool PlaceBoxFromStreet_Prefix(Restocker __instance, ref IEnumerator __result)
         {
@@ -86,6 +89,7 @@ namespace EmployeeTraining.EmployeeRestocker
         }
 
         [HarmonyPatch("PlaceBox")]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool PlaceBox_Prefix(Restocker __instance)
         {
@@ -95,6 +99,7 @@ namespace EmployeeTraining.EmployeeRestocker
         }
 
         [HarmonyPatch("DropTheBox")]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool DropTheBox_Prefix(Restocker __instance)
         {
@@ -104,6 +109,7 @@ namespace EmployeeTraining.EmployeeRestocker
         }
 
         [HarmonyPatch("DropBoxToGround")]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool DropBoxToGround_Prefix(Restocker __instance)
         {
@@ -113,6 +119,7 @@ namespace EmployeeTraining.EmployeeRestocker
         }
 
         [HarmonyPatch("PickUpBox")]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool PickUpBox_Prefix(Restocker __instance, bool isFromRack, ref IEnumerator __result)
         {
@@ -122,6 +129,7 @@ namespace EmployeeTraining.EmployeeRestocker
         }
 
         [HarmonyPatch("DropBox")]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool DropBox_Prefix(Restocker __instance, ref IEnumerator __result)
         {
@@ -131,6 +139,7 @@ namespace EmployeeTraining.EmployeeRestocker
         }
 
         [HarmonyPatch("PlaceBoxToRack")]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool PlaceBoxToRack_Prefix(Restocker __instance, ref IEnumerator __result)
         {
@@ -140,6 +149,16 @@ namespace EmployeeTraining.EmployeeRestocker
         }
 
         [HarmonyPatch("ThrowBoxToTrashBin")]
+        [HarmonyPriority(Priority.First)]
+        [HarmonyPrefix]
+        public static void ThrowBoxToTrashBin_Prefix_First(Restocker __instance)
+        {
+            RestockerSkill skill = RestockerSkillManager.Instance.GetSkill(__instance);
+            skill.Logic.SetEmptyBox();
+        }
+
+        [HarmonyPatch("ThrowBoxToTrashBin")]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool ThrowBoxToTrashBin_Prefix(Restocker __instance, ref IEnumerator __result)
         {
@@ -149,6 +168,7 @@ namespace EmployeeTraining.EmployeeRestocker
         }
 
         [HarmonyPatch("PerformRestocking")]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool PerformRestocking_Prefix(Restocker __instance, ref IEnumerator __result)
         {
@@ -158,6 +178,7 @@ namespace EmployeeTraining.EmployeeRestocker
         }
 
         [HarmonyPatch("PlaceProducts")]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool PlaceProducts_Prefix(Restocker __instance, ref IEnumerator __result)
         {
@@ -177,6 +198,7 @@ namespace EmployeeTraining.EmployeeRestocker
         // }
 
         [HarmonyPatch("GetAvailableDisplaySlotToRestock")]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool GetAvailableDisplaySlotToRestock_Prefix(Restocker __instance, ref bool __result)
         {
@@ -196,6 +218,7 @@ namespace EmployeeTraining.EmployeeRestocker
         // }
 
         [HarmonyPatch("MoveTo")]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool MoveTo_Prefix(Restocker __instance, Vector3 target, ref IEnumerator __result)
         {
@@ -205,6 +228,7 @@ namespace EmployeeTraining.EmployeeRestocker
         }
 
         [HarmonyPatch("RotateTo")]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool RotateTo_Prefix(Restocker __instance, Quaternion rotation, ref IEnumerator __result)
         {
@@ -214,6 +238,7 @@ namespace EmployeeTraining.EmployeeRestocker
         }
 
         [HarmonyPatch("GetAvailableProductIDList")]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool GetAvailableProductIDList_Prefix(Restocker __instance, ref List<int> __result)
         {

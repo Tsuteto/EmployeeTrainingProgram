@@ -992,12 +992,13 @@ namespace EmployeeTraining.EmployeeRestocker
                 Singleton<FurnitureManager>.Instance.TrashBin.position,
                 Singleton<FurnitureManager>.Instance.TrashBin.rotation));
 
-            this.Box = this.inventory.Boxes.Where(b => !b.HasProducts).FirstOrDefault();
+            this.Box = this.inventory.Boxes.FirstOrDefault(b => !b.HasProducts);
             
             while (this.Box != null)
             {
                 yield return new WaitForSeconds(this.ThrowingBoxTime);
                 // this.LogStat();
+                RestockerEventApi.BoxThrownIntoTrashEventRegistry.Invoke(this.restocker, this.Box);
                 Singleton<InventoryManager>.Instance.RemoveBox(this.Box.Data);
                 LeanPool.Despawn(this.Box.gameObject);
                 this.Box.gameObject.layer = this.CurrentBoxLayer;
@@ -1005,7 +1006,7 @@ namespace EmployeeTraining.EmployeeRestocker
                 this.inventory.Remove(this.Box);
                 this.ArrangeBoxTower();
                 this.DoneCarryingBox(this.Box);
-                this.Box = this.inventory.Boxes.Where(b => !b.HasProducts).FirstOrDefault();
+                this.Box = this.inventory.Boxes.FirstOrDefault(b => !b.HasProducts);
             }
             this.LogStat("threw boxes to trash bin");
 
@@ -1394,6 +1395,11 @@ namespace EmployeeTraining.EmployeeRestocker
                     .Where(s => s.IsOccupiedByMe(this.restocker))
                     .ForEach(s => s.OccupiedRestocker = null);
             this.occupiedDisplaySlots.Clear();
+        }
+
+        public void SetEmptyBox()
+        {
+            this.Box = this.inventory.Boxes.FirstOrDefault(b => !b.HasProducts);
         }
 
         public class Inventory : List<InventorySlot>

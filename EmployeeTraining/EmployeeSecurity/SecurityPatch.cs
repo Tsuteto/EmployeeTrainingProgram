@@ -40,6 +40,7 @@ namespace EmployeeTraining.EmployeeSecurity
 
         /***** LOGIC *****/
         [HarmonyPatch(typeof(SecurityGuardAnimationController), "SetSpeed")]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool SecurityGuardAnimationController_SetSpeed_Prefix(SecurityGuardAnimationController __instance, int _speedLevel, NavMeshAgent ___m_Agent)
         {
@@ -48,6 +49,7 @@ namespace EmployeeTraining.EmployeeSecurity
         }
 
         [HarmonyPatch(typeof(SecurityGuardAnimationController), "Move")]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool SecurityGuardAnimationController_Move_Prefix(SecurityGuardAnimationController __instance, Vector3 target, int speedLevel, NavMeshAgent ___m_Agent, ref IEnumerator __result)
         {
@@ -78,6 +80,7 @@ namespace EmployeeTraining.EmployeeSecurity
         }
 
         [HarmonyPatch(typeof(CollectingState), "FindNearbyProducts")]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool CollectingState_FindNearbyProducts_Prefix(CollectingState __instance, float ___m_DetectRadius)
         {
@@ -86,6 +89,7 @@ namespace EmployeeTraining.EmployeeSecurity
         }
 
         [HarmonyPatch(typeof(RestockingState), "ProductRestockLoop")]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool RestockingState_ProductRestockLoop_Prefix(RestockingState __instance,
             Restocker ___m_Restocker, Crate ___m_Crate, List<DisplaySlot> ___m_CachedDisplaySlots,

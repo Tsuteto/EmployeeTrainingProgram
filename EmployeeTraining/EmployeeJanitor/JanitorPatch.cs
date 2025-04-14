@@ -42,6 +42,7 @@ namespace EmployeeTraining.EmployeeJanitor
 
         /***** LOGIC *****/
         [HarmonyPatch(typeof(Janitor), "SetJanitorBoost")]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool Janitor_SetJanitorBoost_Prefix(Janitor __instance)
         {
@@ -50,6 +51,7 @@ namespace EmployeeTraining.EmployeeJanitor
         }
 
         [HarmonyPatch(typeof(Janitor), "CleaningDuration", MethodType.Getter)]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool Janitor_GetCleaningDuration_Prefix(Janitor __instance, ref float __result)
         {
@@ -59,6 +61,7 @@ namespace EmployeeTraining.EmployeeJanitor
 
 
         [HarmonyPatch(typeof(Dust), "CleaningForJanitor")]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool Dust_CleaningForJanitor_Prefix(Dust __instance, Janitor janitor,
             List<GameObject> ___m_DustList, List<ParticleSystem> ___m_BubbleParticles, ParticleSystem ___m_BubbleParticle,

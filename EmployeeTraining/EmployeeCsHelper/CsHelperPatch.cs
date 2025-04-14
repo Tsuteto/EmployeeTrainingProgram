@@ -42,6 +42,7 @@ namespace EmployeeTraining.EmployeeCsHelper
 
         /***** LOGIC *****/
         [HarmonyPatch(typeof(SelfCheckout), "StartCustomerHelperCheckout")]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool SelfCheckout_StartCustomerHelperCheckout_Prefix(SelfCheckout __instance, ref Checkout ___m_Checkout, ref SFXInstance ___m_CashierSFX, ref GameObject ___m_RepairIndicator)
         {
@@ -50,6 +51,7 @@ namespace EmployeeTraining.EmployeeCsHelper
         }
 
         [HarmonyPatch(typeof(CustomerHelper), "SetCustomerHelperBoost")]
+        [HarmonyPriority(Priority.Last)]
         [HarmonyPrefix]
         public static bool CustomerHelper_SetCustomerHelperBoost_Prefix(CustomerHelper __instance)
         {
