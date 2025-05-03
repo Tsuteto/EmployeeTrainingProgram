@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using __Project__.Scripts.Computer;
 using EmployeeTraining.TrainingApp;
 using HarmonyLib;
@@ -55,6 +56,19 @@ namespace EmployeeTraining
         public static void SaveManager_Awake_Postfix(SaveManager __instance, string ___m_CurrentSaveFilePath)
         {
             ETSaveManager.Load(___m_CurrentSaveFilePath);
+        }
+
+        [HarmonyPatch(typeof(VehicleDataLoader), "ApplyVehicleData")]
+        [HarmonyPrefix]
+        public static bool VehicleDataLoader_ApplyVehicleData_Prefix(VehicleDataLoader __instance, IPlacementArea ___m_PlacementArea)
+        {
+            // Addressing a suspected vanilla bug where if there was an empty box in the vehicle load when the game loaded,
+            // an error would occur and a transparent load would occupy the vehicle forever.
+            // This is a temporary fix until the issue is resolved in the game,
+            // and also addresses the effects of a bug in this mod,
+            // where the box does not detach from the vehicle when a restocker picks up the box from the vehicle.
+            __instance.VehicleData.Boxes.RemoveAll(box => box.ProductID == -1);
+            return true;
         }
     }
 }
