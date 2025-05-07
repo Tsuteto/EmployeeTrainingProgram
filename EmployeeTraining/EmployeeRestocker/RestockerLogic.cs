@@ -739,7 +739,6 @@ namespace EmployeeTraining.EmployeeRestocker
                                         box.SetOccupy(true, restocker.transform);
                                         boxesToCarry.Add(box);
                                         this.AddCarryingBox(box);
-                                        break;
                                     }
                                 }
                                 this.TargetBox = null;
@@ -1218,13 +1217,15 @@ namespace EmployeeTraining.EmployeeRestocker
 
                 if (productFromBox.ProductSO.ID != this.TargetDisplaySlot.ProductID)
                 {
+                    this.LogSimple($"Tried to mix the wrong product");
+                    break;
                     // Drop product from the box
-                    this.LogSimple($"Tried to mix the wrong product! {productFromBox.ProductSO.name} slapped down to the floor");
-                    productFromBox.transform.parent = null;
-                    productFromBox.transform.DOKill(false);
-                    productFromBox.SpreadOn(productFromBox.ProductSO.ID, out var _rb);
-                    _rb.AddForce(2f * new Vector3(UnityEngine.Random.Range(-22f, 22f), 45f, UnityEngine.Random.Range(-22f, 22f)));
-                    continue;
+                    // this.LogSimple($"Tried to mix the wrong product! {productFromBox.ProductSO.name} slapped down to the floor");
+                    // productFromBox.transform.parent = null;
+                    // productFromBox.transform.DOKill(false);
+                    // productFromBox.SpreadOn(productFromBox.ProductSO.ID, out var _rb);
+                    // _rb.AddForce(2f * new Vector3(UnityEngine.Random.Range(-22f, 22f), 45f, UnityEngine.Random.Range(-22f, 22f)));
+                    // continue;
                 }
 
                 this.TargetDisplaySlot.AddProduct(this.TargetProductID, productFromBox);

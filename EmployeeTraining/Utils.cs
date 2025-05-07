@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using HarmonyLib;
+using MyBox;
 using UnityEngine;
 
 namespace EmployeeTraining
@@ -35,6 +36,25 @@ namespace EmployeeTraining
         public static string ToBoxStackInfo(this IEnumerable<Box> list)
         {
             return list.Select(b => b.ToBoxInfo()).Join(delimiter: "");
+        }
+
+        public static string ToRackInfo(this RackSlot rack)
+        {
+            if (Plugin.Instance.Settings.RestockerLog)
+            {
+                if (rack.HasProduct)
+                {
+                    return $"<{Singleton<IDManager>.Instance.ProductSO(rack.Data.ProductID).name} x{rack.Data.TotalProductCount}>";
+                }
+                else
+                {
+                    return "<EMPTY>";
+                }
+            }
+            else
+            {
+                return "";
+            }
         }
     }
 
