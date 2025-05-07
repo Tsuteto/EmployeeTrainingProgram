@@ -361,7 +361,7 @@ namespace EmployeeTraining.EmployeeRestocker
                         bool foundAvailableRack = false;
                         while (!foundAvailableRack && this.CheckForAvailableRackSlotToTakeBox())
                         {
-                            this.LogStat($"going to the rack {this.TargetRackSlot}");
+                            this.LogStat($"going to the rack {this.TargetRackSlot.ToRackInfo()}");
                             yield return this.restocker.StartCoroutine(this.GoTo(this.TargetRackSlot.InteractionPosition, this.TargetRackSlot.InteractionRotation));
                             if (this.TargetRackSlot != null)
                             {

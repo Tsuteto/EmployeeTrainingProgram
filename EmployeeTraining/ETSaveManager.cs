@@ -29,6 +29,15 @@ namespace EmployeeTraining
 
         public static Action SaveDataLoadedEvent;
 
+        public static void CreateSaveDirectory()
+        {
+            if (!Directory.Exists(SAVE_DIR))
+            {
+                Plugin.LogInfo($"Creating savedata directory: {SAVE_DIR}");
+                Directory.CreateDirectory(SAVE_DIR);
+            }
+        }
+
         private static string GetSaveFilePath(string gameFilePath)
         {
             var gameFileName = Path.GetFileName(gameFilePath);
@@ -144,7 +153,6 @@ namespace EmployeeTraining
                 // BetterSaveSystem calls without filepath when the settings is saved in the title screen
                 if (gameFilePath.Length > 0)
                 {
-                    Directory.CreateDirectory(ETSaveManager.SAVE_DIR);
                     var filePath = ETSaveManager.GetSaveFilePath(gameFilePath);
                     Plugin.LogInfo($"Saving training data to {filePath}");
                     ES3.Save(TRAINING_DATA_KEY, Data, filePath, es3Settings);

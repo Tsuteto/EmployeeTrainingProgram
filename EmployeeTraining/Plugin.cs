@@ -48,6 +48,8 @@ namespace EmployeeTraining
             Harmony harmony = new Harmony("jp.tsuteto.sms.EmployeeTraining");
             harmony.PatchAll();
 
+            ETSaveManager.CreateSaveDirectory();
+
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
         }
 
