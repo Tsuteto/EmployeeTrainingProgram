@@ -48,8 +48,6 @@ namespace EmployeeTraining.EmployeeRestocker
         private readonly PrivateFld<LayerMask> fldCurrentBoxLayer = new PrivateFld<LayerMask>(typeof(Restocker), "m_CurrentBoxLayer");
         private Box Box { get => this.fldBox.Value; set => this.fldBox.Value = value; }
         private readonly PrivateFld<Box> fldBox = new PrivateFld<Box>(typeof(Restocker), "m_Box");
-        private Transform BoxHolder { get => this.fldBoxHolder.Value; set => this.fldBoxHolder.Value = value; }
-        private readonly PrivateFld<Transform> fldBoxHolder = new PrivateFld<Transform>(typeof(Restocker), "m_BoxHolder");
         private NavMeshAgent Agent { get => this.fldAgent.Value; set => this.fldAgent.Value = value; }
         private readonly PrivateFld<NavMeshAgent> fldAgent = new PrivateFld<NavMeshAgent>(typeof(Restocker), "m_Agent");
         private float MinFillRateForDisplaySlotsToRestock { get => this.fldMinFillRateForDisplaySlotsToRestock.Value; set => this.fldMinFillRateForDisplaySlotsToRestock.Value = value; }
@@ -71,6 +69,8 @@ namespace EmployeeTraining.EmployeeRestocker
         private readonly PrivateFld<List<DisplaySlot>> fldCashedSlots = new PrivateFld<List<DisplaySlot>>(typeof(Restocker), "m_CachedSlots");
         private bool UsingVehicle { get => this.fldUsingVehicle.Value; set => this.fldUsingVehicle.Value = value; }
         private readonly PrivateFld<bool> fldUsingVehicle = new PrivateFld<bool>(typeof(Restocker), "m_UsingVehicle");
+        private CharacterModelComponent ModelComponent { get => this.fldModelComponent.Value; set => this.fldModelComponent.Value = value; }
+        private readonly PrivateFld<CharacterModelComponent> fldModelComponent = new PrivateFld<CharacterModelComponent>(typeof(Restocker), "m_ModelComponent");
 
         private Dictionary<int, List<RackSlot>> RackSlots { get => this.fldRackSlots.Value; set => this.fldRackSlots.Value = value; }
         private readonly PrivateFld<Dictionary<int, List<RackSlot>>> fldRackSlots = new PrivateFld<Dictionary<int, List<RackSlot>>>(typeof(RackManager), "m_RackSlots");
@@ -162,7 +162,6 @@ namespace EmployeeTraining.EmployeeRestocker
             this.fldCheckTasks.Instance = restocker;
             this.fldCurrentBoxLayer.Instance = restocker;
             this.fldBox.Instance = restocker;
-            this.fldBoxHolder.Instance = restocker;
             this.fldAgent.Instance = restocker;
             this.fldIsCarryBoxToRack.Instance = restocker;
             this.fldMinFillRateForDisplaySlotsToRestock.Instance = restocker;
@@ -172,6 +171,7 @@ namespace EmployeeTraining.EmployeeRestocker
             this.fldRestockerPlacingSpeeds.Instance = restocker;
             this.fldCashedSlots.Instance = restocker;
             this.fldUsingVehicle.Instance = restocker;
+            this.fldModelComponent.Instance = restocker;
 
             this.fldRackSlots.Instance = Singleton<RackManager>.Instance;
             this.fldRacks.Instance = Singleton<RackManager>.Instance;
@@ -1121,10 +1121,14 @@ namespace EmployeeTraining.EmployeeRestocker
                 Singleton<StorageStreet>.Instance.OnTakeBoxFromStreet?.Invoke(box);
             }
             this.inventory.Add(box);
+
             box.FrezeeBox();
-            box.transform.SetParent(this.BoxHolder);
-            box.transform.DOLocalMove(Vector3.zero, 0.3f);
-            box.transform.DOLocalRotate(Vector3.zero, 0.3f);
+            if (this.ModelComponent.TryGetReference("BoxHolder", out CharacterModelObjectReference characterModelObjectReference))
+            {
+                box.transform.SetParent(characterModelObjectReference.transform);
+                box.transform.DOLocalMove(Vector3.zero, 0.3f, false);
+                box.transform.DOLocalRotate(Vector3.zero, 0.3f, RotateMode.Fast);
+            }
             this.ArrangeBoxTower();
             this.Box = box;
             this.Box.SetOccupy(true, this.restocker.transform);
