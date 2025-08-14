@@ -26,7 +26,7 @@ namespace EmployeeTraining.EmployeeJanitor
             var agent = fldJanitorAgent.GetValue(janitor);
 
             JanitorSkill skill = JanitorSkillManager.Instance.GetSkill(janitor);
-            var boost = skill.WalkingSpeeds[skill.CurrentBoostLevel] / 2f; // 2f at no boost
+            var boost = skill.WalkingSpeeds[skill.CurrentBoostLevel] / 2f; // 2f when not boosted
             var speed = skill.AgentSpeed * boost;
             agent.speed = speed;
             agent.angularSpeed = skill.AgentAngularSpeed * boost;

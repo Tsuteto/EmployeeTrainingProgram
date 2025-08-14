@@ -21,7 +21,7 @@ namespace EmployeeTraining.EmployeeSecurity
 
             SecuritySkill skill = SecuritySkillManager.Instance.GetSkill(security);
             speedLevel = Mathf.Clamp(speedLevel, 0, skill.RunningSpeeds.Count - 1);
-            var boost = skill.RunningSpeeds[speedLevel] / 2f; // 2f at no boost
+            var boost = skill.RunningSpeeds[speedLevel] / 2f; // 2f when not boosted
             var speed = skill.AgentSpeed * boost;
             agent.speed = speed;
             agent.angularSpeed = skill.AgentAngularSpeed * boost;

@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.CompilerServices;
 using HarmonyLib;
 using MyBox;
 using UnityEngine;
@@ -20,7 +19,7 @@ namespace EmployeeTraining
             {
                 if (box.HasProducts)
                 {
-                    return $"[{box.Product.name} x{box.Data.ProductCount}]";
+                    return $"[{box.Product?.ProductName ?? "UNKNOWN"} x{box.Data?.ProductCount ?? 0}]";
                 }
                 else
                 {

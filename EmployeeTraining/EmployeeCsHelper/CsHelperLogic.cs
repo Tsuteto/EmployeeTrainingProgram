@@ -27,7 +27,7 @@ namespace EmployeeTraining.EmployeeCsHelper
             CsHelperSkill skill = CsHelperSkillManager.Instance.GetSkill(cshelper);
             if (skill != null)
             {
-                var boost = skill.CustomerHelperWalkingSpeeds[skill.CurrentBoostLevel] / 2f; // 2f at no boost
+                var boost = skill.CustomerHelperWalkingSpeeds[skill.CurrentBoostLevel] / 2f; // 2f when not boosted
                 var speed = skill.AgentSpeed * boost;
                 agent.speed = speed;
                 agent.angularSpeed = skill.AgentAngularSpeed * boost;

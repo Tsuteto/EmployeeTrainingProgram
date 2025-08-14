@@ -159,7 +159,7 @@ namespace EmployeeTraining.EmployeeRestocker
         public float AgentAcceleration => Tier.Rapidity < 2 ? Tier.Rapidity * 4 : 8 + (Tier.Rapidity - 2) * 6; // [m/s^2] Vanilla: 8 .. max: 60
         public float UnpackingTime => 0.7f / (Tier.Dexterity / 100f);
         public float ProductPlacingIntv => 0.2f / (Tier.Dexterity / 100f);
-        public float TakingBoxTime => 0.3f / (Tier.Dexterity / 100f);
+        public float TakingBoxTime => 0.3f / (Tier.CappedDexterity / 100f);
         public float ThrowingBoxTime => 0.7f / (Tier.Dexterity / 100f);
         public float TurningSpeed => 5f * Tier.Rapidity; // Vanilla: 5
         public float RotationTime => 0.3f / (Tier.Dexterity / 100f);
@@ -223,6 +223,8 @@ namespace EmployeeTraining.EmployeeRestocker
         public int Capacity { get; set; }
         public int Height { get; set; }
         public int Dexterity { get; set; }
+
+        public int CappedDexterity => Math.Min(Dexterity, 100);
     }
 
 }

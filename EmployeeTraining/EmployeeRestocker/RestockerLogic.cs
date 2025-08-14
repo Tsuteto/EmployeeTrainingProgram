@@ -76,6 +76,10 @@ namespace EmployeeTraining.EmployeeRestocker
         private readonly PrivateFld<Dictionary<int, List<RackSlot>>> fldRackSlots = new PrivateFld<Dictionary<int, List<RackSlot>>>(typeof(RackManager), "m_RackSlots");
         private List<Rack> Racks { get => this.fldRacks.Value; set => this.fldRacks.Value = value; }
         private readonly PrivateFld<List<Rack>> fldRacks = new PrivateFld<List<Rack>>(typeof(RackManager), "m_Racks");
+        // private Tween RackSlotColliderEnabler { get => this.fldRackSlotColliderEnabler.Value; set => this.fldRackSlotColliderEnabler.Value = value; }
+        // private readonly PrivateFld<Tween> fldRackSlotColliderEnabler = new PrivateFld<Tween>(typeof(RackSlot), "m_ColliderEnabler");
+        // private Highlightable RackSlotHighlightable { get => this.fldRackSlotHighlightable.Value; set => this.fldRackSlotHighlightable.Value = value; }
+        // private readonly PrivateFld<Highlightable> fldRackSlotHighlightable = new PrivateFld<Highlightable>(typeof(RackSlot), "m_Highlightable");
 
         private readonly Action ResetTargets;
         private readonly PrivateMtd mtdResetTargets = new PrivateMtd(typeof(Restocker), "ResetTargets");
@@ -122,6 +126,7 @@ namespace EmployeeTraining.EmployeeRestocker
         private readonly PrivateMtd<IEnumerator> mtdMergeBox = new PrivateMtd<IEnumerator>(typeof(Restocker), "MergeBox", typeof(RackSlot));
         private readonly Func<IEnumerator> PlaceBoxFromVehicle;
         private readonly PrivateMtd<IEnumerator> mtdPlaceBoxFromVehicle = new PrivateMtd<IEnumerator>(typeof(Restocker), "PlaceBoxFromVehicle");
+        // private readonly PrivateMtd mtdRackSlotSetLabel = new PrivateMtd(typeof(RackSlot), "SetLabel");
 
         private readonly RestockerSkill skill;
         private readonly Restocker restocker;
@@ -249,11 +254,12 @@ namespace EmployeeTraining.EmployeeRestocker
             {
                 return;
             }
-            foreach (Box box in this.inventory.Boxes)
+            foreach (InventorySlot slot in this.inventory)
             {
+                var box = slot.Box;
                 Singleton<InventoryManager>.Instance.RemoveBox(box.Data);
                 LeanPool.Despawn(box.gameObject);
-                box.gameObject.layer = this.CurrentBoxLayer;
+                box.gameObject.layer = slot.Layer;
                 box.ResetBox();
             }
             this.UnoccupyBoxes();
@@ -270,12 +276,12 @@ namespace EmployeeTraining.EmployeeRestocker
 
         public void Internal_DropBoxToGround()
         {
-            foreach (Box box in this.inventory.Boxes)
+            foreach (InventorySlot slot in this.inventory)
             {
-                box.DropBox();
-                box.gameObject.layer = this.CurrentBoxLayer;
+                slot.Box.DropBox();
+                slot.Box.gameObject.layer = slot.Layer;
                 // The vanilla somehow doesn't do this and the box is abandoned...
-                Singleton<StorageStreet>.Instance.SubscribeBox(box);
+                Singleton<StorageStreet>.Instance.SubscribeBox(slot.Box);
             }
             this.UnoccupyBoxes();
             this.inventory.Clear();
@@ -334,7 +340,6 @@ namespace EmployeeTraining.EmployeeRestocker
                 this.productsNeeded = this.GetTotalDisplayCapacity(this.TargetProductID) - Singleton<DisplayManager>.Instance.GetDisplayedProductCount(this.TargetProductID);
                 // bool pickedUp = false;
                 this.LogStat($"Collecting goods for {Singleton<IDManager>.Instance.ProductSO(this.TargetProductID).name} x {this.productsNeeded}");
-                List<DisplaySlot> checkedDisplaySlot = new List<DisplaySlot>();
                 while (this.productsNeeded > 0 && this.GetAvailableDisplaySlotToRestock() && this.restocker.ManagementData.RestockShelf)
                 {
                     this.CheckTasks = false;
@@ -412,13 +417,15 @@ namespace EmployeeTraining.EmployeeRestocker
                 //this.GetAvailableDisplaySlotToRestock();
 
                 // Get every available slot to restock
-                Singleton<DisplayManager>.Instance.GetDisplaySlots(this.TargetProductID, false, CachedSlots);
+                Singleton<DisplayManager>.Instance.GetDisplaySlots(this.TargetProductID, false, this.CachedSlots);
                 Singleton<DisplayManager>.Instance.GetLabeledEmptyDisplaySlots(this.TargetProductID, this.labeledEmptySlotsCache);
-                CachedSlots.AddRange(this.labeledEmptySlotsCache);
+                this.CachedSlots.AddRange(this.labeledEmptySlotsCache);
 
                 this.Box = this.inventory.Boxes.FirstOrDefault(b => b.HasProducts && b.Data.ProductID == this.TargetProductID);
                 bool foundAvailableDisplaySlot = false;
-                foreach (DisplaySlot slot in CachedSlots)
+                // Collection was modified exception can happen within this loop.
+                // However, copying the CashedSlots is not a good idea, as it causes the hanging boxes in the air :/
+                foreach (DisplaySlot slot in this.CachedSlots)
                 {
                     this.TargetDisplaySlot = slot;
                     if (!this.IsDisplaySlotAvailableToRestock(slot))
@@ -439,7 +446,7 @@ namespace EmployeeTraining.EmployeeRestocker
                     if (this.TargetDisplaySlot != null
                             && this.TargetDisplaySlot.gameObject.activeInHierarchy
                             && !this.TargetDisplaySlot.Full
-                            && this.IsDisplaySlotAvailableToRestock(this.TargetDisplaySlot) 
+                            && this.IsDisplaySlotAvailableToRestock(this.TargetDisplaySlot)
                             && this.TargetProductID == this.TargetDisplaySlot.ProductID)
                     {
                         foundAvailableDisplaySlot = true;
@@ -913,7 +920,7 @@ namespace EmployeeTraining.EmployeeRestocker
             while (this.restocker.CarryingBox)
             {
                 RackSlot rackSlot = this.HasBoxAtRackForMerge(this.Box);
-                this.LogStat($"trying to merge {this.Box.ToBoxInfo()} to rack slot");
+                this.LogStat($"trying to merge {this.Box?.ToBoxInfo()} to rack slot");
                 yield return this.restocker.StartCoroutine(this.MergeBox(rackSlot));
                 if (!this.Box.HasProducts)
                 {
@@ -956,7 +963,7 @@ namespace EmployeeTraining.EmployeeRestocker
                             && (this.TargetRackSlot.HasProduct || !this.TargetRackSlot.HasBox)
                             && (this.restocker.ManagementData.UseUnlabeledRacks || TargetRackSlot.HasLabel))
                     {
-                        this.LogStat($"placing box {this.Box.ToBoxInfo()}");
+                        this.LogStat($"placing box {this.Box?.ToBoxInfo()}");
                         this.DoneCarryingBox(this.Box);
                         this.PlaceBox();
                     }
@@ -991,7 +998,7 @@ namespace EmployeeTraining.EmployeeRestocker
                 Singleton<FurnitureManager>.Instance.TrashBin.rotation));
 
             this.Box = this.inventory.Boxes.FirstOrDefault(b => !b.HasProducts);
-            
+
             while (this.Box != null)
             {
                 yield return new WaitForSeconds(this.ThrowingBoxTime);
@@ -999,7 +1006,7 @@ namespace EmployeeTraining.EmployeeRestocker
                 RestockerEventApi.BoxThrownIntoTrashEventRegistry.Invoke(this.restocker, this.Box);
                 Singleton<InventoryManager>.Instance.RemoveBox(this.Box.Data);
                 LeanPool.Despawn(this.Box.gameObject);
-                this.Box.gameObject.layer = this.CurrentBoxLayer;
+                this.Box.gameObject.layer = this.inventory.BoxLayer(this.Box);
                 this.Box.ResetBox();
                 this.inventory.Remove(this.Box);
                 this.ArrangeBoxTower();
@@ -1027,7 +1034,7 @@ namespace EmployeeTraining.EmployeeRestocker
 
         public IEnumerator Internal_MoveTo(Vector3 target)
         {
-            var boost = this.RestockerWalkingSpeeds[this.CurrentBoostLevel] / 2f; // 2f at no boost
+            var boost = this.RestockerWalkingSpeeds[this.CurrentBoostLevel] / 2f; // 2f when not boosted
             var speed = this.MovingSpeed * boost;
             this.Agent.speed = speed;
             this.Agent.angularSpeed = this.AngularSpeed * boost;
@@ -1126,8 +1133,8 @@ namespace EmployeeTraining.EmployeeRestocker
             if (this.ModelComponent.TryGetReference("BoxHolder", out CharacterModelObjectReference characterModelObjectReference))
             {
                 box.transform.SetParent(characterModelObjectReference.transform);
-                box.transform.DOLocalMove(Vector3.zero, 0.3f, false);
-                box.transform.DOLocalRotate(Vector3.zero, 0.3f, RotateMode.Fast);
+                box.transform.DOLocalMove(Vector3.zero, this.TakingBoxTime, false);
+                box.transform.DOLocalRotate(Vector3.zero, this.TakingBoxTime, RotateMode.Fast);
             }
             this.ArrangeBoxTower();
             this.Box = box;
@@ -1141,6 +1148,7 @@ namespace EmployeeTraining.EmployeeRestocker
 
         private void DoneRestocking(Box box)
         {
+            if (box == null) return;
             this.DoneRestocking(box.Data);
         }
 
@@ -1267,8 +1275,8 @@ namespace EmployeeTraining.EmployeeRestocker
             {
                 return;
             }
-            this.LogSimple($"placing {this.Box?.ToBoxInfo()} on {this.TargetDisplaySlot}");
-            this.Box.gameObject.layer = this.CurrentBoxLayer;
+            this.LogSimple($"placing {this.Box?.ToBoxInfo() ?? "[EMPTY]"} on {this.TargetDisplaySlot}");
+            this.Box.gameObject.layer = this.inventory.BoxLayer(this.Box);
             Collider[] componentsInChildren = this.Box.GetComponentsInChildren<Collider>();
             for (int i = 0; i < componentsInChildren.Length; i++)
             {
@@ -1437,7 +1445,7 @@ namespace EmployeeTraining.EmployeeRestocker
             public void Add(Box box)
             {
                 if (box == null) return;
-                this.Add(new InventorySlot(box));
+                this.Add(new InventorySlot(box, box.gameObject.layer));
             }
 
             public void Remove(Box box)
@@ -1451,15 +1459,22 @@ namespace EmployeeTraining.EmployeeRestocker
             {
                 return this.Any(s => s.Box.Equals(box));
             }
+
+            public int BoxLayer(Box box)
+            {
+                return this.FirstOrDefault(s => s.Box.Equals(box))?.Layer ?? -1;
+            }
         }
 
         public class InventorySlot
         {
             public Box Box;
+            public int Layer;
 
-            public InventorySlot(Box box)
+            public InventorySlot(Box box, int layer)
             {
                 this.Box = box;
+                this.Layer = layer;
             }
         }
 
