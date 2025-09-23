@@ -533,25 +533,27 @@ namespace EmployeeTraining.EmployeeRestocker
 
             var dispMgr = Singleton<DisplayManager>.Instance;
             var carrying = this.CollectProductsCarrying();
-            var demands = (from i in dispMgr.DisplayedProducts.AsParallel()
-                    where i.Value.Count > 0
+            var demands = from i in dispMgr.DisplayedProducts.AsParallel()
+                    where i.Value.Count > 0 && i.Key > 0
                     let capacity = this.GetTotalDisplayCapacity(i.Key)
                     let displayed = dispMgr.GetDisplayedProductCount(i.Key)
                     let stocking = displayed + carrying.Get(i.Key, 0)
                     where stocking < capacity * (canFullyStock ? 1 : 0.8f)
-                    orderby stocking ascending
-                    select new KeyValuePair<int, int>(i.Key, capacity - displayed - carrying.Get(i.Key, 0)))
+                    select new { ProductID = i.Key, Capacity = capacity, Stocking = stocking };
+            var demandsOrdered = demands.OrderBy(d => d.Stocking)
+                    .Select(d => new KeyValuePair<int, int>(d.ProductID, d.Capacity - d.Stocking))
                     .ToList();
+
             if (RestockerLogic.VerboseLog)
             {
-                Plugin.LogDebug($"Restocker[{this.restocker.RestockerID}] Demands: {demands.Select(p => $"[{Singleton<IDManager>.Instance.ProductSO(p.Key).name} x{p.Value}]").Join(delimiter: "")}");
+                Plugin.LogDebug($"Restocker[{this.restocker.RestockerID}] Demands: {demandsOrdered.Select(p => $"[{Singleton<IDManager>.Instance.ProductSO(p.Key).name} x{p.Value}]").Join(delimiter: "")}");
                 // Plugin.LogDebug($"Products in a box:");
                 // Singleton<IDManager>.Instance.Products.ForEach(p => Plugin.LogDebug($"{p.ID}\t{p.GridLayoutInBox.productCount}"));
             }
 
             int totalWeightOfPlan = 0;
             int totalHeightOfPlan = 0;
-            foreach (KeyValuePair<int, int> p in demands)
+            foreach (KeyValuePair<int, int> p in demandsOrdered)
             {
                 if (totalWeightOfPlan > this.CarryingCapacity || totalHeightOfPlan > this.CarryingMaxHeight) break;
 
